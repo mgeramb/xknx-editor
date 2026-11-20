@@ -13,6 +13,7 @@ from imgui_bundle import hello_imgui, imgui
 
 from editor_gui.plugins.base.registry import PanelDefinition
 from editor_gui.widgets.dpi import px
+from editor_gui.widgets.tree import collapsing_header
 from editor_gui.workbench import state
 from editor_gui.workbench.group_objects import segmented
 from editor_gui.workbench.strings import S
@@ -309,7 +310,7 @@ class Workbench:
         if offer is not None and self.area == "project":
             title, render = offer
             imgui.push_id("wb_offer")
-            if imgui.collapsing_header(
+            if collapsing_header(
                 f"{title}###wb_offer", imgui.TreeNodeFlags_.default_open
             ):
                 render()
@@ -320,7 +321,7 @@ class Workbench:
                 continue
             flags = imgui.TreeNodeFlags_.default_open if name == "device" else 0
             imgui.push_id(name)
-            if imgui.collapsing_header(f"{self._label(name)()}###{name}", flags):
+            if collapsing_header(f"{self._label(name)()}###{name}", flags):
                 self._panels[name].render()
                 imgui.spacing()
             imgui.pop_id()

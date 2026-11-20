@@ -595,7 +595,7 @@ class RedesignedGroupObjectsTable(GroupObjectsTable):
             imgui.text_wrapped(co.description)
         else:
             imgui.text_disabled(S.NO_DESCRIPTION)
-        if self._on_set_description is not None and imgui.small_button(
+        if self._on_set_description is not None and imgui.button(
             WS.GROUP_OBJECTS_CTX_EDIT_DESCRIPTION
         ):
             self._desc_popup_device = device
@@ -639,7 +639,7 @@ class RedesignedGroupObjectsTable(GroupObjectsTable):
             links, key=lambda link: not link[3]
         ):
             imgui.push_id(assignment_id)
-            if imgui.small_button("x"):
+            if imgui.button("x"):
                 self._on_unlink(assignment_id)
             imgui.same_line()
             color = (
