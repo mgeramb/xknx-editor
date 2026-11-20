@@ -186,6 +186,10 @@ from editor_gui.widgets.text_util import fit_text, human_size, text_clipped_tool
 from editor_gui.widgets.toasts import Toasts, log_toast
 from editor_gui.widgets.tree import collapsing_header
 from editor_gui.window_title import bring_to_front, set_window_title, wake
+from editor_gui.workbench import state as workbench_state
+from editor_gui.workbench.layout import Workbench
+from editor_gui.workbench.mac_menu import MacMenuBar
+from editor_gui.workbench.strings import S as WB
 from xknxeditor.catalog import ProductSummary
 from xknxeditor.prod.app_id import parse_app_id
 from xknxeditor.prod.errors import (
@@ -685,6 +689,10 @@ class KnxGuiApp:
         # FPS and the idling toggle at the end of the status bar.
         self._show_status_fps = False
         self._show_status_bar = True
+        # The redesign's layout of fixed zones (XKNX_REDESIGN=1), else None.
+        self.workbench: Workbench | None = None
+        # The menus in the macOS menu bar at the top of the screen (with the workbench).
+        self._mac_menu: MacMenuBar | None = None
         # The Manufacturer tab was hidden for a selected space (see _sync_device_section), and the
         # tabs of its section in their order then.
         self._manufacturer_hidden = False
@@ -1127,6 +1135,21 @@ class KnxGuiApp:
         self._log.info("editor started", installation=self._update_scope or "none")
         self._catalog_plugin.start_alternative()
         self._can_launch_file_dialog(show_error=False)
+        if (
+            sys.platform == "darwin"
+            and web.active_hub is None
+            and self.workbench is not None
+        ):
+            try:
+                self._mac_menu = MacMenuBar(
+                    S.APP_TITLE,
+                    self._menus,
+                    about=self._request_about,
+                    settings=self._settings_window.open,
+                    quit_app=self._exit,
+                )
+            except Exception as e:  # no PyObjC: the menus stay in the window
+                self._log.warning("macOS menu bar unavailable", error=str(e))
         # In the browser UI, notes about downloads show as this app's toasts.
         if web.active_hub is not None:
             web.active_hub.notify = self._flash_toast
@@ -4515,6 +4538,8 @@ class KnxGuiApp:
         # an untranslated name).
         imgui.internal.get_current_window().flags |= imgui.WindowFlags_.no_nav_focus
         self._render_menu_separator()
+        if self._mac_menu is not None:
+            self._mac_menu.frame()
         self._render_menus()
         self._ui_executor.drain()
         self._home_assistant_plugin.poll()
@@ -4543,6 +4568,9 @@ class KnxGuiApp:
     def _render_menus(self) -> None:
         """The menus side by side, and the Settings button at the right end. The menus that do
         not fit (a narrow window, a phone) are in one menu after the others, from the right."""
+        if self.workbench is not None:
+            self._render_top_bar(self.workbench)
+            return
         menus = self._menus()
         style = imgui.get_style()
         settings_width = _menu_width(_ICON_SETTINGS)
@@ -4571,6 +4599,96 @@ class KnxGuiApp:
             settings = imgui.menu_item(f"{_ICON_SETTINGS}##settings", "", False)[0]
         if settings:
             self._settings_window.open()
+        if imgui.is_item_hovered():
+            imgui.set_tooltip(f"{S.SETTINGS_TITLE} ({S.SHORTCUT_SETTINGS})")
+
+    def _render_top_bar(self, workbench: Workbench) -> None:
+        """The redesign's top bar in the menu bar: the project (its menu is the File menu), the
+        other menus in one, the search (the command palette), the devices still to program, and
+        the switches for the inspector, the bottom panel and the settings."""
+        style = imgui.get_style()
+        name = S.STATUS_NO_PROJECT
+        if self._project_service.is_open:
+            meta = self._project_service.get_project_metadata()
+            path = self._project_service.path
+            name = (meta.name if meta and meta.name else None) or (
+                path.name if path is not None else "?"
+            )
+        if self._mac_menu is not None:
+            # The menus are in the menu bar at the top of the screen.
+            imgui.align_text_to_frame_padding()
+            imgui.text(f"\uf07c  {name}")
+        else:
+            if _bar_menu(f"\uf07c  {name}  \u25be##wb_project"):
+                self._render_file_menu()
+                imgui.end_menu()
+            if _bar_menu(f"{_ICON_MENU}##wb_menus"):
+                for label, render in self._menus()[1:]:
+                    if imgui.begin_menu(label):
+                        render()
+                        imgui.end_menu()
+                imgui.end_menu()
+            if imgui.is_item_hovered():
+                imgui.set_tooltip(WB.MORE_MENUS)
+
+        pending = (
+            len(self._project_service.pending_downloads())
+            if self._project_service.is_open
+            else 0
+        )
+        pending_text = WB.PENDING(pending).format(count=pending) if pending else ""
+        icons = ("\uf0db", "\uf2d1", _ICON_SETTINGS)
+        right = sum(_menu_width(icon) for icon in icons)
+        if pending_text:
+            right += _menu_width(pending_text) + style.item_spacing.x
+        width = imgui.get_window_width()
+        search = min(px(520), max(px(160), width * 0.36))
+        left = imgui.get_cursor_pos_x()
+        x = max(left + style.item_spacing.x, (width - search) / 2)
+        if x + search > width - right - style.window_padding.x:
+            search = max(px(80), width - right - style.window_padding.x - x)
+        imgui.set_cursor_pos_x(x)
+        imgui.push_style_var(imgui.StyleVar_.button_text_align, imgui.ImVec2(0.0, 0.5))
+        imgui.push_style_var(imgui.StyleVar_.frame_rounding, px(6))
+        imgui.push_style_color(
+            imgui.Col_.button, imgui.get_color_u32(imgui.Col_.frame_bg)
+        )
+        imgui.push_style_color(
+            imgui.Col_.text, imgui.get_color_u32(imgui.Col_.text_disabled)
+        )
+        hint = f"\uf002  {WB.SEARCH_PLACEHOLDER}"
+        if imgui.button(
+            f"{fit_text(hint, search - 2 * style.frame_padding.x)}##wb_search",
+            imgui.ImVec2(search, 0),
+        ):
+            self._open_palette()
+        imgui.pop_style_color(2)
+        imgui.pop_style_var(2)
+        if imgui.is_item_hovered():
+            imgui.set_tooltip(f"{S.MENU_COMMAND_PALETTE} ({S.SHORTCUT_PALETTE})")
+
+        imgui.set_cursor_pos_x(
+            max(
+                imgui.get_cursor_pos_x(),
+                width - style.window_padding.x - right,
+            )
+        )
+        with _bar_item_spacing():
+            if pending_text:
+                imgui.push_style_color(imgui.Col_.text, status_color("warning"))
+                if imgui.menu_item(f"{pending_text}##wb_pending", "", False)[0]:
+                    workbench.show("operations")
+                imgui.pop_style_color()
+            if imgui.menu_item("\uf0db##wb_inspector", "", workbench.show_inspector)[0]:
+                workbench.toggle_inspector()
+            if imgui.is_item_hovered():
+                imgui.set_tooltip(WB.TOGGLE_INSPECTOR)
+            if imgui.menu_item("\uf2d1##wb_bottom", "", workbench.show_bottom)[0]:
+                workbench.toggle_bottom()
+            if imgui.is_item_hovered():
+                imgui.set_tooltip(WB.TOGGLE_BOTTOM_PANEL)
+            if imgui.menu_item(f"{_ICON_SETTINGS}##settings", "", False)[0]:
+                self._settings_window.open()
         if imgui.is_item_hovered():
             imgui.set_tooltip(f"{S.SETTINGS_TITLE} ({S.SHORTCUT_SETTINGS})")
 
@@ -4680,6 +4798,9 @@ class KnxGuiApp:
         imgui.separator()
         if imgui.menu_item(S.MENU_ABOUT, "", False)[0]:
             self._about_requested = True
+
+    def _request_about(self) -> None:
+        self._about_requested = True
 
     def _open_feedback(self, url: str) -> None:
         """Open a page of the project's GitHub issues in the default browser: a new report with
@@ -5493,6 +5614,8 @@ class KnxGuiApp:
         """In the browser UI: switch to the layout for the size the app is shown in, once that
         size has settled; not while typing (a touch screen's keyboard makes the app shorter for
         a while) or with a button held."""
+        if self.workbench is not None:
+            return
         io = imgui.get_io()
         wanted = form_factor(io.display_size.x, io.display_size.y, self._form)
         if wanted == self._form:
@@ -5670,6 +5793,10 @@ class KnxGuiApp:
         # by name from this post-render phase re-enters the docking layout and crashes.
         # An Editor already shown keeps the focus where it is: the arrow keys go on moving through
         # the tree a device was chosen in.
+        if self.workbench is not None:
+            # The panels asked for are shown in the workbench's zones; nothing is left for the
+            # docking below.
+            self._route_focus_requests(self.workbench)
         editor_label = f"{_DOCK_LABELS['editor']()}###editor"
         if self._project_service.take_focus_editor() and not _window_shown(
             editor_label
@@ -5761,6 +5888,22 @@ class KnxGuiApp:
         self._render_file_dialog_error_modal()
         self._render_toasts()
         self._keep_dialog_open()
+
+    def _route_focus_requests(self, workbench: Workbench) -> None:
+        """Show the panels other parts of the app ask for in the workbench's zones."""
+        asked = {
+            "editor": self._project_service.take_focus_editor(),
+            "group_addresses": self._project_service.take_focus_group_addresses(),
+            "tools": self._project_plugin.take_focus_tools(),
+            "device": self._project_plugin.take_focus_device(),
+            "catalog": self._project_plugin.take_focus_catalog(),
+            "bus_diagram": self._project_service.take_focus_bus_diagram(),
+            "recover": self._recover_plugin.take_focus_request(),
+            "operations": self._project_plugin.take_operations_focus(),
+        }
+        for name, wanted in asked.items():
+            if wanted:
+                workbench.show(name)
 
     def _keep_dialog_open(self) -> None:
         """Bringing a panel to the front closes an open modal dialog (imgui focuses the panel): while
@@ -8033,7 +8176,9 @@ def _main() -> None:
 
     # The chosen theme is stored in the layout .ini (see below); a first start, with no .ini
     # yet, follows the system's light or dark preference.
-    ini_path = config_dir() / "XKNX_Editor.ini"
+    ini_path = config_dir() / (
+        "XKNX_Editor_Workbench.ini" if workbench_state.enabled() else "XKNX_Editor.ini"
+    )
     runner_params.imgui_window_params.tweaked_theme.theme = (
         hello_imgui.ImGuiTheme_.darcula_darker if ini_path.exists() else system_theme()
     )
@@ -8053,15 +8198,26 @@ def _main() -> None:
     # Keep the imgui layout .ini in the central data dir (with the JSON settings and catalog).
     runner_params.ini_folder_type = hello_imgui.IniFolderType.absolute_path
     runner_params.ini_filename = str(ini_path)
-    runner_params.docking_params.docking_splits = create_docking_splits(
-        app.bottom_expanded
-    )
-    runner_params.docking_params.dockable_windows = create_dockable_windows(app)
-    _apply_new_layout_once(runner_params.docking_params)
-    # Ended with a smaller layout of the browser UI: start with the usual one again.
+    if workbench_state.enabled():
+        # The redesign's zones, always as built at the start.
+        app.workbench = Workbench(app.get_all_panels(), _DOCK_LABELS)
+        docking = runner_params.docking_params
+        docking.docking_splits = app.workbench.docking_splits()
+        docking.dockable_windows = app.workbench.dockable_windows()
+        docking.main_dock_space_node_flags = app.workbench.main_dock_space_flags()
+        docking.layout_condition = hello_imgui.DockingLayoutCondition.application_start
+        wide_layout = None
+    else:
+        runner_params.docking_params.docking_splits = create_docking_splits(
+            app.bottom_expanded
+        )
+        runner_params.docking_params.dockable_windows = create_dockable_windows(app)
+        _apply_new_layout_once(runner_params.docking_params)
+        # Ended with a smaller layout of the browser UI: start with the usual one again.
+        wide_layout = load_settings("app").get("wide_layout")
     app_settings = load_settings("app")
-    wide_layout = app_settings.pop("wide_layout", None)
     if isinstance(wide_layout, dict):
+        app_settings.pop("wide_layout", None)
         _restore_wide_layout(
             runner_params.docking_params, cast("dict[str, Any]", wide_layout)
         )

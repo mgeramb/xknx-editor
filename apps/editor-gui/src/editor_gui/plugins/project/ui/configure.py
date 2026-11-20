@@ -66,7 +66,6 @@ from editor_gui.settings import load_settings, save_settings
 from editor_gui.theme import status_color
 from editor_gui.widgets import (
     ButtonActions,
-    GroupObjectsTable,
     channel_apply_targets,
     count_parameters,
     differing_param_refs,
@@ -95,6 +94,7 @@ from editor_gui.widgets.module_table import (
 )
 from editor_gui.widgets.tabs import begin_tab_bar
 from editor_gui.widgets.text_selection import TextSelection
+from editor_gui.workbench.group_objects import make_group_objects_table
 
 _log = structlog.get_logger("configure")
 
@@ -426,7 +426,7 @@ class ConfigurePanel:
         self._ui_derived_key: int | None = None
         self._ui_derived: tuple[int, list[ModuleTable]] | None = None
         self._manual_busy: bool = False  # a manual lookup thread is running
-        self._group_objects_table = GroupObjectsTable(
+        self._group_objects_table = make_group_objects_table(
             set_flag,
             on_link_com_object,
             on_unlink_com_object,

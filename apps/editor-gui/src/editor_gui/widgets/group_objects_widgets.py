@@ -1015,23 +1015,23 @@ class GroupObjectsTable:
         # The "+" only targets this object and opens the persistent dialog; the dialog itself is
         # drawn once per frame in _render_add_window (so it does not vanish on a click elsewhere).
         if _link_button(f"add{db_id}", "+"):
-            self._picker_filter = ""
-            self._add_device = device
-            self._add_co = com_object
-            self._add_open = True
-            self._sub_recompute_at = None
-            self._create_name_edited = False
-            if self._suggest_ga is not None:
-                self._create_addr, self._create_name = self._suggest_ga(
-                    device, com_object
+            self.open_add_dialog(device, com_object)
+
+    def open_add_dialog(self, device: Device, com_object: ComObject) -> None:
+        """Open the dialog that links ``com_object`` to a group address or creates one for it."""
+        self._picker_filter = ""
+        self._add_device = device
+        self._add_co = com_object
+        self._add_open = True
+        self._sub_recompute_at = None
+        self._create_name_edited = False
+        if self._suggest_ga is not None:
+            self._create_addr, self._create_name = self._suggest_ga(device, com_object)
+            parts = self._create_addr.split("/")
+            if len(parts) == 3 and all(p.strip().lstrip("-").isdigit() for p in parts):
+                self._create_main, self._create_middle, self._create_sub = (
+                    p.strip() for p in parts
                 )
-                parts = self._create_addr.split("/")
-                if len(parts) == 3 and all(
-                    p.strip().lstrip("-").isdigit() for p in parts
-                ):
-                    self._create_main, self._create_middle, self._create_sub = (
-                        p.strip() for p in parts
-                    )
 
     def _render_add_window(
         self,

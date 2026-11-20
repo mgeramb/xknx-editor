@@ -591,6 +591,21 @@ class Device:
         """Parent group IDs in tree order; None means a root group."""
         return {group.id: group.parent_id for group in self._com_object_modules()}
 
+    def com_object_channels(self) -> dict[str, str]:
+        """The channel or module of each group object, by object id: the name of the innermost
+        group of the object tree that lists it (as ``get_com_object_modules`` labels it). An
+        object of no group is left out."""
+        labels = self.get_com_object_modules()
+        channels: dict[str, str] = {}
+        # Tree order: an inner group comes after the group around it and wins.
+        for group in self._com_object_modules():
+            label = labels.get(group.id, "")
+            if not label:
+                continue
+            for ref in group.object_ids:
+                channels[ref] = label
+        return channels
+
     def _com_object_modules(self) -> list[ComObjectModule]:
         if self.native_objects is not None:
             return self.native_modules
