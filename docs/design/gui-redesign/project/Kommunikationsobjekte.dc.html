@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kommunikationsobjekte – Vertiefung</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f5fd1}a:hover{color:#16479e}
+.k{--bg:#f4f5f7;--panel:#fff;--sub:#f8f9fb;--line:#e2e5ea;--line2:#d3d8df;--text:#1b2230;--muted:#586273;--accent:#1f5fd1;--accent-weak:#e8effc;--warn:#9a4a00;--warn-weak:#fff1df;--ok:#1a7334;--ok-weak:#e5f4ea;--recv:#6b3fb5;--recv-weak:#f1ebfb;--danger:#b42318;--sel:#e8effc;--hover:#f0f2f5;--shadow:0 10px 30px rgba(20,30,50,.18);
+  font-family:Inter,system-ui,sans-serif;font-size:13px;color:var(--text);background:var(--bg);height:100vh;min-height:760px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.k *{box-sizing:border-box}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit}
+.btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--hover)}
+.btn.icon{width:30px;padding:0;justify-content:center}
+.btn.sm{height:26px;padding:0 8px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:default}
+.ico,.btn svg{width:16px;height:16px;flex:none}
+.field{height:30px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);display:flex;align-items:center;gap:6px;padding:0 8px;color:var(--muted)}
+.field input{border:0;outline:0;background:transparent;flex:1;font:inherit;color:var(--text);min-width:0}
+.seg{display:flex;background:var(--sub);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+.seg button{flex:1;height:26px;border:0;border-radius:5px;background:transparent;cursor:pointer;color:var(--muted);font-size:12px;white-space:nowrap;padding:0 10px}
+.seg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;flex:none;background:var(--panel);color:transparent}
+.box.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.box.mixed{background:var(--accent);border-color:var(--accent);color:#fff}
+.box svg{width:12px;height:12px}
+.chk{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:0;background:transparent;padding:0;color:var(--muted);font-size:12.5px}
+.tag{font-size:11px;padding:1px 7px;border-radius:9px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.tag.warn{background:var(--warn-weak);color:var(--warn)}
+.tag.ok{background:var(--ok-weak);color:var(--ok)}
+.tag.neu{background:var(--sub);color:var(--muted);border:1px solid var(--line)}
+/* header */
+.hd{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 20px 0}
+.crumb{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.h1{display:flex;align-items:center;gap:10px;margin-top:4px}
+.h1 b{font-size:18px}
+.pa{font-family:"JetBrains Mono",monospace;font-size:13px;padding:2px 8px;border-radius:5px;background:var(--sub);border:1px solid var(--line)}
+.tabs{display:flex;gap:4px;margin-top:10px}
+.tab{height:36px;padding:0 14px;border:0;background:transparent;color:var(--muted);border-bottom:2px solid transparent;font-weight:500;display:flex;align-items:center;gap:6px;cursor:pointer}
+.tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
+.cnt{font-size:11px;background:var(--sub);border:1px solid var(--line);border-radius:9px;padding:0 6px;color:var(--muted)}
+/* layout */
+.bd{flex:1;display:flex;min-height:0}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;min-height:0}
+.tb{display:flex;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap;background:var(--panel);border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;padding:8px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.chip{height:26px;padding:0 10px;border-radius:13px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--text)}
+.chip:hover{background:var(--hover)}
+.chip.on{background:var(--accent-weak);border-color:var(--accent);color:var(--accent);font-weight:600}
+.chip i{font-style:normal;color:var(--muted);font-weight:400}
+.selbar{display:flex;align-items:center;gap:8px;padding:8px 20px;background:var(--accent-weak);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.selbar > b{color:var(--accent);margin-right:6px}
+.rel{position:relative;display:inline-flex}
+.wrap{flex:1;min-height:0;overflow:auto;padding:12px 20px 20px}
+.tbl{min-width:980px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.r{display:grid;grid-template-columns:36px 42px minmax(210px,1.5fr) 34px 118px 160px minmax(230px,1.7fr) 40px;align-items:center;min-height:48px;border-top:1px solid var(--line);position:relative}
+.tbl.live .r{grid-template-columns:36px 42px minmax(210px,1.5fr) 34px 118px 160px minmax(230px,1.7fr) 130px 40px}
+.r > div{padding:0 8px;min-width:0}
+.r:hover{background:var(--hover)}
+.r.on{background:var(--sel)}
+.r.h{min-height:34px;background:var(--sub);border-top:0;color:var(--muted);font-size:12px;font-weight:600;position:sticky;top:0;z-index:2;border-radius:8px 8px 0 0}
+.r.h:hover{background:var(--sub)}
+.r.tall{align-items:start;padding:8px 0}
+.rowbtn{border:0;background:transparent;padding:0;text-align:left;cursor:pointer;width:100%;color:var(--text)}
+.on-name b{display:flex;align-items:center;gap:6px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.on-name span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note{width:14px;height:14px;color:var(--muted);flex:none}
+.grp{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;background:var(--sub);border-top:1px solid var(--line);font-weight:600;cursor:pointer;width:100%;border-left:0;border-right:0;border-bottom:0;text-align:left;color:var(--text)}
+.grp:hover{background:var(--hover)}
+.meter{width:70px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:inline-block}
+.meter i{display:block;height:100%;background:var(--ok)}
+.car{width:14px;height:14px;color:var(--muted);flex:none;transition:transform .12s}
+.car.open{transform:rotate(90deg)}
+.dir{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.dir svg{width:16px;height:16px}
+.dir.send{background:var(--accent-weak);color:var(--accent)}
+.dir.recv{background:var(--recv-weak);color:var(--recv)}
+.dir.both{background:var(--ok-weak);color:var(--ok)}
+.dir.none{background:var(--sub);color:var(--muted)}
+.dpt b{display:block;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:500}
+.dpt span{font-size:11.5px;color:var(--muted)}
+.flags{display:flex;gap:3px}
+.flag{width:22px;height:22px;border-radius:4px;border:1px solid var(--line2);background:transparent;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.flag.on{background:var(--accent-weak);border-color:var(--accent);color:var(--accent)}
+.gas{display:flex;gap:4px;align-items:center;min-width:0;flex-wrap:nowrap}
+.gas.wrapall{flex-wrap:wrap}
+.ga{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:12px;background:var(--sub);border:1px solid var(--line);white-space:nowrap;overflow:hidden;max-width:100%;font-size:12px}
+.ga.send{background:var(--ok-weak);border-color:transparent}
+.ga.bad{border:1.5px solid var(--warn);background:var(--warn-weak)}
+.ga .mono{font-size:11.5px}
+.ga .gn{overflow:hidden;text-overflow:ellipsis}
+.more{height:24px;padding:0 8px;border-radius:12px;border:1px solid var(--line2);font-size:12px;color:var(--muted);display:inline-flex;align-items:center;flex:none;background:transparent;cursor:pointer}
+.addga{height:24px;padding:0 8px;border-radius:12px;border:1px dashed var(--line2);font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:4px;background:transparent;cursor:pointer;flex:none}
+.addga:hover{border-color:var(--accent);color:var(--accent)}
+.val b{display:block;font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val span{font-size:11px;color:var(--muted)}
+.pop{position:absolute;z-index:30;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:var(--shadow);padding:6px;min-width:250px}
+.mi{display:flex;align-items:center;gap:10px;width:100%;min-height:32px;padding:6px 10px;border:0;background:transparent;border-radius:6px;cursor:pointer;text-align:left;color:var(--text)}
+.mi:hover{background:var(--hover)}
+.mi .sc{margin-left:auto;color:var(--muted);font-size:11.5px;white-space:nowrap}
+.mi small{display:block;color:var(--muted);font-size:11.5px;white-space:normal;line-height:1.35;margin-top:2px}
+.msep{height:1px;background:var(--line);margin:4px 0}
+.scrim{position:absolute;inset:0;z-index:20}
+.scrim.dim{background:rgba(10,15,25,.3)}
+/* inspector */
+.insp{width:360px;flex:none;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.ih{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 16px;border-bottom:1px solid var(--line);font-weight:600}
+.ib{flex:1;overflow:auto}
+.sec{border-bottom:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.sec > h4{margin:0;font-size:12.5px;display:flex;align-items:center;justify-content:space-between}
+.kv{display:flex;flex-direction:column;gap:4px}
+.kv > span{font-size:11.5px;color:var(--muted);font-weight:500}
+.inp{min-height:30px;border:1px solid var(--line2);border-radius:6px;padding:5px 8px;font:inherit;color:var(--text);background:var(--panel);width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gl{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.gli{display:grid;grid-template-columns:14px 18px minmax(0,1fr) auto 24px;gap:8px;align-items:center;padding:7px 8px;border-top:1px solid var(--line);font-size:12.5px}
+.gli:first-child{border-top:0}
+.gli .gn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gli .sub{font-size:11px;color:var(--muted)}
+.grip{color:var(--muted);cursor:grab}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line2);background:var(--panel);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.radio.on{border-color:var(--ok)}
+.radio.on::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.fl{display:grid;grid-template-columns:22px minmax(0,1fr) 34px;gap:8px;align-items:center;min-height:30px;cursor:pointer;border:0;background:transparent;width:100%;padding:0;text-align:left;color:var(--text)}
+.fl .lt{font-weight:700;color:var(--muted);text-align:center}
+.fl small{display:block;color:var(--muted);font-size:11.5px}
+.sw{width:30px;height:18px;border-radius:9px;background:var(--line2);position:relative}
+.sw::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .12s}
+.sw.on{background:var(--accent)}
+.sw.on::after{left:14px}
+.picker{border:1.5px solid var(--accent);border-radius:8px;overflow:hidden}
+.pres{max-height:220px;overflow:auto}
+.pr{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 10px;border-top:1px solid var(--line);cursor:pointer;border-left:0;border-right:0;border-bottom:0;background:transparent;width:100%;text-align:left;font-size:12.5px;color:var(--text)}
+.pr:hover{background:var(--hover)}
+.pr .gn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.addr{display:flex;gap:4px;align-items:center}
+.addr .inp{width:56px;justify-content:center;font-family:"JetBrains Mono",monospace}
+.legend{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+/* sheet */
+.sheet{position:absolute;top:0;right:0;bottom:0;width:560px;max-width:100%;background:var(--panel);z-index:40;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.sheet .sh{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+.sheet .sb{flex:1;overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.sheet .sf{border-top:1px solid var(--line);padding:12px 20px;display:flex;justify-content:flex-end;gap:8px}
+.ph{display:flex;gap:6px;flex-wrap:wrap}
+.ph button{height:24px;padding:0 8px;border-radius:5px;border:1px solid var(--line2);background:var(--sub);font-family:"JetBrains Mono",monospace;font-size:11.5px;cursor:pointer}
+.ph button:hover{border-color:var(--accent);color:var(--accent)}
+.prev{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.prev .pv{display:grid;grid-template-columns:64px 70px minmax(0,1fr);gap:8px;padding:8px 10px;border-top:1px solid var(--line);font-size:12.5px}
+.prev .pv:first-child{border-top:0;background:var(--sub);font-weight:600;color:var(--muted);font-size:12px}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;background:var(--text);color:#fff;padding:10px 16px;border-radius:8px;box-shadow:var(--shadow)}
+@media (max-width:1100px){.insp{display:none}}
+</style>
+</helmet>
+<div class="k">
+
+<header class="hd">
+  <div class="crumb">Krausgasse 12 Top 26 <span>›</span> Wohnung <span>›</span> Verteiler Abstellraum</div>
+  <div class="h1"><span class="pa">1.1.16</span><b>Verteiler / Jalousieaktor 8 fach</b><span class="tag ok">Programmiert</span><span class="tag {{dirtyCls}}">{{dirtyLabel}}</span></div>
+  <div class="tabs">
+    <button class="tab">Parameter <span class="cnt">642</span></button>
+    <button class="tab on">Kommunikationsobjekte <span class="cnt">139</span></button>
+  </div>
+</header>
+
+<div class="bd">
+<section class="main">
+  <!-- toolbar -->
+  <div class="tb">
+    <label class="field" style="width: 300px"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{q}}" onChange="{{onQ}}" placeholder="Objekt, Funktion, Adresse oder Wert…" aria-label="Kommunikationsobjekte filtern"></label>
+    <div class="seg">
+      <button class="{{f.all}}" onClick="{{fAll}}">Alle</button>
+      <button class="{{f.linked}}" onClick="{{fLinked}}">Verknüpft</button>
+      <button class="{{f.free}}" onClick="{{fFree}}">Unverknüpft</button>
+      <button class="{{f.warn}}" onClick="{{fWarn}}">Konflikte {{warnCount}}</button>
+    </div>
+    <span style="flex: 1"></span>
+    <button class="chk" onClick="{{toggleLive}}"><span class="box {{liveCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Letzte Werte</button>
+    <div class="seg" aria-label="Darstellung">
+      <button class="{{d.compact}}" onClick="{{dCompact}}">Kompakt</button>
+      <button class="{{d.full}}" onClick="{{dFull}}">Alle Adressen</button>
+    </div>
+  </div>
+  <!-- channel chips (replaces the module filter) -->
+  <div class="chips">
+    <span class="muted" style="font-size: 12px; margin-right: 4px">Kanäle/Module</span>
+    <sc-for list="{{chans}}" as="c" hint-placeholder-count="6">
+      <button class="chip {{c.cls}}" onClick="{{c.pick}}">{{c.label}} <i>{{c.count}}</i></button>
+    </sc-for>
+  </div>
+  <!-- selection bar -->
+  <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+    <div class="selbar">
+      <b>{{selLabel}}</b>
+      <button class="btn" onClick="{{openBatch}}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Gruppenadressen erstellen…</button>
+      <button class="btn" onClick="{{copyLinks}}">Verknüpfungen kopieren <span class="muted" style="font-size: 11px">⌘C</span></button>
+      <span class="rel">
+        <button class="btn" onClick="{{togglePaste}}" disabled="{{pasteDisabled}}">Verknüpfungen einfügen <span class="muted" style="font-size: 11px">⌘V</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+        <sc-if value="{{pasteMenu}}" hint-placeholder-val="{{ false }}">
+          <div class="pop" style="top: 36px; left: 0; width: 340px">
+            <button class="mi" onClick="{{pasteReplace}}"><span><b>Ersetzen</b><small>Kopierte Verknüpfungen und Flags der Reihe nach übernehmen (1. → 1., 2. → 2.), bestehende Verknüpfungen werden ersetzt.</small></span></button>
+            <button class="mi" onClick="{{pasteMerge}}"><span><b>Zusammenführen</b><small>Bestehende Verknüpfungen behalten und nur die kopierten ergänzen.</small></span></button>
+          </div>
+        </sc-if>
+      </span>
+      <span class="muted" style="font-size: 12px">{{clipLabel}}</span>
+      <span style="flex: 1"></span>
+      <button class="btn ghost" onClick="{{clearSel}}">Auswahl aufheben</button>
+    </div>
+  </sc-if>
+
+  <div class="wrap">
+    <div class="tbl {{liveTbl}}">
+      <div class="r h">
+        <div><button class="chk" onClick="{{toggleAll}}" aria-label="Alle auswählen"><span class="box {{allCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="{{allPath}}"></path></svg></span></button></div>
+        <div>#</div><div>Objekt / Funktion</div><div title="Richtung aus den Flags">⇅</div><div>Datentyp</div><div>Flags</div><div>Gruppenadressen</div>
+        <sc-if value="{{live}}" hint-placeholder-val="{{ false }}"><div>Letzter Wert</div></sc-if>
+        <div></div>
+      </div>
+      <sc-for list="{{rows}}" as="k" hint-placeholder-count="10">
+        <sc-if value="{{k.isGroup}}" hint-placeholder-val="{{ false }}">
+          <button class="grp" onClick="{{k.toggle}}">
+            <svg class="car {{k.carCls}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+            <span>{{k.label}}</span>
+            <span class="meter" aria-hidden="true"><i style="{{k.meter}}"></i></span>
+            <span class="muted" style="font-weight: 400; font-size: 12px">{{k.info}}</span>
+          </button>
+        </sc-if>
+        <sc-if value="{{k.isRow}}" hint-placeholder-val="{{ true }}">
+          <div class="r {{k.cls}}">
+            <div><button class="chk" onClick="{{k.check}}" aria-label="Objekt auswählen"><span class="box {{k.boxCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span></button></div>
+            <div class="mono muted">{{k.n}}</div>
+            <div><button class="rowbtn on-name" onClick="{{k.pick}}">
+              <b>{{k.name}}<sc-if value="{{k.hasDesc}}" hint-placeholder-val="{{ false }}"><svg class="note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-label="Hat Beschreibung" role="img"><path d="M4 4h16v12H8l-4 4z"></path></svg></sc-if></b>
+              <span>{{k.fn}}</span></button></div>
+            <div><span class="dir {{k.dir}}" title="{{k.dirTip}}">
+              <sc-if value="{{k.dirSend}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></sc-if>
+              <sc-if value="{{k.dirRecv}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg></sc-if>
+              <sc-if value="{{k.dirBoth}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M8 20V4M4 8l4-4 4 4M16 4v16M12 16l4 4 4-4"></path></svg></sc-if>
+            </span></div>
+            <div class="dpt"><b>{{k.dpt}}</b><span>{{k.dptName}} · {{k.len}}</span></div>
+            <div class="flags">
+              <sc-for list="{{k.flags}}" as="f" hint-placeholder-count="6"><button class="flag {{f.cls}}" onClick="{{f.toggle}}" title="{{f.title}}">{{f.l}}</button></sc-for>
+            </div>
+            <div class="gas {{k.gasCls}}">
+              <sc-for list="{{k.gaShown}}" as="g" hint-placeholder-count="1">
+                <span class="ga {{g.cls}}" title="{{g.tip}}"><span class="mono">{{g.a}}</span><span class="gn">{{g.n}}</span><sc-if value="{{g.bad}}" hint-placeholder-val="{{ false }}"><svg class="ico" style="width: 13px; height: 13px; color: var(--warn)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-label="Datentyp passt nicht" role="img"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></sc-if></span>
+              </sc-for>
+              <sc-if value="{{k.hasMore}}" hint-placeholder-val="{{ false }}"><button class="more" onClick="{{k.pick}}">{{k.moreLabel}}</button></sc-if>
+              <button class="addga" onClick="{{k.link}}" aria-label="Gruppenadresse verknüpfen">+<sc-if value="{{k.noGa}}" hint-placeholder-val="{{ false }}"> Gruppenadresse</sc-if></button>
+            </div>
+            <sc-if value="{{live}}" hint-placeholder-val="{{ false }}"><div class="val"><b>{{k.val}}</b><span>{{k.valT}}</span></div></sc-if>
+            <div>
+              <button class="btn ghost icon" onClick="{{k.menu}}" aria-label="Aktionen für das Objekt"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button>
+              <sc-if value="{{k.menuOpen}}" hint-placeholder-val="{{ false }}">
+                <div class="pop" style="right: 8px; top: 40px">
+                  <button class="mi" onClick="{{k.link}}">Gruppenadresse verknüpfen…</button>
+                  <button class="mi" onClick="{{k.copyOne}}">Verknüpfungen kopieren<span class="sc">⌘C</span></button>
+                  <button class="mi" onClick="{{k.pasteOne}}">Verknüpfungen einfügen<span class="sc">⌘V</span></button>
+                  <button class="mi" onClick="{{k.copyText}}">Adressen als Text kopieren</button>
+                  <div class="msep"></div>
+                  <button class="mi" onClick="{{k.editDesc}}">Beschreibung bearbeiten…</button>
+                  <button class="mi" onClick="{{k.unlinkAll}}" style="color: var(--danger)">Alle Verknüpfungen lösen</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </sc-for>
+      <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div style="padding: 40px; text-align: center" class="muted">Keine Objekte für diesen Filter.</div></sc-if>
+    </div>
+    <div class="legend" style="margin-top: 12px">
+      <span><span class="dir send" style="width: 20px; height: 20px">↑</span>sendet (Ü/L)</span>
+      <span><span class="dir recv" style="width: 20px; height: 20px">↓</span>empfängt (S/A)</span>
+      <span><span class="dir both" style="width: 20px; height: 20px">⇅</span>beides</span>
+      <span><span class="ga send" style="height: 20px">grün</span>sendende Gruppenadresse</span>
+      <span><span class="ga bad" style="height: 20px">!</span>Datentyp passt nicht</span>
+      <span>Auszug: 19 von 139 Objekten</span>
+    </div>
+  </div>
+</section>
+
+<!-- INSPECTOR -->
+<aside class="insp" aria-label="Objektdetails">
+  <sc-if value="{{hasObj}}" hint-placeholder-val="{{ true }}">
+    <div class="ih">Kommunikationsobjekt <span class="muted mono" style="font-weight: 400">{{o.pos}}</span></div>
+    <div class="ib">
+      <div class="sec">
+        <div><div class="mono muted">Objekt {{o.n}} · {{o.ch}}</div><div style="font-size: 16px; font-weight: 600; margin-top: 2px">{{o.name}}</div><div class="muted">{{o.fn}}</div></div>
+        <div class="kv"><span>Beschreibung</span><div class="inp" style="min-height: 44px; align-items: flex-start; color: {{o.descColor}}">{{o.desc}}</div></div>
+        <div class="g2">
+          <div class="kv"><span>Datentyp</span><button class="inp" onClick="{{cycleDpt}}">{{o.dptLabel}}<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+          <div class="kv"><span>Priorität</span><button class="inp" onClick="{{cyclePrio}}">{{o.prio}}<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h4>Gruppenadressen <span class="muted" style="font-weight: 400">{{o.gaCount}}</span></h4>
+        <sc-if value="{{o.hasGa}}" hint-placeholder-val="{{ true }}">
+          <div class="gl">
+            <sc-for list="{{o.gaList}}" as="g" hint-placeholder-count="3">
+              <div class="gli">
+                <span class="grip" aria-hidden="true">⋮⋮</span>
+                <button class="radio {{g.radioCls}}" onClick="{{g.makeSend}}" aria-label="Als sendende Gruppenadresse festlegen" title="Sendende Gruppenadresse"></button>
+                <div style="min-width: 0"><div class="gn"><span class="mono">{{g.a}}</span> {{g.n}}</div><div class="sub">{{g.sub}}</div></div>
+                <sc-if value="{{g.bad}}" hint-placeholder-val="{{ false }}"><span class="tag warn">{{g.dpt}}</span></sc-if>
+                <sc-if value="{{g.good}}" hint-placeholder-val="{{ true }}"><span class="tag neu">{{g.val}}</span></sc-if>
+                <button class="btn ghost icon" style="width: 24px; height: 24px" onClick="{{g.unlink}}" aria-label="Verknüpfung lösen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+              </div>
+            </sc-for>
+          </div>
+          <span class="muted" style="font-size: 11.5px">● = sendende Adresse · ⋮⋮ ziehen, um die Reihenfolge zu ändern</span>
+        </sc-if>
+
+        <sc-if value="{{pickerClosed}}" hint-placeholder-val="{{ false }}">
+          <button class="btn" onClick="{{openPicker}}" style="justify-content: center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Gruppenadresse verknüpfen</button>
+        </sc-if>
+        <sc-if value="{{pickerOpen}}" hint-placeholder-val="{{ true }}">
+          <div class="picker">
+            <div class="seg" style="border: 0; border-radius: 0; border-bottom: 1px solid var(--line)">
+              <button class="{{pk.exist}}" onClick="{{pkExist}}">Vorhandene</button>
+              <button class="{{pk.neu}}" onClick="{{pkNew}}">Neu anlegen</button>
+            </div>
+            <sc-if value="{{pkIsExist}}" hint-placeholder-val="{{ true }}">
+              <div style="padding: 8px; display: flex; flex-direction: column; gap: 6px">
+                <label class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{pq}}" onChange="{{onPq}}" placeholder="Adresse oder Name…" aria-label="Gruppenadresse suchen"></label>
+                <button class="chk" onClick="{{toggleMatch}}"><span class="box {{matchCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Nur passender Datentyp ({{o.dpt}})</button>
+              </div>
+              <div class="pres">
+                <sc-for list="{{pres}}" as="p" hint-placeholder-count="5">
+                  <button class="pr" onClick="{{p.pick}}"><span class="mono">{{p.a}}</span><span class="gn">{{p.n}}</span><span class="tag {{p.tagCls}}">{{p.dpt}}</span></button>
+                </sc-for>
+                <sc-if value="{{noPres}}" hint-placeholder-val="{{ false }}"><div class="muted" style="padding: 14px; text-align: center">Keine passende Adresse. <button class="btn sm" onClick="{{pkNew}}">Neu anlegen</button></div></sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{pkIsNew}}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px">
+                <div class="kv"><span>Adresse (nächste freie vorgeschlagen)</span>
+                  <div class="addr"><span class="inp">7</span>/<span class="inp">1</span>/<span class="inp">{{newSub}}</span><span class="tag ok" style="margin-left: 6px">frei</span></div></div>
+                <div class="kv"><span>Name aus Vorlage <span class="mono">{{tpl}}</span></span><div class="inp">{{newName}}</div></div>
+                <div class="kv"><span>Datentyp</span><div class="inp">{{o.dptLabel}}</div></div>
+                <div style="display: flex; gap: 6px; justify-content: flex-end">
+                  <button class="btn ghost" onClick="{{closePicker}}">Abbrechen</button>
+                  <button class="btn primary" onClick="{{createLink}}">Anlegen und verknüpfen</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <div class="sec">
+        <h4>Flags <span class="tag {{o.dirTag}}">{{o.dirText}}</span></h4>
+        <sc-for list="{{o.flagList}}" as="f" hint-placeholder-count="6">
+          <button class="fl" onClick="{{f.toggle}}"><span class="lt">{{f.l}}</span><span>{{f.title}}<small>{{f.desc}}</small></span><span class="sw {{f.cls}}"></span></button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{noObj}}" hint-placeholder-val="{{ false }}">
+    <div class="ih">Kommunikationsobjekte</div>
+    <div class="ib"><div class="sec"><span class="muted">Ein Objekt anklicken, um Details, Flags und Gruppenadressen zu bearbeiten. Mehrere Objekte über die Kästchen auswählen.</span></div></div>
+  </sc-if>
+</aside>
+</div>
+
+<sc-if value="{{anyMenu}}" hint-placeholder-val="{{ false }}"><div class="scrim" onClick="{{closeMenus}}"></div></sc-if>
+
+<!-- BATCH SHEET -->
+<sc-if value="{{batch}}" hint-placeholder-val="{{ false }}">
+  <div class="scrim dim" onClick="{{closeBatch}}"></div>
+  <div class="sheet" role="dialog" aria-label="Gruppenadressen erstellen">
+    <div class="sh">Gruppenadressen erstellen <button class="btn ghost icon" onClick="{{closeBatch}}" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+    <div class="sb">
+      <div class="muted">Für jedes ausgewählte Objekt wird eine neue Gruppenadresse angelegt und als sendende Adresse verknüpft.</div>
+      <div class="kv"><span>Namensvorlage</span><label class="field"><input value="{{tpl}}" onChange="{{onTpl}}" aria-label="Namensvorlage" class="mono"></label></div>
+      <div class="kv"><span>Platzhalter einfügen</span>
+        <div class="ph">
+          <sc-for list="{{phs}}" as="p" hint-placeholder-count="8"><button onClick="{{p.add}}" title="{{p.tip}}">{{p.t}}</button></sc-for>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="kv"><span>Erste Adresse</span><div class="addr"><span class="inp">7</span>/<span class="inp">1</span>/<span class="inp">{{batchStart}}</span></div></div>
+        <div class="kv"><span>Belegte Adressen</span><div class="inp" style="color: var(--ok)">werden übersprungen</div></div>
+      </div>
+      <div class="kv"><span>Vorschau</span>
+        <div class="prev">
+          <div class="pv"><span>Objekt</span><span>Adresse</span><span>Name</span></div>
+          <sc-for list="{{batchPrev}}" as="b" hint-placeholder-count="3">
+            <div class="pv"><span class="mono">#{{b.n}}</span><span class="mono">{{b.a}}</span><span>{{b.name}}</span></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div class="sf"><button class="btn ghost" onClick="{{closeBatch}}">Abbrechen</button><button class="btn primary" onClick="{{runBatch}}">{{batchBtn}}</button></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="toast">{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const base = this.base();
+    const links = {}; const flags = {};
+    base.KO.forEach(k => { links[k.n] = k.gas.slice(); flags[k.n] = k.flags; });
+    this.state = {
+      q: '', filter: 'all', chan: 'all', live: true, density: 'compact', closed: {},
+      sel: 23, checked: {}, menu: null, pasteMenu: false, clip: null,
+      links, flags, dpt: {}, prio: {}, picker: false, pk: 'exist', pq: '', match: true,
+      batch: false, tpl: '{room} {object}', toast: '', changes: 0, created: {}
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  say(m) { clearTimeout(this.t); this.setState({ toast: m }); this.t = setTimeout(() => this.setState({ toast: '' }), 2400); }
+
+  base() {
+    if (this._b) return this._b;
+    const GA = {
+      '1/3/4': ['Terrassentüren Zentral Jalousie', '1.008'], '1/3/5': ['Terrassentüren Zentral Position', '5.001'], '1/3/14': ['Jalousien und Rollo West', '1.008'], '1/3/24': ['Alle Jalousien Auf/Ab', '1.008'],
+      '1/3/34': ['Wohnzimmertür und Esszimmer', '1.008'], '1/3/50': ['Diagnose Beschattung', '16.000'], '1/7/6': ['Außentemperatur', '9.001'],
+      '7/1/0': ['Terrassentür Zentral Lamelle', '1.007'], '7/1/2': ['Wohnzimmertür Position', '5.001'], '7/1/3': ['Wohnzimmertür Status Position', '5.001'], '7/1/4': ['Wohnzimmer Zentral Jalousie', '1.008'],
+      '7/1/10': ['Wohnzimmertür Jalousie Lamelle', '1.007'], '7/1/14': ['Wohnzimmertür Jalousie Auf/Ab', '1.008'], '7/1/16': ['Terrassentür Jalousie Auf/Ab', '1.008'],
+      '7/5/15': ['Wohnzimmer Taster 4 Wippe 4', '1.001'], '12/7/1': ['Wetterstation GPS Datum', '19.001'], '12/7/13': ['Wetterstation Helligkeit', '9.004'], '12/7/20': ['Wetterstation Sonne Ost', '1.001']
+    };
+    const VAL = { '12/7/13': ['18 420 lx', 'vor 3 s'], '1/7/6': ['4,8 °C', 'vor 12 s'], '12/7/1': ['20.11.2026 22:40', 'vor 40 s'], '7/1/14': ['Ab', 'vor 2 min'], '7/1/4': ['Auf', 'vor 3 h · älter'],
+      '1/3/50': ['OK', 'vor 1 min'], '7/5/15': ['Ein', 'vor 8 min'], '7/1/10': ['Schritt +', 'vor 2 min'], '7/1/0': ['Stopp', 'vor 5 h · älter'], '1/3/24': ['Auf', 'vor 6 h'], '7/1/16': ['Ab', 'vor 2 min'] };
+    const DPTN = { '1.001': 'Schalten', '1.007': 'Schritt', '1.008': 'Auf/Ab', '1.017': 'Trigger', '5.001': 'Prozent', '9.001': 'Temperatur', '9.004': 'Lux', '16.000': 'Text', '19.001': 'Datum/Zeit' };
+    const ko = (n, ch, name, fn, dpt, len, flags, gas, desc) => ({ n, ch, name, fn, dpt, len, flags, gas, desc: desc || '' });
+    const KO = [
+      ko(0, 'Zentrale Funktion', 'Rollladen Auf/Ab', 'Zentral fahren', '1.008', '1 Bit', 'KS', []),
+      ko(1, 'Zentrale Funktion', 'Lamellenverstellung', 'Zentral Lamelle', '1.007', '1 Bit', 'KS', []),
+      ko(2, 'Zentrale Funktion', 'Stopp', 'Zentral Stopp', '1.017', '1 Bit', 'KS', []),
+      ko(3, 'Zentrale Funktion', 'Absolute Position', 'Zentral Position', '5.001', '1 Byte', 'KS', []),
+      ko(7, 'Zentrale Funktion', 'Uhrzeit/Datum', 'Aktuelle Uhrzeit und Datum', '19.001', '8 Byte', 'KSÜA', ['12/7/1']),
+      ko(9, 'Zentrale Funktion', 'Helligkeit', 'Helligkeitswert Wetterstation', '9.004', '2 Byte', 'KSÜA', ['12/7/13'], 'Für Sonnenschutz-Automatik Süd/West'),
+      ko(12, 'Zentrale Funktion', 'Außentemperatur', 'Temperatur für Automatik', '9.001', '2 Byte', 'KSÜA', ['1/7/6']),
+      ko(14, 'Zentrale Funktion', 'Beschattung Diagnose', 'Diagnosetext', '16.000', '14 Byte', 'KLÜ', ['1/3/50']),
+      ko(15, 'Automatik A', 'Automatik', 'Automatik sperren', '1.001', '1 Bit', 'KS', ['7/5/15']),
+      ko(16, 'Automatik A', 'Automatik Sonne', 'Sonne aktiv', '1.001', '1 Bit', 'KS', []),
+      ko(17, 'Automatik A', 'Automatik Position', 'Position bei Sonne', '5.001', '1 Byte', 'KS', []),
+      ko(23, 'Kanal A: Wohnzimmertür', 'Jalousie Auf/Ab', 'Langzeit fahren', '1.008', '1 Bit', 'KS', ['7/1/14', '7/1/4', '1/3/4', '1/3/14', '1/3/24', '1/3/34'], 'Taster Wohnzimmer links + Zentral'),
+      ko(24, 'Kanal A: Wohnzimmertür', 'Lamellenverstellung/Stopp', 'Kurzzeit fahren', '1.007', '1 Bit', 'KS', ['7/1/10', '7/1/0']),
+      ko(25, 'Kanal A: Wohnzimmertür', 'Absolute Position', 'Position anfahren', '5.001', '1 Byte', 'KS', ['7/1/2', '1/3/24']),
+      ko(26, 'Kanal A: Wohnzimmertür', 'Status aktuelle Position', 'Rückmeldung Position', '5.001', '1 Byte', 'KLÜ', []),
+      ko(30, 'Kanal B: Terrassentür', 'Jalousie Auf/Ab', 'Langzeit fahren', '1.008', '1 Bit', 'KS', ['7/1/16', '1/3/4', '1/3/24']),
+      ko(31, 'Kanal B: Terrassentür', 'Lamellenverstellung/Stopp', 'Kurzzeit fahren', '1.007', '1 Bit', 'KS', ['7/1/0']),
+      ko(32, 'Kanal B: Terrassentür', 'Absolute Position', 'Position anfahren', '5.001', '1 Byte', 'KS', []),
+      ko(33, 'Kanal B: Terrassentür', 'Status aktuelle Position', 'Rückmeldung Position', '5.001', '1 Byte', 'KLÜ', [])
+    ];
+    const ROOM = { 'Kanal A: Wohnzimmertür': 'Wohnzimmertür', 'Kanal B: Terrassentür': 'Terrassentür', 'Automatik A': 'Wohnzimmer', 'Zentrale Funktion': 'Wohnung' };
+    this._b = { GA, VAL, DPTN, KO, ROOM };
+    return this._b;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const { GA, VAL, DPTN, KO, ROOM } = this.base();
+    const set = (o) => () => this.setState(o);
+    const F = ['K', 'L', 'S', 'Ü', 'A', 'I'];
+    const FT = { K: ['Kommunikation', 'Objekt ist am Bus aktiv'], L: ['Lesen', 'Antwortet auf Leseanfragen'], S: ['Schreiben', 'Übernimmt empfangene Werte'], 'Ü': ['Übertragen', 'Sendet eigene Wertänderungen'], A: ['Aktualisieren', 'Übernimmt Antworten anderer'], I: ['Initialisierung', 'Liest den Wert beim Start'] };
+    const dptOf = (k) => s.dpt[k.n] || k.dpt;
+    const flagsOf = (k) => s.flags[k.n];
+    const has = (k, f) => flagsOf(k).includes(f);
+    const toggleFlag = (k, f) => { const cur = flagsOf(k); const nx = cur.includes(f) ? cur.replace(f, '') : F.filter(x => cur.includes(x) || x === f).join(''); this.setState({ flags: { ...s.flags, [k.n]: nx }, changes: s.changes + 1 }); };
+    const dirOf = (k) => { const sd = has(k, 'Ü') || has(k, 'L'), rc = has(k, 'S') || has(k, 'A'); return sd && rc ? 'both' : sd ? 'send' : rc ? 'recv' : 'none'; };
+    const DIRT = { both: 'sendet und empfängt', send: 'sendet', recv: 'empfängt', none: 'inaktiv' };
+    const badGa = (k, a) => GA[a][1] !== dptOf(k);
+    const conflicts = (k) => s.links[k.n].some(a => badGa(k, a));
+    const nameFor = (k, i) => {
+      let t = s.tpl;
+      const map = { room: ROOM[k.ch] || '', device: 'Jalousieaktor 8 fach', devicename: 'Verteiler / Jalousieaktor 8 fach', object: k.name, ganame: k.name, function: k.fn, number: String(k.n), dpt: dptOf(k), address: '1.1.16', product: 'Jalousieaktor 8-fach', manufacturer: 'MDT' };
+      t = t.replace(/\{n:02\}/g, String(i + 1).padStart(2, '0')).replace(/\{n\}/g, String(i + 1));
+      Object.keys(map).forEach(key => { t = t.split('{' + key + '}').join(map[key]); });
+      return t.trim() || '(leer)';
+    };
+
+    // channel chips
+    const chList = [];
+    KO.forEach(k => { if (!chList.includes(k.ch)) chList.push(k.ch); });
+    const chans = [{ id: 'all', label: 'Alle', count: KO.length }].concat(chList.map(c => ({ id: c, label: c, count: KO.filter(k => k.ch === c).length })))
+      .map(c => ({ label: c.label, count: String(c.count), cls: s.chan === c.id ? 'on' : '', pick: set({ chan: c.id }) }));
+
+    // filter
+    const q = s.q.trim().toLowerCase();
+    const vis = KO.filter(k => {
+      if (s.chan !== 'all' && k.ch !== s.chan) return false;
+      const L = s.links[k.n];
+      if (s.filter === 'linked' && !L.length) return false;
+      if (s.filter === 'free' && L.length) return false;
+      if (s.filter === 'warn' && !conflicts(k)) return false;
+      if (q) {
+        const hay = [k.n, k.ch, k.name, k.fn, k.desc].concat(L, L.map(a => GA[a][0]), L.map(a => (VAL[a] || [''])[0])).join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    const nChecked = KO.filter(k => s.checked[k.n]).length;
+    const visChecked = vis.filter(k => s.checked[k.n]).length;
+
+    const rows = [];
+    let last = null;
+    vis.forEach(k => {
+      if (k.ch !== last) {
+        last = k.ch;
+        const all = vis.filter(x => x.ch === k.ch);
+        const linked = all.filter(x => s.links[x.n].length).length;
+        rows.push({ isGroup: true, isRow: false, label: k.ch, info: linked + ' von ' + all.length + ' verknüpft', meter: 'width: ' + Math.round(100 * linked / all.length) + '%', carCls: s.closed[k.ch] ? '' : 'open', toggle: () => this.setState({ closed: { ...s.closed, [k.ch]: !s.closed[k.ch] } }) });
+      }
+      if (s.closed[k.ch]) return;
+      const L = s.links[k.n];
+      const full = s.density === 'full';
+      const shown = full ? L : L.slice(0, 1);
+      const dir = dirOf(k);
+      const lastVal = L.map(a => VAL[a]).filter(Boolean)[0];
+      rows.push({
+        isGroup: false, isRow: true, n: k.n, name: k.name, fn: k.fn, hasDesc: !!k.desc,
+        dpt: dptOf(k), dptName: DPTN[dptOf(k)] || '', len: k.len,
+        dir, dirTip: 'Richtung: ' + DIRT[dir], dirSend: dir === 'send', dirRecv: dir === 'recv', dirBoth: dir === 'both' || dir === 'none',
+        cls: (s.sel === k.n ? 'on' : '') + (full && L.length > 2 ? ' tall' : ''), boxCls: s.checked[k.n] ? 'on' : '',
+        check: () => this.setState({ checked: { ...s.checked, [k.n]: !s.checked[k.n] } }),
+        pick: () => this.setState({ sel: k.n, picker: false, menu: null }),
+        link: () => this.setState({ sel: k.n, picker: true, pk: 'exist', pq: '', menu: null }),
+        menu: () => this.setState({ menu: s.menu === k.n ? null : k.n, sel: k.n }), menuOpen: s.menu === k.n,
+        copyOne: () => { this.setState({ clip: [{ links: L.slice(), flags: flagsOf(k) }], menu: null }); this.say('Verknüpfungen von #' + k.n + ' kopiert'); },
+        pasteOne: () => { if (!s.clip) { this.setState({ menu: null }); this.say('Zwischenablage ist leer'); return; } this.setState({ links: { ...s.links, [k.n]: s.clip[0].links.slice() }, menu: null, changes: s.changes + 1 }); this.say('Verknüpfungen in #' + k.n + ' eingefügt'); },
+        copyText: () => { this.setState({ menu: null }); this.say(L.length ? 'Kopiert: ' + L.join(', ') : 'Keine Adressen'); },
+        editDesc: () => { this.setState({ menu: null, sel: k.n }); this.say('Beschreibung im Inspektor bearbeiten'); },
+        unlinkAll: () => this.setState({ links: { ...s.links, [k.n]: [] }, menu: null, changes: s.changes + 1 }),
+        flags: F.map(f => ({ l: f, title: FT[f][0], cls: has(k, f) ? 'on' : '', toggle: () => toggleFlag(k, f) })),
+        gasCls: full ? 'wrapall' : '',
+        gaShown: shown.map((a, i) => ({ a, n: GA[a][0], bad: badGa(k, a), cls: (i === 0 && L.indexOf(a) === 0 ? 'send' : '') + (badGa(k, a) ? ' bad' : ''), tip: (L.indexOf(a) === 0 ? 'Sendende Gruppenadresse' : 'Empfangende Gruppenadresse') + (badGa(k, a) ? ' – Datentyp ' + GA[a][1] + ' passt nicht zu ' + dptOf(k) : '') })),
+        hasMore: !full && L.length > 1, moreLabel: '+' + (L.length - 1), noGa: L.length === 0,
+        val: lastVal ? lastVal[0] : '—', valT: lastVal ? lastVal[1] : 'kein Wert'
+      });
+    });
+
+    // inspector
+    const ko = KO.find(k => k.n === s.sel);
+    let o = { pos: '', n: '', ch: '', name: '', fn: '', desc: '', descColor: 'var(--muted)', dpt: '', dptLabel: '', prio: '', gaCount: '', hasGa: false, gaList: [], flagList: [], dirTag: 'neu', dirText: '' };
+    let pres = [];
+    let newSub = '20';
+    if (ko) {
+      const L = s.links[ko.n];
+      const dir = dirOf(ko);
+      const idx = vis.findIndex(k => k.n === ko.n);
+      o = {
+        pos: idx >= 0 ? (idx + 1) + ' / ' + vis.length : '', n: ko.n, ch: ko.ch, name: ko.name, fn: ko.fn,
+        desc: ko.desc || 'Keine Beschreibung', descColor: ko.desc ? 'var(--text)' : 'var(--muted)',
+        dpt: dptOf(ko), dptLabel: dptOf(ko) + ' ' + (DPTN[dptOf(ko)] || '') + (s.dpt[ko.n] ? '' : ' (Standard)'),
+        prio: s.prio[ko.n] || 'Niedrig (Standard)',
+        gaCount: String(L.length), hasGa: L.length > 0,
+        gaList: L.map((a, i) => ({
+          a, n: GA[a][0], radioCls: i === 0 ? 'on' : '', bad: badGa(ko, a), good: !badGa(ko, a), dpt: 'DPT ' + GA[a][1],
+          val: VAL[a] ? VAL[a][0] : '—', sub: (i === 0 ? 'sendet' : 'empfängt') + (VAL[a] ? ' · ' + VAL[a][1] : ''),
+          makeSend: () => { const nx = [a].concat(L.filter(x => x !== a)); this.setState({ links: { ...s.links, [ko.n]: nx }, changes: s.changes + 1 }); },
+          unlink: () => this.setState({ links: { ...s.links, [ko.n]: L.filter(x => x !== a) }, changes: s.changes + 1 })
+        })),
+        flagList: F.map(f => ({ l: f, title: FT[f][0], desc: FT[f][1], cls: has(ko, f) ? 'on' : '', toggle: () => toggleFlag(ko, f) })),
+        dirTag: dir === 'none' ? 'warn' : 'neu', dirText: 'Richtung: ' + DIRT[dir]
+      };
+      const pq = s.pq.trim().toLowerCase();
+      pres = Object.keys(GA).filter(a => !L.includes(a)).filter(a => !s.match || GA[a][1] === dptOf(ko)).filter(a => !pq || (a + ' ' + GA[a][0]).toLowerCase().includes(pq))
+        .map(a => ({ a, n: GA[a][0], dpt: GA[a][1], tagCls: GA[a][1] === dptOf(ko) ? 'ok' : 'warn', pick: () => { this.setState({ links: { ...s.links, [ko.n]: L.concat([a]) }, picker: false, changes: s.changes + 1 }); this.say(a + ' mit #' + ko.n + ' verknüpft'); } }));
+      newSub = String(20 + Object.keys(s.created).length);
+    }
+
+    // batch
+    const selObjs = KO.filter(k => s.checked[k.n]);
+    const start = 20 + Object.keys(s.created).length;
+    const batchPrev = selObjs.map((k, i) => ({ n: k.n, a: '7/1/' + (start + i), name: nameFor(k, i) }));
+    const phs = ['{room}', '{device}', '{object}', '{function}', '{number}', '{dpt}', '{address}', '{n}', '{n:02}'].map(t => ({ t, tip: 'Platzhalter ' + t, add: () => this.setState({ tpl: (s.tpl + ' ' + t).trim() }) }));
+
+    const allCls = visChecked === 0 ? '' : visChecked === vis.length ? 'on' : 'mixed';
+
+    return {
+      q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
+      f: { all: s.filter === 'all' ? 'on' : '', linked: s.filter === 'linked' ? 'on' : '', free: s.filter === 'free' ? 'on' : '', warn: s.filter === 'warn' ? 'on' : '' },
+      fAll: set({ filter: 'all' }), fLinked: set({ filter: 'linked' }), fFree: set({ filter: 'free' }), fWarn: set({ filter: 'warn' }),
+      warnCount: '(' + KO.filter(conflicts).length + ')',
+      live: s.live, liveCls: s.live ? 'on' : '', toggleLive: set({ live: !s.live }), liveTbl: s.live ? 'live' : '',
+      d: { compact: s.density === 'compact' ? 'on' : '', full: s.density === 'full' ? 'on' : '' }, dCompact: set({ density: 'compact' }), dFull: set({ density: 'full' }),
+      chans, rows, noRows: rows.length === 0,
+      allCls, allPath: allCls === 'mixed' ? 'M6 12h12' : 'M5 12l5 5 9-10',
+      toggleAll: () => { const c = { ...s.checked }; const on = visChecked !== vis.length; vis.forEach(k => { c[k.n] = on; }); this.setState({ checked: c }); },
+      hasSel: nChecked > 0, selLabel: nChecked === 1 ? '1 Objekt ausgewählt' : nChecked + ' Objekte ausgewählt', clearSel: set({ checked: {}, pasteMenu: false }),
+      copyLinks: () => { this.setState({ clip: selObjs.map(k => ({ links: s.links[k.n].slice(), flags: flagsOf(k) })) }); this.say(selObjs.length === 1 ? 'Verknüpfungen von 1 Objekt kopiert' : 'Verknüpfungen von ' + selObjs.length + ' Objekten kopiert'); },
+      pasteDisabled: !s.clip, togglePaste: set({ pasteMenu: !s.pasteMenu }), pasteMenu: s.pasteMenu,
+      clipLabel: s.clip ? 'Zwischenablage: ' + (s.clip.length === 1 ? '1 Objekt' : s.clip.length + ' Objekte') : '',
+      pasteReplace: () => { const L = { ...s.links }, Fl = { ...s.flags }; selObjs.forEach((k, i) => { const c = s.clip[i % s.clip.length]; L[k.n] = c.links.slice(); Fl[k.n] = c.flags; }); this.setState({ links: L, flags: Fl, pasteMenu: false, changes: s.changes + 1 }); this.say('Eingefügt (ersetzt) in ' + selObjs.length + (selObjs.length === 1 ? ' Objekt' : ' Objekte')); },
+      pasteMerge: () => { const L = { ...s.links }; selObjs.forEach((k, i) => { const c = s.clip[i % s.clip.length]; L[k.n] = L[k.n].concat(c.links.filter(a => !L[k.n].includes(a))); }); this.setState({ links: L, pasteMenu: false, changes: s.changes + 1 }); this.say('Zusammengeführt in ' + selObjs.length + (selObjs.length === 1 ? ' Objekt' : ' Objekte')); },
+      anyMenu: s.menu !== null || s.pasteMenu, closeMenus: set({ menu: null, pasteMenu: false }),
+      hasObj: !!ko, noObj: !ko, o,
+      cycleDpt: () => { if (!ko) return; const opts = ko.dpt.startsWith('1.') ? ['1.001', '1.007', '1.008', '1.017'] : ko.dpt.startsWith('5.') ? ['5.001', '5.010'] : [ko.dpt]; const cur = dptOf(ko); const nx = opts[(opts.indexOf(cur) + 1) % opts.length]; const d = { ...s.dpt }; if (nx === ko.dpt) delete d[ko.n]; else d[ko.n] = nx; this.setState({ dpt: d, changes: s.changes + 1 }); },
+      cyclePrio: () => { if (!ko) return; const opts = ['Niedrig (Standard)', 'Hoch', 'Alarm']; const cur = s.prio[ko.n] || opts[0]; this.setState({ prio: { ...s.prio, [ko.n]: opts[(opts.indexOf(cur) + 1) % 3] }, changes: s.changes + 1 }); },
+      pickerOpen: !!ko && s.picker, pickerClosed: !!ko && !s.picker, openPicker: set({ picker: true, pk: 'exist', pq: '' }), closePicker: set({ picker: false }),
+      pk: { exist: s.pk === 'exist' ? 'on' : '', neu: s.pk === 'new' ? 'on' : '' }, pkExist: set({ pk: 'exist' }), pkNew: set({ pk: 'new' }), pkIsExist: s.pk === 'exist', pkIsNew: s.pk === 'new',
+      pq: s.pq, onPq: (e) => this.setState({ pq: e.target.value }), matchCls: s.match ? 'on' : '', toggleMatch: set({ match: !s.match }),
+      pres, noPres: pres.length === 0,
+      tpl: s.tpl, onTpl: (e) => this.setState({ tpl: e.target.value }), phs,
+      newSub, newName: ko ? nameFor(ko, 0) : '',
+      createLink: () => { if (!ko) return; const a = '7/1/' + newSub; GA[a] = [nameFor(ko, 0), dptOf(ko)]; this.setState({ links: { ...s.links, [ko.n]: s.links[ko.n].concat([a]) }, created: { ...s.created, [a]: true }, picker: false, changes: s.changes + 1 }); this.say(a + ' angelegt und verknüpft'); },
+      batch: s.batch, openBatch: set({ batch: true, pasteMenu: false }), closeBatch: set({ batch: false }),
+      batchStart: String(start), batchPrev, batchBtn: selObjs.length === 1 ? '1 Gruppenadresse erstellen' : selObjs.length + ' Gruppenadressen erstellen',
+      runBatch: () => { const L = { ...s.links }, C = { ...s.created }; selObjs.forEach((k, i) => { const a = '7/1/' + (start + i); GA[a] = [nameFor(k, i), dptOf(k)]; C[a] = true; L[k.n] = [a].concat(L[k.n]); }); this.setState({ links: L, created: C, batch: false, checked: {}, changes: s.changes + 1 }); this.say(selObjs.length + ' Gruppenadressen erstellt und verknüpft'); },
+      dirtyLabel: s.changes ? (s.changes === 1 ? '1 Änderung · Programmierung ausstehend' : s.changes + ' Änderungen · Programmierung ausstehend') : 'Keine Änderungen seit der Programmierung', dirtyCls: s.changes ? 'warn' : 'neu',
+      hasToast: !!s.toast, toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
