@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Analyse und Konzept</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f5fd1}a:hover{color:#16479e}
+.mk{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#c2410c;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #fff,0 2px 8px rgba(0,0,0,.3)}
+.li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start}
+.li .n{width:24px;height:24px;border-radius:50%;background:#c2410c;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.li b{display:block;margin-bottom:2px}
+.li span{color:#4d5666;line-height:1.5}
+.mapr{display:grid;grid-template-columns:260px 180px minmax(0,1fr);gap:16px;padding:9px 16px;border-top:1px solid #e2e5ea;align-items:center}
+.mapr.h{background:#f4f5f7;font-weight:600;font-size:12px;color:#4d5666;border-top:0}
+.to{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:500;background:#e8effc;color:#1f5fd1}
+.to.n{background:#e5f4ea;color:#1a7334}
+.to.d{background:#fff1df;color:#9a4a00}
+.to.x{background:#f1f2f4;color:#4d5666}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 2700px; box-sizing: border-box; padding: 72px 80px; background: #ffffff; font-family: Inter, system-ui, sans-serif; color: #1b2230; font-size: 14px; display: flex; flex-direction: column; gap: 64px">
+
+  <section style="display: flex; flex-direction: column; gap: 12px; max-width: 920px">
+    <div style="font-size: 13px; font-weight: 600; color: #1f5fd1; letter-spacing: .06em; text-transform: uppercase">UX-Redesign</div>
+    <h1 style="margin: 0; font-size: 40px; line-height: 1.15; font-weight: 700">Weniger Fenster, klarere Wege: vom Dock-Baukasten zum Arbeitsplatz</h1>
+    <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #4d5666">Heute stehen 22 gleichrangige Panels in fünf Dock-Bereichen nebeneinander. Der Entwurf ordnet sie nach Aufgaben: <b style="color: #1b2230">Navigieren → Bearbeiten → Prüfen → Programmieren</b>. Der Parameterbereich bleibt unverändert, weil das Gerät ihn vorgibt. Geändert wird alles drumherum.</p>
+  </section>
+
+  <!-- IST: Übersicht -->
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 26px">1 · Ist-Zustand: Hauptfenster</h2>
+    <div style="display: flex; gap: 40px; align-items: flex-start">
+      <div style="position: relative; width: 900px; height: 532px; flex: none; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px #d3d8df, 0 10px 30px rgba(20,30,50,.12)">
+        <img src="/_blob/a48b96ff63d283e45f1813121a6e27fd" alt="Screenshot des aktuellen Editors mit Gebäudebaum, Editor, Geräte-Panel, Vorgängen und Monitor" style="width: 900px; height: 532px; display: block">
+        <div style="position: absolute; left: 286px; top: 120px; width: 431px; height: 393px; border: 2px dashed #1a7334; border-radius: 4px; background: rgba(26,115,52,.06)"></div>
+        <div style="position: absolute; left: 292px; top: 126px; background: #1a7334; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px">Geräteinhalt – bleibt</div>
+        <div class="mk" style="left: 127px; top: 22px">1</div>
+        <div class="mk" style="left: 10px; top: 46px">2</div>
+        <div class="mk" style="left: 139px; top: 380px">3</div>
+        <div class="mk" style="left: 520px; top: 65px">4</div>
+        <div class="mk" style="left: 800px; top: 34px">5</div>
+        <div class="mk" style="left: 798px; top: 163px">6</div>
+        <div class="mk" style="left: 790px; top: 295px">7</div>
+        <div class="mk" style="left: 82px; top: 520px">8</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px; flex: 1">
+        <div class="li"><span class="n">1</span><div><b>Menüleiste mischt Befehle und Status</b><span>„Gateway“ ist eigentlich ein Verbindungsstatus, „KNX Secure“ hat einen einzigen Eintrag, „MCP“ ist ein Hintergrunddienst. Die Datei-Funktionen stecken teils in „Datei“, teils in Panels.</span></div></div>
+        <div class="li"><span class="n">2</span><div><b>Drei Wege, Panels ein- und auszublenden</b><span>▾ pro Dock-Bereich, Ansicht › Fenster und das × am Reiter. Gebäude, Topologie und Gruppenadressen sind eigene Panels und keine Ansichten derselben Projektstruktur.</span></div></div>
+        <div class="li"><span class="n">3</span><div><b>Monitor belegt dauerhaft ⅓ der linken Spalte</b><span>Auch ohne Verbindung; dazu eine Toolbar mit 8 deaktivierten Buttons und 5 Unter-Reitern.</span></div></div>
+        <div class="li"><span class="n">4</span><div><b>Programmieren verteilt sich auf drei Orte</b><span>Modus-Dropdown + 2 Buttons + 👁 (Speichervorschau) im Editor, weitere Geräteaktionen rechts, Verbindung im Menü.</span></div></div>
+        <div class="li"><span class="n">5</span><div><b>Ein Gerät, drei Reiter</b><span>Gerät, Hersteller und Kommentar sind getrennte Panels, obwohl sie dasselbe Objekt beschreiben.</span></div></div>
+        <div class="li"><span class="n">6</span><div><b>Gefährliche neben harmlosen Aktionen</b><span>„Zurücksetzen…“ steht gleichwertig neben „Neustart“ und „Vom Gerät lesen“.</span></div></div>
+        <div class="li"><span class="n">7</span><div><b>Doppelte Historie</b><span>Vorgänge › Historie und das Panel Historie liegen nebeneinander; Zustandsprüfung zeigt 274 Warnungen als ungruppierte Liste.</span></div></div>
+        <div class="li"><span class="n">8</span><div><b>Fehler nur in der Statusleiste</b><span>„Tunnel connection could not be established“ – rot, englisch und ohne Handlung.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IST: KO -->
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 26px">2 · Ist-Zustand: Kommunikationsobjekte</h2>
+    <div style="display: flex; gap: 40px; align-items: flex-start">
+      <div style="position: relative; width: 900px; height: 532px; flex: none; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px #d3d8df, 0 10px 30px rgba(20,30,50,.12)">
+        <img src="/_blob/1965183effd54ba9fac056faa6812f9e" alt="Screenshot der aktuellen Kommunikationsobjekt-Tabelle des Jalousieaktors" style="width: 900px; height: 532px; display: block">
+        <div class="mk" style="left: 364px; top: 128px">A</div>
+        <div class="mk" style="left: 296px; top: 200px">B</div>
+        <div class="mk" style="left: 646px; top: 112px">C</div>
+        <div class="mk" style="left: 560px; top: 440px">D</div>
+        <div class="mk" style="left: 330px; top: 99px">E</div>
+        <div class="mk" style="left: 466px; top: 128px">F</div>
+        <div class="mk" style="left: 811px; top: 190px">G</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px; flex: 1">
+        <div class="li"><span class="n">A</span><div><b>Alles abgeschnitten</b><span>Name („Zentrale Funktion · Rolll…“), Datentyp („1.008…“) und Länge („1 Bi“) passen nicht in ihre Spalten. Die eigentliche Information ist nicht lesbar.</span></div></div>
+        <div class="li"><span class="n">B</span><div><b>Kanal als Präfix statt als Gruppe</b><span>„Zentrale Funktion“, „Automatik A“ und „A: Wohnzimmertür“ wiederholen sich in jeder Zeile; die Reihenfolge 0, 2, 3, 4, 1, 15 … wirkt zufällig.</span></div></div>
+        <div class="li"><span class="n">C</span><div><b>6 Checkbox-Spalten für Flags</b><span>K L S Ü A I belegen viel Breite und sind ohne Legende kaum zu deuten.</span></div></div>
+        <div class="li"><span class="n">D</span><div><b>Zeilenhöhe springt</b><span>Alle verknüpften Gruppenadressen stehen untereinander in der Zeile, jede mit ×; ein Objekt mit 6 GAs ist sechsmal so hoch.</span></div></div>
+        <div class="li"><span class="n">E</span><div><b>Mehrfachaktionen immer sichtbar, meist deaktiviert</b><span>„Gruppenadressen erstellen (0)“, „Verbindungen kopieren (0)“ und „Verbindungen einfügen (0)“ stehen ohne Auswahl ständig da.</span></div></div>
+        <div class="li"><span class="n">F</span><div><b>Priorität als „…“-Dropdown</b><span>Selten geändert, aber in jeder Zeile als Steuerelement.</span></div></div>
+        <div class="li"><span class="n">G</span><div><b>Rechte Spalte ohne Bezug</b><span>Beim Bearbeiten eines Objekts zeigt die rechte Spalte weiter Geräteeigenschaften statt der Objektdetails.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prinzipien -->
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 26px">3 · Leitprinzipien des Entwurfs</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #e2e5ea; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px"><b style="font-size: 16px">Feste Zonen statt freies Docking</b><span style="color: #4d5666; line-height: 1.5">Leiste → Navigator → Arbeitsbereich → Eigenschaften, unten eine einklappbare Leiste. Jedes Panel hat genau einen Ort. Freies Docking bleibt als Option für Fortgeschrittene.</span></div>
+      <div style="border: 1px solid #e2e5ea; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px"><b style="font-size: 16px">Eine Struktur, drei Sichten</b><span style="color: #4d5666; line-height: 1.5">Gebäude, Topologie und Gruppenadressen werden ein Umschalter im Navigator, keine drei Panels mehr.</span></div>
+      <div style="border: 1px solid #e2e5ea; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px"><b style="font-size: 16px">Kontext-Inspektor</b><span style="color: #4d5666; line-height: 1.5">Die rechte Spalte zeigt immer das, was gerade ausgewählt ist: Gerät, Kommunikationsobjekt oder Gruppenadresse. Abschnitte lassen sich einklappen statt Reiter.</span></div>
+      <div style="border: 1px solid #e2e5ea; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px"><b style="font-size: 16px">Eine primäre Aktion</b><span style="color: #4d5666; line-height: 1.5">„Programmieren ▾“ als Split-Button am Gerät; Modi im Menü. Seltene und gefährliche Aktionen im „⋯“-Menü, „Zurücksetzen…“ rot abgesetzt.</span></div>
+      <div style="border: 1px solid #e2e5ea; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px"><b style="font-size: 16px">Status, den man anklicken kann</b><span style="color: #4d5666; line-height: 1.5">Verbindung, ausstehende Geräte, Vorgänge und Warnungen stehen als Pillen oben und in der Statusleiste; ein Klick öffnet die Lösung, z. B. den Gateway-Dialog.</span></div>
+      <div style="border: 1px solid #e2e5ea; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px"><b style="font-size: 16px">Suchen statt suchen</b><span style="color: #4d5666; line-height: 1.5">Die vorhandene Befehlspalette (⌘P) wird zum zentralen Suchfeld in der Kopfzeile: Geräte, Gruppenadressen und Befehle an einem Ort.</span></div>
+    </div>
+  </section>
+
+  <!-- Struktur -->
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 26px">4 · Neuer Aufbau</h2>
+    <div style="display: grid; grid-template-columns: 64px 220px minmax(0, 1fr) 240px; grid-template-rows: 52px 360px 70px 28px; gap: 6px; max-width: 1100px; font-size: 13px">
+      <div style="grid-column: 1 / 5; background: #e8effc; border-radius: 8px; display: flex; align-items: center; padding: 0 16px; gap: 24px"><b>Kopfzeile</b><span>Projekt (Datei-Menü) · Suche ⌘P · „6 ausstehend“ · Verbindung · Theme · Inspektor</span></div>
+      <div style="background: #f1f2f4; border-radius: 8px; padding: 10px 6px; writing-mode: vertical-rl; transform: rotate(180deg); display: flex; align-items: center; justify-content: center"><b>Bereiche</b></div>
+      <div style="background: #f1f2f4; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px"><b>Navigator</b><span style="color: #4d5666">Gebäude | Topologie | GA<br>Filter, Statuspunkte<br>bzw. Katalog, Bus-Ansichten, Prüfung, Werkzeuge</span></div>
+      <div style="background: #e5f4ea; border: 2px dashed #1a7334; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px"><b>Arbeitsbereich</b><span style="color: #4d5666">Gerätekopf mit Programmieren ▾ und ⋯<br>Reiter: Parameter · Kommunikationsobjekte</span><span style="margin-top: auto; color: #1a7334; font-weight: 600">Parameterinhalt: unverändert vom Gerät</span></div>
+      <div style="background: #f1f2f4; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px"><b>Inspektor</b><span style="color: #4d5666">Gerät / Objekt / GA<br>einklappbare Abschnitte<br>ausblendbar</span></div>
+      <div style="grid-column: 2 / 5; background: #fff1df; border-radius: 8px; padding: 0 16px; display: flex; align-items: center; gap: 16px"><b>Untere Leiste (bei Bedarf)</b><span>Vorgänge · Telegramme · Log · Änderungsverlauf</span></div>
+      <div style="grid-column: 1 / 5; background: #f1f2f4; border-radius: 6px; padding: 0 16px; display: flex; align-items: center; font-size: 12px">Statusleiste: Verbindung · Vorgänge · Telegramme · Log · Verlauf · Warnungen · MCP · KNX Master</div>
+    </div>
+  </section>
+
+  <!-- Mapping -->
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 26px">5 · Wohin wandern die 22 Panels und 6 Menüs?</h2>
+    <div style="border: 1px solid #e2e5ea; border-radius: 12px; overflow: hidden; max-width: 1180px">
+      <div class="mapr h"><span>Heute</span><span>Neu</span><span>Begründung</span></div>
+      <div class="mapr"><span>Gebäude, Topologie, Gruppenadressen</span><span><span class="to">Navigator</span></span><span>Ein Umschalter, eine Suche, gleiche Statuspunkte in allen Sichten.</span></div>
+      <div class="mapr"><span>Katalog</span><span><span class="to">Bereich „Katalog“</span></span><span>Wird nur beim Hinzufügen gebraucht; Drag &amp; Drop in den Navigator bleibt.</span></div>
+      <div class="mapr"><span>Editor</span><span><span class="to n">Arbeitsbereich</span></span><span>Rahmen neu (Gerätekopf, Reiter, Toolbar); Parameterinhalt unverändert.</span></div>
+      <div class="mapr"><span>Gerät, Hersteller, Kommentar</span><span><span class="to">Inspektor</span></span><span>Drei Reiter werden zu Abschnitten eines Inspektors.</span></div>
+      <div class="mapr"><span>Geräteübersicht (Cockpit)</span><span><span class="to">Arbeitsbereich</span></span><span>Erscheint, wenn ein Raum oder eine Linie statt eines Geräts gewählt ist.</span></div>
+      <div class="mapr"><span>Vorgänge, Projektprotokoll, Log</span><span><span class="to d">Untere Leiste</span></span><span>Nur bei Bedarf offen; Zähler in der Statusleiste.</span></div>
+      <div class="mapr"><span>Historie (2×)</span><span><span class="to d">Untere Leiste › Änderungsverlauf</span></span><span>Ein Ort für Undo-Verlauf; Programmier-Historie bei den Vorgängen.</span></div>
+      <div class="mapr"><span>Zustandsprüfung</span><span><span class="to">Bereich „Prüfung“</span></span><span>Nach Art gruppiert, jede Meldung springt zum Objekt.</span></div>
+      <div class="mapr"><span>Monitor (5 Reiter), Busdiagramm, Zeitverlauf</span><span><span class="to">Bereich „Bus“</span></span><span>Volle Breite statt ⅓ Spalte; kurze Telegrammliste auch unten.</span></div>
+      <div class="mapr"><span>Massenverknüpfung, Werkzeuge, Wiederherstellen</span><span><span class="to">Bereich „Werkzeuge“</span></span><span>Seltene Aufgaben als Kacheln mit Beschreibung.</span></div>
+      <div class="mapr"><span>Projekt (Info)</span><span><span class="to">Projektmenü</span></span><span>Erreichbar über den Projektnamen in der Kopfzeile.</span></div>
+      <div class="mapr"><span>Menü Datei</span><span><span class="to">Projektmenü</span></span><span>Klick auf den Projektnamen; Import/Export zusammengefasst.</span></div>
+      <div class="mapr"><span>Menü Bearbeiten</span><span><span class="to x">⌘Z / ⌘P</span></span><span>Rückgängig und Befehlspalette bleiben als Tastenkürzel und Suchfeld.</span></div>
+      <div class="mapr"><span>Menü Ansicht</span><span><span class="to x">Kopfzeile + Einstellungen</span></span><span>Theme- und Inspektor-Schalter oben; der Rest in den Einstellungen.</span></div>
+      <div class="mapr"><span>Menü Gateway</span><span><span class="to">Verbindungs-Pille</span></span><span>Status und Aktion an einer Stelle, inkl. gefundener Gateways.</span></div>
+      <div class="mapr"><span>Menü MCP, KNX Secure</span><span><span class="to x">Statusleiste / Werkzeuge</span></span><span>MCP als Statusanzeige; Schlüsselbund unter Werkzeuge › KNX Secure.</span></div>
+    </div>
+  </section>
+
+  <!-- KO neu -->
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 26px">6 · Kommunikationsobjekte neu</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 40px; max-width: 1180px">
+      <div class="li"><span class="n" style="background: #1a7334">1</span><div><b>Nach Kanal gruppiert, einklappbar</b><span>Kopfzeile pro Kanal mit „9 Objekte · 4 verknüpft“; der Kanal steht nicht mehr in jeder Zeile.</span></div></div>
+      <div class="li"><span class="n" style="background: #1a7334">2</span><div><b>Zweizeilige Objektzelle</b><span>Objektname fett, Funktion darunter; Datentyp als „1.008 / Auf/Ab · 1 Bit“ – nichts wird mehr abgeschnitten.</span></div></div>
+      <div class="li"><span class="n" style="background: #1a7334">3</span><div><b>Flags als kompakte Buchstaben-Schalter</b><span>K L S Ü A I in einer Spalte, aktiv hervorgehoben, Tooltip mit vollem Namen; im Inspektor als beschriftete Schalter.</span></div></div>
+      <div class="li"><span class="n" style="background: #1a7334">4</span><div><b>Feste Zeilenhöhe</b><span>Die sendende GA als grüner Chip, weitere als „+5“; die vollständige, sortierbare Liste im Inspektor.</span></div></div>
+      <div class="li"><span class="n" style="background: #1a7334">5</span><div><b>Filter statt Scrollen</b><span>Suche über Objekt, Funktion und GA; Umschalter Alle · Verknüpft · Unverknüpft.</span></div></div>
+      <div class="li"><span class="n" style="background: #1a7334">6</span><div><b>Mehrfachaktionen nur bei Auswahl</b><span>Erst wenn Zeilen angehakt sind, erscheint eine Leiste mit „Gruppenadressen erstellen“, „Kopieren“, „Einfügen“ und „Zusammenführen“.</span></div></div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 12px; max-width: 1180px; border-top: 1px solid #e2e5ea; padding-top: 28px">
+    <h2 style="margin: 0; font-size: 20px">Hinweise zur Umsetzung in Dear ImGui</h2>
+    <p style="margin: 0; color: #4d5666; line-height: 1.6">Die Zonen lassen sich mit dem bestehenden hello_imgui-Docking als <b style="color: #1b2230">festes Standardlayout</b> abbilden (Docking-Splits mit <span style="font-family: JetBrains Mono, monospace; font-size: 13px">NoTabBar</span>/<span style="font-family: JetBrains Mono, monospace; font-size: 13px">NoUndocking</span>). Freies Docking kann über „Layout anpassen“ wieder erlaubt werden. Die Bereichsleiste ist eine schmale Seitenleiste, die den Inhalt von Navigator und Arbeitsbereich umschaltet. Die untere Leiste ist ein Dock-Bereich, der standardmäßig eingeklappt ist. Für die Browser-UI (--web) und schmale Fenster gilt dieselbe Struktur: Inspektor und Navigator werden zu Overlays.</p>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

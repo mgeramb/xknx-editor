@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Bus und Monitor – Vertiefung</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f5fd1}a:hover{color:#16479e}
+.b{--bg:#f4f5f7;--panel:#fff;--sub:#f8f9fb;--line:#e2e5ea;--line2:#d3d8df;--text:#1b2230;--muted:#586273;--accent:#1f5fd1;--accent-weak:#e8effc;--warn:#9a4a00;--warn-weak:#fff1df;--ok:#1a7334;--ok-weak:#e5f4ea;--rec:#c62828;--rec-weak:#fdecea;--purple:#6b3fb5;--purple-weak:#f1ebfb;--sel:#e8effc;--hover:#f0f2f5;--shadow:0 10px 30px rgba(20,30,50,.18);
+  font-family:Inter,system-ui,sans-serif;font-size:13px;color:var(--text);background:var(--bg);height:100vh;min-height:760px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.b *{box-sizing:border-box}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit}
+.btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.rec{background:var(--rec);border-color:var(--rec);color:#fff;font-weight:600}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--hover)}
+.btn.icon{width:30px;padding:0;justify-content:center}
+.btn.sm{height:26px;padding:0 8px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:default}
+.ico,.btn svg{width:16px;height:16px;flex:none}
+.field{height:30px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);display:flex;align-items:center;gap:6px;padding:0 8px;color:var(--muted)}
+.field input{border:0;outline:0;background:transparent;flex:1;font:inherit;color:var(--text);min-width:0}
+.seg{display:flex;background:var(--sub);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+.seg button{flex:1;height:26px;border:0;border-radius:5px;background:transparent;cursor:pointer;color:var(--muted);font-size:12px;white-space:nowrap;padding:0 10px}
+.seg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;flex:none;background:var(--panel);color:transparent}
+.box.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.box svg{width:12px;height:12px}
+.chk{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:0;background:transparent;padding:0;color:var(--muted);font-size:12.5px}
+.tag{font-size:11px;padding:1px 7px;border-radius:9px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.tag.ok{background:var(--ok-weak);color:var(--ok)}
+.tag.warn{background:var(--warn-weak);color:var(--warn)}
+.tag.neu{background:var(--sub);color:var(--muted);border:1px solid var(--line)}
+.tag.w{background:var(--accent-weak);color:var(--accent)}
+.tag.r{background:var(--purple-weak);color:var(--purple)}
+.tag.a{background:var(--ok-weak);color:var(--ok)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.pulse{animation:pl 1.2s infinite}
+@keyframes pl{50%{opacity:.25}}
+/* shell */
+.top{height:52px;flex:none;display:flex;align-items:center;gap:12px;padding:0 12px 0 0;background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{width:64px;height:52px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line)}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pill{height:30px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-radius:15px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;white-space:nowrap}
+.body{flex:1;display:flex;min-height:0}
+.rail{width:64px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px}
+.rb{width:54px;height:54px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--muted)}
+.rb.on{background:var(--accent-weak);color:var(--accent);font-weight:600}
+.rb svg{width:20px;height:20px}
+.nav{width:260px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;overflow:auto}
+.nh{padding:14px 14px 4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ni{display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer;color:var(--text)}
+.ni:hover{background:var(--hover)}
+.ni.on{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent);font-weight:600}
+.ni .c{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:400}
+.ni svg{width:16px;height:16px;color:var(--muted)}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;min-height:0}
+/* recorder bar */
+.recbar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.recst{display:flex;flex-direction:column;line-height:1.3}
+.recst b{font-size:14px;display:flex;align-items:center;gap:8px}
+.recst span{font-size:12px;color:var(--muted)}
+.spark{display:flex;align-items:flex-end;gap:2px;height:34px;padding:0 4px;border-left:1px solid var(--line);margin-left:6px}
+.spark i{width:5px;background:var(--accent);border-radius:1px;opacity:.75;display:block}
+.tb{display:flex;align-items:center;gap:8px;padding:8px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.fchip{height:26px;padding:0 10px;border-radius:13px;border:1px solid var(--line2);background:var(--panel);font-size:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.fchip.on{background:var(--accent-weak);border-color:var(--accent);color:var(--accent);font-weight:600}
+.fchip.x{background:var(--sub)}
+.wrap{flex:1;min-height:0;overflow:auto;padding:12px 20px}
+.tbl{min-width:860px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.r{display:grid;grid-template-columns:110px 76px minmax(160px,1fr) minmax(200px,1.3fr) 150px;align-items:center;min-height:38px;border-top:1px solid var(--line);cursor:pointer}
+.r > div{padding:0 8px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r:hover{background:var(--hover)}
+.r.on{background:var(--sel)}
+.r.new{animation:fl 1.2s ease-out}
+@keyframes fl{from{background:#fff7d6}to{background:transparent}}
+.r.h{min-height:32px;background:var(--sub);border-top:0;color:var(--muted);font-size:12px;font-weight:600;position:sticky;top:0;z-index:2;cursor:default;border-radius:8px 8px 0 0}
+.r.raw{grid-template-columns:110px 76px 90px 90px minmax(240px,1fr) 70px}
+.pa{font-family:"JetBrains Mono",monospace;font-size:12px;margin-right:6px}
+.v{font-weight:600}
+.send{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--panel);border-top:1px solid var(--line);flex-wrap:wrap}
+.send .lbl{font-weight:600;font-size:12.5px}
+/* inspector */
+.insp{width:340px;flex:none;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.ih{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 16px;border-bottom:1px solid var(--line);font-weight:600}
+.ib{flex:1;overflow:auto}
+.sec{border-bottom:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.sec h4{margin:0;font-size:12.5px}
+.kvr{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px;font-size:12.5px;align-items:baseline}
+.kvr > span:first-child{color:var(--muted)}
+.big{font-size:26px;font-weight:600}
+.hex{background:var(--sub);border:1px solid var(--line);border-radius:6px;padding:8px;font-family:"JetBrains Mono",monospace;font-size:12px;word-break:break-all}
+.hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.hist div{display:flex;justify-content:space-between;padding:6px 10px;border-top:1px solid var(--line);font-size:12.5px}
+.hist div:first-child{border-top:0}
+.acts{display:flex;flex-wrap:wrap;gap:6px}
+/* views */
+.view{flex:1;overflow:auto;padding:20px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi b{display:block;font-size:24px;font-weight:600}
+.kpi span{font-size:12px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.card h3{margin:0 0 12px;font-size:14px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:140px;border-bottom:1px solid var(--line2);padding-bottom:2px}
+.bars i{flex:1;background:var(--accent);border-radius:2px 2px 0 0;display:block;min-height:2px}
+.bars i.peak{background:var(--warn)}
+.top2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.hb{display:grid;grid-template-columns:150px minmax(0,1fr) 44px;gap:8px;align-items:center;font-size:12.5px;padding:4px 0}
+.hb .tr{height:10px;background:var(--sub);border-radius:5px;overflow:hidden}
+.hb .tr i{display:block;height:100%;background:var(--accent)}
+.hb .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;height:100%}
+.pin{display:flex;align-items:center;gap:8px;padding:7px 10px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer;border-top:1px solid var(--line);color:var(--text)}
+.pin:hover{background:var(--hover)}
+.sw{width:12px;height:12px;border-radius:3px;flex:none}
+.chart{position:relative}
+.chart svg{width:100%;height:340px;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.vals{min-width:760px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.vr{display:grid;grid-template-columns:80px minmax(200px,1.3fr) 110px 150px 110px 120px;align-items:center;min-height:38px;border-top:1px solid var(--line);font-size:12.5px}
+.vr > div{padding:0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vr.h{background:var(--sub);border-top:0;color:var(--muted);font-weight:600;font-size:12px;min-height:32px}
+.empty{padding:50px 24px;text-align:center;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.pop{position:absolute;z-index:30;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:var(--shadow);padding:6px;min-width:250px}
+.mi{display:flex;align-items:center;gap:10px;width:100%;min-height:32px;padding:6px 10px;border:0;background:transparent;border-radius:6px;cursor:pointer;text-align:left;color:var(--text);white-space:nowrap}
+.mi:hover{background:var(--hover)}
+.mi .sc{margin-left:auto;color:var(--muted);font-size:11.5px}
+.msep{height:1px;background:var(--line);margin:4px 0}
+.rel{position:relative;display:inline-flex}
+.scrim{position:absolute;inset:0;z-index:20}
+.scrim.dim{background:rgba(10,15,25,.3)}
+.modal{position:absolute;left:50%;top:30%;transform:translateX(-50%);width:420px;max-width:calc(100% - 32px);background:var(--panel);border-radius:12px;box-shadow:var(--shadow);z-index:40;padding:20px;display:flex;flex-direction:column;gap:12px}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;background:var(--text);color:#fff;padding:10px 16px;border-radius:8px;box-shadow:var(--shadow)}
+@media (max-width:1180px){.insp{display:none}}
+@media (max-width:880px){.nav{display:none}.kpis{grid-template-columns:1fr 1fr}.top2{grid-template-columns:1fr}.tl{grid-template-columns:1fr}}
+</style>
+</helmet>
+<div class="b">
+
+<header class="top">
+  <div class="brand"></div>
+  <div style="line-height: 1.25"><b style="font-size: 14px">Krausgasse 12 Top 26</b><div class="muted" style="font-size: 12px">57 Geräte · 771 Gruppenadressen</div></div>
+  <span style="flex: 1"></span>
+  <button class="pill" onClick="{{toggleConn}}"><span class="dot" style="{{connDot}}"></span>{{connLabel}}</button>
+</header>
+
+<div class="body">
+<nav class="rail" aria-label="Bereiche">
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Katalog</span>
+  <span class="rb on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>Prüfung</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"></path></svg>Werkzeuge</span>
+</nav>
+
+<aside class="nav" aria-label="Bus-Ansichten">
+  <div class="nh">Mitschneiden</div>
+  <sc-for list="{{navRec}}" as="n" hint-placeholder-count="3">
+    <button class="ni {{n.cls}}" onClick="{{n.pick}}">{{n.label}}<span class="c">{{n.count}}</span></button>
+  </sc-for>
+  <div class="nh">Auswerten</div>
+  <sc-for list="{{navAna}}" as="n" hint-placeholder-count="3">
+    <button class="ni {{n.cls}}" onClick="{{n.pick}}">{{n.label}}<span class="c">{{n.count}}</span></button>
+  </sc-for>
+  <div class="nh">Anlage</div>
+  <sc-for list="{{navSys}}" as="n" hint-placeholder-count="1">
+    <button class="ni {{n.cls}}" onClick="{{n.pick}}">{{n.label}}</button>
+  </sc-for>
+  <div class="nh">Aufnahmen</div>
+  <sc-for list="{{recs}}" as="r" hint-placeholder-count="3">
+    <button class="ni {{r.cls}}" onClick="{{r.pick}}" style="height: auto; padding-top: 7px; padding-bottom: 7px"><span><span style="display: block">{{r.label}}</span><span class="muted" style="font-size: 11.5px">{{r.info}}</span></span></button>
+  </sc-for>
+  <div style="padding: 10px 14px"><button class="btn sm" onClick="{{notImpl}}">Aufnahme öffnen…</button></div>
+</aside>
+
+<section class="main">
+
+<!-- ===== GROUP MONITOR / BUS ACTIVITY ===== -->
+<sc-if value="{{isTelegramView}}" hint-placeholder-val="{{ true }}">
+  <div class="recbar">
+    <sc-if value="{{recording}}" hint-placeholder-val="{{ true }}">
+      <button class="btn rec" onClick="{{stopRec}}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg>Stopp</button>
+    </sc-if>
+    <sc-if value="{{notRecording}}" hint-placeholder-val="{{ false }}">
+      <button class="btn primary" onClick="{{startRec}}" disabled="{{cantRec}}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>Aufnahme starten</button>
+    </sc-if>
+    <div class="recst">
+      <b><span class="dot {{recDotCls}}" style="{{recDot}}"></span>{{recTitle}}</b>
+      <span>{{recSub}}</span>
+    </div>
+    <div class="spark" aria-label="Telegramme pro 30 Sekunden" role="img">
+      <sc-for list="{{spark}}" as="s" hint-placeholder-count="20"><i style="{{s}}"></i></sc-for>
+    </div>
+    <span style="flex: 1"></span>
+    <button class="btn" onClick="{{askClear}}">Leeren</button>
+    <span class="rel">
+      <button class="btn" onClick="{{toggleFile}}">Datei<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+      <sc-if value="{{fileMenu}}" hint-placeholder-val="{{ false }}">
+        <div class="pop" style="right: 0; top: 36px">
+          <button class="mi" onClick="{{notImpl}}">Exportieren…<span class="sc">Alle / Auswahl / Gefilterte</span></button>
+          <button class="mi" onClick="{{notImpl}}">Als PDF drucken…</button>
+          <button class="mi" onClick="{{notImpl}}">Aufnahme laden…</button>
+          <div class="msep"></div>
+          <button class="mi" onClick="{{replay}}">Telegramme wiedergeben…<span class="sc">sendet auf den Bus</span></button>
+        </div>
+      </sc-if>
+    </span>
+    <span class="rel">
+      <button class="btn icon" onClick="{{toggleSet}}" aria-label="Aufzeichnungseinstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></button>
+      <sc-if value="{{setMenu}}" hint-placeholder-val="{{ false }}">
+        <div class="pop" style="right: 0; top: 36px; width: 300px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+          <button class="chk" onClick="{{togglePersist}}" style="color: var(--text)"><span class="box {{persistCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Telegramme beim Beenden behalten</button>
+          <div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1">Höchstens</span><span class="field" style="width: 110px"><input value="10000" readOnly="{{ true }}" aria-label="Maximale Anzahl"></span><span class="muted">Telegr.</span></div>
+          <span class="muted" style="font-size: 12px">Ältere Telegramme werden verworfen, sobald die Grenze erreicht ist.</span>
+        </div>
+      </sc-if>
+    </span>
+  </div>
+  <div class="tb">
+    <label class="field" style="width: 280px"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{q}}" onChange="{{onQ}}" placeholder="Adresse, Name, Gerät oder Wert…" aria-label="Telegramme filtern"></label>
+    <button class="fchip {{ft.w}}" onClick="{{ftW}}">Schreiben</button>
+    <button class="fchip {{ft.r}}" onClick="{{ftR}}">Lesen</button>
+    <button class="fchip {{ft.a}}" onClick="{{ftA}}">Antwort</button>
+    <sc-for list="{{pinnedFilters}}" as="p" hint-placeholder-count="0">
+      <button class="fchip on" onClick="{{p.remove}}">{{p.label}} ✕</button>
+    </sc-for>
+    <span style="flex: 1"></span>
+    <button class="chk" onClick="{{toggleFollow}}"><span class="box {{followCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Live folgen</button>
+    <span class="muted" style="font-size: 12px">{{countLabel}}</span>
+  </div>
+  <div class="wrap">
+    <sc-if value="{{hasTel}}" hint-placeholder-val="{{ true }}">
+      <div class="tbl">
+        <div class="r h"><div>Zeit</div><div>Typ</div><div>Quelle</div><div>Ziel</div><div>Wert</div></div>
+        <sc-for list="{{tels}}" as="t" hint-placeholder-count="14">
+          <div class="r {{t.cls}}" onClick="{{t.pick}}">
+            <div class="mono">{{t.time}}</div>
+            <div><span class="tag {{t.typeCls}}">{{t.type}}</span></div>
+            <div title="{{t.srcName}}"><span class="pa">{{t.src}}</span>{{t.srcName}}</div>
+            <div title="{{t.dstName}}"><span class="pa">{{t.dst}}</span>{{t.dstName}}</div>
+            <div class="v">{{t.val}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{noTel}}" hint-placeholder-val="{{ false }}"><div class="empty">{{emptyText}}</div></sc-if>
+  </div>
+  <div class="send">
+    <span class="lbl">An Gruppenadresse senden</span>
+    <label class="field" style="width: 120px"><input class="mono" value="{{sendGa}}" onChange="{{onSendGa}}" aria-label="Gruppenadresse"></label>
+    <span class="muted" style="min-width: 180px">{{sendGaName}}</span>
+    <label class="field" style="width: 150px"><input value="{{sendVal}}" onChange="{{onSendVal}}" placeholder="{{sendHint}}" aria-label="Wert"></label>
+    <button class="btn primary" onClick="{{doWrite}}" disabled="{{cantSend}}">Schreiben</button>
+    <button class="btn" onClick="{{doRead}}" disabled="{{cantSend}}">Lesen</button>
+    <sc-if value="{{notConnected}}" hint-placeholder-val="{{ false }}"><span class="muted" style="font-size: 12px">Nicht verbunden</span></sc-if>
+  </div>
+</sc-if>
+
+<!-- ===== BUSMONITOR (raw) ===== -->
+<sc-if value="{{isRaw}}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{rawOff}}" hint-placeholder-val="{{ true }}">
+    <div class="view"><div class="empty" style="text-align: left; max-width: 640px; margin: 40px auto; padding: 28px">
+      <div style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px">Busmonitor: jeden Rahmen mitschneiden</div>
+      <p style="margin: 0 0 12px; line-height: 1.55">Im Busmonitor-Modus zeichnet die Schnittstelle jeden Rahmen auf, auch Management und Quittungen. Dafür wird die normale Verbindung getrennt: Gruppenmonitor, Programmieren und Werte schreiben pausieren, bis du den Busmonitor wieder stoppst.</p>
+      <div style="display: flex; gap: 8px"><button class="btn primary" onClick="{{startRaw}}" disabled="{{cantRec}}">Busmonitor starten</button><button class="btn ghost" onClick="{{goGroup}}">Zurück zum Gruppenmonitor</button></div>
+    </div></div>
+  </sc-if>
+  <sc-if value="{{rawOn}}" hint-placeholder-val="{{ false }}">
+    <div class="recbar">
+      <button class="btn rec" onClick="{{stopRaw}}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg>Busmonitor stoppen</button>
+      <div class="recst"><b><span class="dot pulse" style="background: var(--rec)"></span>Busmonitor-Modus aktiv</b><span>Normale Verbindung ist getrennt · wird beim Stoppen wiederhergestellt</span></div>
+    </div>
+    <div class="wrap">
+      <div class="tbl">
+        <div class="r raw h"><div>Zeit</div><div>Dienst</div><div>Quelle</div><div>Ziel</div><div>Rohdaten (cEMI)</div><div>Status</div></div>
+        <sc-for list="{{raw}}" as="t" hint-placeholder-count="10">
+          <div class="r raw"><div class="mono">{{t.time}}</div><div>{{t.svc}}</div><div class="mono">{{t.src}}</div><div class="mono">{{t.dst}}</div><div class="mono muted">{{t.hex}}</div><div><span class="tag {{t.stCls}}">{{t.st}}</span></div></div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+</sc-if>
+
+<!-- ===== WERTE ===== -->
+<sc-if value="{{isValues}}" hint-placeholder-val="{{ false }}">
+  <div class="tb"><label class="field" style="width: 280px"><input value="{{q}}" onChange="{{onQ}}" placeholder="Adresse oder Name…" aria-label="Werte filtern"></label><span class="muted" style="font-size: 12px">Letzter bekannter Wert jeder Gruppenadresse aus dem Mitschnitt</span></div>
+  <div class="wrap">
+    <div class="vals">
+      <div class="vr h"><div>Adresse</div><div>Name</div><div>Datentyp</div><div>Wert</div><div>Zeit</div><div>Quelle</div></div>
+      <sc-for list="{{valRows}}" as="v" hint-placeholder-count="10">
+        <div class="vr"><div class="mono">{{v.a}}</div><div>{{v.n}}</div><div class="mono muted">{{v.dpt}}</div><div class="v">{{v.val}}</div><div class="mono muted">{{v.time}}</div><div class="mono">{{v.src}}</div></div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== STATISTIK ===== -->
+<sc-if value="{{isStats}}" hint-placeholder-val="{{ false }}">
+  <div class="view">
+    <div class="kpis">
+      <div class="kpi"><b>{{stat.total}}</b><span>Telegramme</span></div>
+      <div class="kpi"><b>{{stat.rate}}</b><span>Telegramme pro Minute (Ø)</span></div>
+      <div class="kpi"><b>{{stat.peak}}</b><span>Spitze pro Minute · {{stat.peakAt}}</span></div>
+      <div class="kpi"><b>{{stat.span}}</b><span>Zeitraum</span></div>
+    </div>
+    <div class="card"><h3>Telegramme pro Minute</h3>
+      <div class="bars" role="img" aria-label="Balkendiagramm der Telegramme pro Minute">
+        <sc-for list="{{stat.bars}}" as="b" hint-placeholder-count="12"><i class="{{b.cls}}" style="{{b.h}}" title="{{b.tip}}"></i></sc-for>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-top: 4px" class="muted"><span>{{stat.from}}</span><span>{{stat.to}}</span></div>
+    </div>
+    <div class="top2">
+      <div class="card"><h3>Häufigste Quellen</h3>
+        <sc-for list="{{stat.srcs}}" as="h" hint-placeholder-count="5"><div class="hb"><span class="n"><span class="pa">{{h.k}}</span>{{h.n}}</span><span class="tr"><i style="{{h.w}}"></i></span><span class="mono" style="text-align: right">{{h.c}}</span></div></sc-for>
+      </div>
+      <div class="card"><h3>Häufigste Ziele</h3>
+        <sc-for list="{{stat.dsts}}" as="h" hint-placeholder-count="5"><div class="hb"><span class="n"><span class="pa">{{h.k}}</span>{{h.n}}</span><span class="tr"><i style="{{h.w}}"></i></span><span class="mono" style="text-align: right">{{h.c}}</span></div></sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== ZEITVERLAUF ===== -->
+<sc-if value="{{isTimeline}}" hint-placeholder-val="{{ false }}">
+  <div class="view">
+    <div class="tl">
+      <div class="card" style="padding: 0; overflow: hidden; align-self: start">
+        <div style="padding: 12px 12px 8px; font-weight: 600">Angeheftete Adressen</div>
+        <sc-for list="{{pins}}" as="p" hint-placeholder-count="5">
+          <button class="pin" onClick="{{p.toggle}}"><span class="box {{p.boxCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span class="sw" style="{{p.color}}"></span><span style="min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><span class="mono">{{p.a}}</span> {{p.n}}</span><span class="muted" style="margin-left: auto; font-size: 12px">{{p.last}}</span></button>
+        </sc-for>
+      </div>
+      <div class="card chart">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px"><h3 style="margin: 0; flex: 1">Werte über die Zeit</h3>
+          <div class="seg"><button class="{{win.m5}}" onClick="{{winM5}}">5 min</button><button class="{{win.m15}}" onClick="{{winM15}}">15 min</button><button class="{{win.all}}" onClick="{{winAll}}">Alles</button></div>
+        </div>
+        <div style="position: relative; height: 340px" role="img" aria-label="Liniendiagramm der angehefteten Gruppenadressen">
+          <svg viewBox="0 0 800 340" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 340px" aria-hidden="true">
+            <line x1="40" y1="20" x2="40" y2="310" stroke="#d3d8df"></line>
+            <line x1="40" y1="310" x2="790" y2="310" stroke="#d3d8df"></line>
+            <line x1="40" y1="165" x2="790" y2="165" stroke="#eef0f3"></line>
+            <line x1="40" y1="92" x2="790" y2="92" stroke="#eef0f3"></line>
+            <line x1="40" y1="237" x2="790" y2="237" stroke="#eef0f3"></line>
+          </svg>
+          <sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+            <svg viewBox="0 0 800 340" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 340px" aria-hidden="true"><polyline points="{{l.pts}}" fill="none" stroke="{{l.color}}" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline></svg>
+          </sc-for>
+          <span class="muted" style="position: absolute; left: 6%; bottom: 0; font-size: 11px">{{tlFrom}}</span>
+          <span class="muted" style="position: absolute; right: 1%; bottom: 0; font-size: 11px">{{tlTo}}</span>
+        </div>
+        <div class="legend">
+          <sc-for list="{{lines}}" as="l" hint-placeholder-count="2"><span><span class="sw" style="{{l.sw}}"></span>{{l.label}} · {{l.range}}</span></sc-for>
+        </div>
+        <sc-if value="{{noLines}}" hint-placeholder-val="{{ false }}"><div class="muted" style="margin-top: 8px">Links Adressen anhaken, um ihre Werte zu zeichnen. Im Gruppenmonitor geht das auch über „Im Zeitverlauf anheften“.</div></sc-if>
+        <div class="muted" style="font-size: 12px; margin-top: 6px">Jede Linie ist auf ihren eigenen Wertebereich skaliert.</div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== BUSDIAGRAMM ===== -->
+<sc-if value="{{isDiagram}}" hint-placeholder-val="{{ false }}">
+  <div class="view">
+    <div class="tb" style="border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px">
+      <div class="seg"><button class="on">Physikalisch</button><button>Gebäude</button><button>Verknüpfungen</button></div>
+      <span style="flex: 1"></span><button class="btn sm">Einpassen</button>
+    </div>
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 30px">
+      <div class="tag neu" style="font-size: 13px; padding: 6px 14px">Bereich 1</div>
+      <div style="display: flex; gap: 60px">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px"><div class="tag w" style="font-size: 13px; padding: 6px 14px">Linie 1.1 · 14 Geräte</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 150px); gap: 8px">
+            <sc-for list="{{diagA}}" as="d" hint-placeholder-count="6"><div style="border: 1px solid var(--line2); border-radius: 8px; padding: 8px; font-size: 12px"><b class="mono">{{d.pa}}</b><div class="muted" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{d.n}}</div></div></sc-for>
+          </div></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px"><div class="tag w" style="font-size: 13px; padding: 6px 14px">Linie 1.2 · IP</div>
+          <div style="display: grid; grid-template-columns: repeat(1, 150px); gap: 8px">
+            <sc-for list="{{diagB}}" as="d" hint-placeholder-count="3"><div style="border: 1px solid var(--line2); border-radius: 8px; padding: 8px; font-size: 12px"><b class="mono">{{d.pa}}</b><div class="muted" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{d.n}}</div></div></sc-for>
+          </div></div>
+      </div>
+      <span class="muted" style="font-size: 12px">Das Busdiagramm bleibt inhaltlich wie heute (Zeichenfläche mit Zoom). Neu ist nur der Ort: volle Breite im Bereich Bus.</span>
+    </div>
+  </div>
+</sc-if>
+</section>
+
+<!-- INSPECTOR -->
+<aside class="insp" aria-label="Telegrammdetails">
+  <sc-if value="{{hasT}}" hint-placeholder-val="{{ true }}">
+    <div class="ih">Telegramm <span class="muted mono" style="font-weight: 400">{{T.time}}</span></div>
+    <div class="ib">
+      <div class="sec">
+        <div style="display: flex; gap: 8px; align-items: center"><span class="tag {{T.typeCls}}">{{T.type}}</span><span class="muted">{{T.dpt}}</span></div>
+        <div class="big">{{T.val}}</div>
+        <div class="kvr"><span>Quelle</span><span><span class="pa">{{T.src}}</span>{{T.srcName}}</span></div>
+        <div class="kvr"><span>Ziel</span><span><span class="pa">{{T.dst}}</span>{{T.dstName}}</span></div>
+        <div class="acts">
+          <button class="btn sm" onClick="{{filterSrc}}">Nur diese Quelle</button>
+          <button class="btn sm" onClick="{{filterDst}}">Nur dieses Ziel</button>
+          <button class="btn sm" onClick="{{pinDst}}">Im Zeitverlauf anheften</button>
+        </div>
+      </div>
+      <div class="sec">
+        <h4>Frühere Werte von {{T.dst}}</h4>
+        <div class="hist"><sc-for list="{{T.hist}}" as="h" hint-placeholder-count="4"><div><span class="mono muted">{{h.time}}</span><b>{{h.val}}</b></div></sc-for></div>
+      </div>
+      <div class="sec">
+        <h4>Erweiterte Informationen</h4>
+        <div class="kvr"><span>Priorität</span><span>Niedrig</span></div>
+        <div class="kvr"><span>Routing-Zähler</span><span>6</span></div>
+        <div class="kvr"><span>Wiederholung</span><span>Nein</span></div>
+        <div class="kvr"><span>Quittung</span><span>ACK</span></div>
+        <div class="kvr"><span>APDU</span><span class="mono">{{T.apdu}}</span></div>
+        <div class="hex">{{T.raw}}</div>
+      </div>
+      <div class="sec">
+        <div class="acts">
+          <button class="btn sm" onClick="{{resend}}" disabled="{{cantSend}}">Erneut senden</button>
+          <button class="btn sm" onClick="{{notImpl}}">Gruppenadresse öffnen</button>
+          <button class="btn sm" onClick="{{notImpl}}">Quellgerät öffnen</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{noT}}" hint-placeholder-val="{{ false }}">
+    <div class="ih">Details</div>
+    <div class="ib"><div class="sec"><span class="muted">Ein Telegramm anklicken, um den dekodierten Wert, frühere Werte und die Rohdaten zu sehen.</span></div></div>
+  </sc-if>
+</aside>
+</div>
+
+<sc-if value="{{anyMenu}}" hint-placeholder-val="{{ false }}"><div class="scrim" onClick="{{closeMenus}}"></div></sc-if>
+<sc-if value="{{confirmClear}}" hint-placeholder-val="{{ false }}">
+  <div class="scrim dim" onClick="{{cancelClear}}"></div>
+  <div class="modal" role="dialog" aria-label="Telegramme leeren">
+    <b style="font-size: 15px">Nicht exportierte Telegramme</b>
+    <span class="muted">{{clearText}}</span>
+    <div style="display: flex; gap: 8px; justify-content: flex-end"><button class="btn ghost" onClick="{{cancelClear}}">Abbrechen</button><button class="btn" onClick="{{notImpl}}">Erst exportieren…</button><button class="btn primary" onClick="{{doClear}}">Leeren</button></div>
+  </div>
+</sc-if>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="toast">{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.seed = 7;
+    this.nid = 1;
+    const now = Date.UTC(2026, 10, 20, 21, 41, 3);
+    this.t0 = now - 15 * 60000;
+    const tels = [];
+    let t = this.t0;
+    while (t < now) { t += 4000 + Math.floor(this.rnd() * 14000); tels.push(this.make(t, false)); }
+    this.state = {
+      view: 'group', conn: true, rec: true, follow: true, q: '', types: { w: true, r: true, a: true }, srcF: null, dstF: null,
+      tels: tels.reverse(), sel: null, now, sendGa: '7/0/0', sendVal: '', fileMenu: false, setMenu: false, persist: true,
+      confirmClear: false, raw: false, rawTels: [], pins: { '1/7/6': true, '7/2/0': true, '12/7/13': false, '7/2/2': true, '7/0/3': false }, win: 'all', recSel: 'live', toast: '', exported: false
+    };
+  }
+  componentDidMount() { this.timer = setInterval(() => this.tick(), 1600); }
+  componentWillUnmount() { clearInterval(this.timer); clearTimeout(this.tt); }
+  rnd() { this.seed = (this.seed * 9301 + 49297) % 233280; return this.seed / 233280; }
+  pool() {
+    return [
+      ['1.1.14', 'GPS Wetterstation', '12/7/13', 'Wetterstation Helligkeit', '9.004', 'lux'],
+      ['1.1.14', 'GPS Wetterstation', '1/7/6', 'Außentemperatur', '9.001', 'temp'],
+      ['1.1.48', 'Klimasteuerung', '7/2/0', 'Wohnzimmer Ist-Temperatur', '9.001', 'room'],
+      ['1.1.48', 'Klimasteuerung', '7/2/2', 'Wohnzimmer Stellgröße', '5.001', 'pct'],
+      ['1.2.2', 'Touch-Display', '7/1/14', 'Wohnzimmertür Jalousie Auf/Ab', '1.008', 'updown'],
+      ['1.2.2', 'Touch-Display', '7/0/0', 'Wohnzimmer Licht Decke Schalten', '1.001', 'onoff'],
+      ['1.1.9', 'Schaltaktor 20 fach', '7/0/1', 'Wohnzimmer Licht Decke Status', '1.001', 'onoff'],
+      ['1.1.7', 'Dimmaktor 8 fach', '7/0/3', 'Stehlampe Helligkeit', '5.001', 'dim'],
+      ['1.1.16', 'Jalousieaktor 8 fach', '1/3/50', 'Diagnose Beschattung', '16.000', 'text'],
+      ['1.1.14', 'GPS Wetterstation', '12/7/1', 'Wetterstation GPS Datum', '19.001', 'date']
+    ];
+  }
+  make(t, fresh) {
+    const P = this.pool();
+    const w = [5, 4, 4, 3, 1, 1, 1, 1, 1, 1];
+    let x = this.rnd() * w.reduce((a, b) => a + b, 0), i = 0;
+    while (x > w[i]) { x -= w[i]; i++; }
+    const p = P[i];
+    const k = (t - this.t0) / 60000;
+    let num = null, val;
+    const r = this.rnd();
+    switch (p[5]) {
+      case 'lux': num = Math.round(18000 + 4000 * Math.sin(k / 3) + r * 900); val = num.toLocaleString('de-DE') + ' lx'; break;
+      case 'temp': num = Math.round((4.2 + 0.08 * k + r * 0.3) * 10) / 10; val = String(num).replace('.', ',') + ' °C'; break;
+      case 'room': num = Math.round((21.0 + 0.4 * Math.sin(k / 4) + r * 0.1) * 10) / 10; val = String(num).replace('.', ',') + ' °C'; break;
+      case 'pct': num = Math.round(30 + 12 * Math.sin(k / 5) + r * 4); val = num + ' %'; break;
+      case 'dim': num = Math.round(r * 100); val = num + ' %'; break;
+      case 'updown': val = r > 0.5 ? 'Auf' : 'Ab'; break;
+      case 'onoff': val = r > 0.4 ? 'Ein' : 'Aus'; break;
+      case 'text': val = 'OK'; break;
+      default: val = '20.11.2026 22:' + String(Math.floor(k) + 26).padStart(2, '0');
+    }
+    let type = 'Schreiben', src = p[0], srcName = p[1];
+    if (p[5] === 'room' && r < 0.15) { type = 'Lesen'; src = '1.1.0'; srcName = 'IP-Router'; val = '—'; num = null; }
+    else if (p[5] === 'text' && r < 0.5) { type = 'Antwort'; }
+    return { id: this.nid++, t, src, srcName, dst: p[2], dstName: p[3], dpt: p[4], type, val, num, fresh };
+  }
+  tick() {
+    const s = this.state;
+    if (!s.conn) return;
+    const now = s.now + 1600;
+    if (s.raw) {
+      const hexes = ['29 00 BC E0 11 0E 61 8D 03 00 80 0C 7F', '2E 00 B0 60 11 30 11 10 00 81', '29 00 BC D0 11 02 3A 01 01 00 81', '2B 00 BC E0 12 02 70 00 02 00 80 0B 2C'];
+      const svc = ['L_Data.ind', 'T_Ack', 'L_Data.ind', 'L_Data.ind'];
+      const k = Math.floor(this.rnd() * 4);
+      const rt = { time: this.fmt(now), svc: svc[k], src: k === 1 ? '1.1.48' : '1.1.14', dst: k === 1 ? '1.1.16' : '12/7/13', hex: hexes[k], st: k === 1 ? 'Quittung' : 'OK', stCls: k === 1 ? 'neu' : 'ok' };
+      this.setState({ now, rawTels: [rt].concat(s.rawTels).slice(0, 60) });
+      return;
+    }
+    if (!s.rec) { this.setState({ now }); return; }
+    const add = this.rnd() < 0.7 ? [this.make(now, true)] : [];
+    this.setState({ now, tels: add.concat(s.tels.map(x => x.fresh ? { ...x, fresh: false } : x)).slice(0, 10000) });
+  }
+  fmt(t) { const d = new Date(t); const p = (n, l) => String(n).padStart(l || 2, '0'); return p(d.getUTCHours() + 1) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + '.' + p(d.getUTCMilliseconds(), 3); }
+  say(m) { clearTimeout(this.tt); this.setState({ toast: m }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2400); }
+
+  renderVals() {
+    const s = this.state;
+    const set = (o) => () => this.setState(o);
+    const closeAll = { fileMenu: false, setMenu: false };
+    const P = this.pool();
+    const gaName = {}; const gaDpt = {}; P.forEach(p => { gaName[p[2]] = p[3]; gaDpt[p[2]] = p[4]; });
+    const TC = { Schreiben: 'w', Lesen: 'r', Antwort: 'a' };
+    const tk = { Schreiben: 'w', Lesen: 'r', Antwort: 'a' };
+    const q = s.q.trim().toLowerCase();
+    const filtered = s.tels.filter(t => s.types[tk[t.type]] && (!s.srcF || t.src === s.srcF) && (!s.dstF || t.dst === s.dstF) && (!q || (t.src + ' ' + t.srcName + ' ' + t.dst + ' ' + t.dstName + ' ' + t.val).toLowerCase().includes(q)));
+    const shown = filtered.slice(0, 120);
+    const tels = shown.map(t => ({ time: this.fmt(t.t), type: t.type, typeCls: TC[t.type], src: t.src, srcName: t.srcName, dst: t.dst, dstName: t.dstName, val: t.val,
+      cls: (s.sel === t.id ? 'on' : '') + (t.fresh && s.follow ? ' new' : ''), pick: () => this.setState({ sel: t.id, follow: false }) }));
+
+    // sparkline 30s buckets over last 10 min
+    const spark = [];
+    for (let i = 19; i >= 0; i--) { const a = s.now - (i + 1) * 30000, b = s.now - i * 30000; const c = s.tels.filter(t => t.t > a && t.t <= b).length; spark.push('height: ' + Math.max(2, Math.min(34, c * 7)) + 'px'); }
+    const span = s.tels.length ? (s.now - s.tels[s.tels.length - 1].t) : 0;
+    const mins = Math.floor(span / 60000), secs = Math.floor(span / 1000) % 60;
+    const lastMin = s.tels.filter(t => t.t > s.now - 60000).length;
+
+    // selected
+    const T0 = s.tels.find(t => t.id === s.sel);
+    let T = { time: '', type: '', typeCls: '', dpt: '', val: '', src: '', srcName: '', dst: '', dstName: '', hist: [], apdu: '', raw: '' };
+    if (T0) {
+      const hist = s.tels.filter(t => t.dst === T0.dst && t.id !== T0.id && t.type !== 'Lesen').slice(0, 5).map(t => ({ time: this.fmt(t.t), val: t.val }));
+      T = { time: this.fmt(T0.t), type: T0.type, typeCls: TC[T0.type], dpt: 'DPT ' + T0.dpt, val: T0.val, src: T0.src, srcName: T0.srcName, dst: T0.dst, dstName: T0.dstName, hist,
+        apdu: T0.type === 'Lesen' ? 'GroupValueRead' : T0.type === 'Antwort' ? 'GroupValueResponse' : 'GroupValueWrite',
+        raw: '29 00 BC E0 ' + T0.src.split('.').map(Number).map(n => n.toString(16).toUpperCase().padStart(2, '0')).join(' ') + ' ' + T0.dst.split('/').join(' ') + ' 03 00 80 0C 7F' };
+    }
+
+    // values view
+    const latest = {}; s.tels.forEach(t => { if (t.type !== 'Lesen' && !latest[t.dst]) latest[t.dst] = t; });
+    const valRows = Object.keys(latest).sort().filter(a => !q || (a + ' ' + gaName[a]).toLowerCase().includes(q)).map(a => ({ a, n: gaName[a], dpt: gaDpt[a], val: latest[a].val, time: this.fmt(latest[a].t), src: latest[a].src }));
+
+    // stats
+    const bucketsN = 15; const bars = []; let peak = 0, peakAt = '';
+    for (let i = bucketsN - 1; i >= 0; i--) { const a = s.now - (i + 1) * 60000, b = s.now - i * 60000; const c = s.tels.filter(t => t.t > a && t.t <= b).length; if (c > peak) { peak = c; peakAt = this.fmt(b).slice(0, 5); } bars.push({ c, at: this.fmt(b).slice(0, 5) }); }
+    const maxB = Math.max(1, ...bars.map(b => b.c));
+    const countBy = (key, nameKey) => { const m = {}; s.tels.forEach(t => { m[t[key]] = m[t[key]] || { k: t[key], n: t[nameKey], c: 0 }; m[t[key]].c++; }); const arr = Object.values(m).sort((a, b) => b.c - a.c).slice(0, 5); const mx = Math.max(1, ...arr.map(x => x.c)); return arr.map(x => ({ k: x.k, n: x.n, c: String(x.c), w: 'width: ' + Math.round(x.c / mx * 100) + '%' })); };
+    const stat = { total: s.tels.length.toLocaleString('de-DE'), rate: span ? (s.tels.length / (span / 60000)).toFixed(1).replace('.', ',') : '0', peak: String(peak), peakAt: peakAt || '–',
+      span: mins + ' min ' + secs + ' s', bars: bars.map(b => ({ h: 'height: ' + Math.round(b.c / maxB * 100) + '%', cls: b.c === peak && peak ? 'peak' : '', tip: b.at + ': ' + b.c })), from: bars.length ? bars[0].at : '', to: bars.length ? bars[bars.length - 1].at : '',
+      srcs: countBy('src', 'srcName'), dsts: countBy('dst', 'dstName') };
+
+    // timeline
+    const COLORS = { '1/7/6': '#1f5fd1', '7/2/0': '#c2410c', '12/7/13': '#1a7334', '7/2/2': '#6b3fb5', '7/0/3': '#0e7490' };
+    const winMs = s.win === 'm5' ? 5 * 60000 : s.win === 'm15' ? 15 * 60000 : s.now - this.t0;
+    const from = s.now - winMs;
+    const pins = Object.keys(COLORS).map(a => { const lt = latest[a]; return { a, n: gaName[a], boxCls: s.pins[a] ? 'on' : '', color: 'background: ' + COLORS[a], last: lt ? lt.val : '—', toggle: () => this.setState({ pins: { ...s.pins, [a]: !s.pins[a] } }) }; });
+    const lines = Object.keys(COLORS).filter(a => s.pins[a]).map(a => {
+      const pts = s.tels.filter(t => t.dst === a && t.num !== null && t.num !== undefined && t.t >= from).slice().reverse();
+      if (pts.length < 2) return null;
+      const vs = pts.map(p => p.num); const lo = Math.min(...vs), hi = Math.max(...vs); const rg = hi - lo || 1;
+      const str = pts.map(p => (40 + (p.t - from) / winMs * 750).toFixed(1) + ',' + (300 - (p.num - lo) / rg * 270).toFixed(1)).join(' ');
+      const unit = pts[pts.length - 1].val.replace(/^[-0-9.,\s]+/, '');
+      return { pts: str, color: COLORS[a], sw: 'background: ' + COLORS[a], label: a + ' ' + gaName[a], range: String(lo).replace('.', ',') + '–' + String(hi).replace('.', ',') + ' ' + unit };
+    }).filter(Boolean);
+
+    const isLive = s.recSel === 'live';
+    const navRec = [['group', 'Gruppenmonitor', s.tels.length.toLocaleString('de-DE')], ['raw', 'Busmonitor (alle Rahmen)', s.raw ? 'aktiv' : ''], ['activity', 'Busaktivität', '']].map(([id, label, count]) => ({ label, count, cls: s.view === id ? 'on' : '', pick: set({ view: id, ...closeAll }) }));
+    const navAna = [['values', 'Aktuelle Werte', String(Object.keys(latest).length)], ['stats', 'Statistik', ''], ['timeline', 'Zeitverlauf', String(Object.values(s.pins).filter(Boolean).length)]].map(([id, label, count]) => ({ label, count, cls: s.view === id ? 'on' : '', pick: set({ view: id, ...closeAll }) }));
+    const navSys = [{ label: 'Busdiagramm', cls: s.view === 'diagram' ? 'on' : '', pick: set({ view: 'diagram' }) }];
+    const recs = [['live', 'Aktuelle Sitzung', s.rec ? 'läuft · ' + s.tels.length + ' Telegramme' : 'gestoppt · ' + s.tels.length + ' Telegramme'], ['c1', 'Inbetriebnahme Wohnzimmer', '18.11.2026 · 3 412 Telegramme'], ['c2', 'Fehlersuche Jalousie', '12.11.2026 · 860 Telegramme']]
+      .map(([id, label, info]) => ({ label, info, cls: s.recSel === id ? 'on' : '', pick: () => { this.setState({ recSel: id, view: 'group' }); if (id !== 'live') this.say('Gespeicherte Aufnahme würde hier geladen (Klickdummy)'); } }));
+
+    const isTelegramView = s.view === 'group' || s.view === 'activity';
+    const cantSend = !s.conn || s.raw;
+    const sendDpt = gaDpt[s.sendGa];
+    const pushTel = (type, val) => { const t = { id: this.nid++, t: s.now, src: '1.1.255', srcName: 'Editor', dst: s.sendGa, dstName: gaName[s.sendGa] || 'Unbekannte Adresse', dpt: sendDpt || '', type, val, num: null, fresh: true }; this.setState({ tels: [t].concat(s.tels), sendVal: '' }); };
+    const pinned = [];
+    if (s.srcF) pinned.push({ label: 'Quelle ' + s.srcF, remove: set({ srcF: null }) });
+    if (s.dstF) pinned.push({ label: 'Ziel ' + s.dstF, remove: set({ dstF: null }) });
+
+    return {
+      connDot: 'background: ' + (s.conn ? 'var(--ok)' : 'var(--rec)'), connLabel: s.conn ? (s.raw ? 'Busmonitor-Modus' : '192.168.0.99 · TCP') : 'Nicht verbunden',
+      toggleConn: () => this.setState({ conn: !s.conn, rec: s.conn ? false : s.rec, raw: false }),
+      navRec, navAna, navSys, recs,
+      isTelegramView, isRaw: s.view === 'raw', isValues: s.view === 'values', isStats: s.view === 'stats', isTimeline: s.view === 'timeline', isDiagram: s.view === 'diagram',
+      recording: s.rec && s.conn, notRecording: !(s.rec && s.conn), cantRec: !s.conn,
+      startRec: set({ rec: true, follow: true }), stopRec: set({ rec: false }),
+      recDot: 'background: ' + (s.rec && s.conn ? 'var(--rec)' : 'var(--line2)'), recDotCls: s.rec && s.conn ? 'pulse' : '',
+      recTitle: !s.conn ? 'Nicht verbunden' : s.rec ? (s.view === 'activity' ? 'Busaktivität wird aufgezeichnet' : 'Aufnahme läuft') : 'Aufnahme gestoppt',
+      recSub: s.conn ? mins + ' min ' + secs + ' s · ' + lastMin + ' Telegramme in der letzten Minute' : 'Ohne Verbindung kann nichts aufgezeichnet werden',
+      spark,
+      askClear: () => { if (!s.tels.length) return; if (s.exported) this.setState({ tels: [], sel: null }); else this.setState({ confirmClear: true, ...closeAll }); },
+      confirmClear: s.confirmClear, cancelClear: set({ confirmClear: false }), doClear: set({ tels: [], sel: null, confirmClear: false }),
+      clearText: s.tels.length + ' Telegramme wurden noch nicht exportiert. Trotzdem leeren?',
+      fileMenu: s.fileMenu, toggleFile: set({ ...closeAll, fileMenu: !s.fileMenu }), setMenu: s.setMenu, toggleSet: set({ ...closeAll, setMenu: !s.setMenu }),
+      persistCls: s.persist ? 'on' : '', togglePersist: set({ persist: !s.persist }),
+      replay: () => { this.setState(closeAll); this.say('Wiedergabe: Telegramme werden auf den Bus gesendet (mit Bestätigung)'); },
+      anyMenu: s.fileMenu || s.setMenu, closeMenus: set(closeAll),
+      q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
+      ft: { w: s.types.w ? 'on' : '', r: s.types.r ? 'on' : '', a: s.types.a ? 'on' : '' },
+      ftW: set({ types: { ...s.types, w: !s.types.w } }), ftR: set({ types: { ...s.types, r: !s.types.r } }), ftA: set({ types: { ...s.types, a: !s.types.a } }),
+      pinnedFilters: pinned,
+      followCls: s.follow ? 'on' : '', toggleFollow: set({ follow: !s.follow }),
+      countLabel: filtered.length === s.tels.length ? s.tels.length + ' Telegramme' : filtered.length + ' von ' + s.tels.length + ' Telegrammen',
+      tels, hasTel: tels.length > 0, noTel: tels.length === 0,
+      emptyText: !s.tels.length ? (s.conn ? 'Noch keine Telegramme. „Aufnahme starten“ schneidet den Gruppenverkehr mit.' : 'Nicht verbunden. Oben rechts ein Gateway verbinden.') : 'Kein Telegramm passt zum Filter.',
+      sendGa: s.sendGa, onSendGa: (e) => this.setState({ sendGa: e.target.value }), sendGaName: gaName[s.sendGa] ? gaName[s.sendGa] + ' · ' + sendDpt : 'Adresse nicht im Projekt',
+      sendVal: s.sendVal, onSendVal: (e) => this.setState({ sendVal: e.target.value }), sendHint: sendDpt === '1.001' ? 'Ein / Aus' : sendDpt === '5.001' ? '0–100 %' : sendDpt === '9.001' ? '21,5' : 'Wert',
+      cantSend, notConnected: !s.conn,
+      doWrite: () => { if (!s.sendVal) { this.say('Bitte einen Wert eingeben'); return; } pushTel('Schreiben', s.sendVal); this.say(s.sendGa + ' ← ' + s.sendVal); },
+      doRead: () => { pushTel('Lesen', '—'); this.say('Leseanfrage an ' + s.sendGa + ' gesendet'); },
+      raw: s.rawTels, rawOn: s.raw, rawOff: !s.raw,
+      startRaw: () => { this.setState({ raw: true }); this.say('Normale Verbindung getrennt – Busmonitor-Modus aktiv'); },
+      stopRaw: () => { this.setState({ raw: false }); this.say('Normale Verbindung wiederhergestellt'); },
+      goGroup: set({ view: 'group' }),
+      valRows, stat,
+      pins, lines, noLines: lines.length === 0, tlFrom: this.fmt(from).slice(0, 5), tlTo: this.fmt(s.now).slice(0, 5),
+      win: { m5: s.win === 'm5' ? 'on' : '', m15: s.win === 'm15' ? 'on' : '', all: s.win === 'all' ? 'on' : '' }, winM5: set({ win: 'm5' }), winM15: set({ win: 'm15' }), winAll: set({ win: 'all' }),
+      diagA: [['1.1.0', 'IP-Router'], ['1.1.7', 'Dimmaktor 8 fach'], ['1.1.9', 'Schaltaktor 20 fach'], ['1.1.14', 'GPS Wetterstation'], ['1.1.16', 'Jalousieaktor 8 fach'], ['1.1.48', 'Klimasteuerung']].map(([pa, n]) => ({ pa, n })),
+      diagB: [['1.2.2', 'Touch-Display'], ['1.2.200', 'Sonos NFC Player'], ['1.2.201', 'Internet Dienste']].map(([pa, n]) => ({ pa, n })),
+      hasT: !!T0, noT: !T0, T,
+      filterSrc: () => T0 && this.setState({ srcF: T0.src }), filterDst: () => T0 && this.setState({ dstF: T0.dst }),
+      pinDst: () => { if (!T0) return; this.setState({ pins: { ...s.pins, [T0.dst]: true } }); this.say(T0.dst + ' im Zeitverlauf angeheftet'); },
+      resend: () => { if (!T0) return; this.setState({ tels: [{ ...T0, id: this.nid++, t: s.now, src: '1.1.255', srcName: 'Editor', type: 'Schreiben', fresh: true }].concat(s.tels) }); this.say(T0.dst + ' ← ' + T0.val + ' erneut gesendet'); },
+      notImpl: () => { this.setState(closeAll); this.say('Im Klickdummy nicht umgesetzt'); },
+      hasToast: !!s.toast, toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

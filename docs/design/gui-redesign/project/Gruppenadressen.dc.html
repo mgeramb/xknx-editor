@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Gruppenadressen – Vertiefung</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f5fd1}a:hover{color:#16479e}
+.g{--bg:#f4f5f7;--panel:#fff;--sub:#f8f9fb;--line:#e2e5ea;--line2:#d3d8df;--text:#1b2230;--muted:#586273;--accent:#1f5fd1;--accent-weak:#e8effc;--warn:#9a4a00;--warn-weak:#fff1df;--ok:#1a7334;--ok-weak:#e5f4ea;--danger:#b42318;--danger-weak:#fdecea;--sel:#e8effc;--hover:#f0f2f5;--shadow:0 10px 30px rgba(20,30,50,.18);
+  font-family:Inter,system-ui,sans-serif;font-size:13px;color:var(--text);background:var(--bg);height:100vh;min-height:760px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.g *{box-sizing:border-box}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit}
+.btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--hover)}
+.btn.icon{width:30px;padding:0;justify-content:center}
+.btn.sm{height:26px;padding:0 8px;font-size:12px}
+.btn.danger{color:var(--danger)}
+.btn[disabled]{opacity:.45;cursor:default}
+.ico,.btn svg{width:16px;height:16px;flex:none}
+.field{height:30px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);display:flex;align-items:center;gap:6px;padding:0 8px;color:var(--muted)}
+.field input{border:0;outline:0;background:transparent;flex:1;font:inherit;color:var(--text);min-width:0}
+.seg{display:flex;background:var(--sub);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+.seg button{flex:1;height:26px;border:0;border-radius:5px;background:transparent;cursor:pointer;color:var(--muted);font-size:12px;white-space:nowrap;padding:0 8px}
+.seg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;flex:none;background:var(--panel);color:transparent}
+.box.on,.box.mixed{background:var(--accent);border-color:var(--accent);color:#fff}
+.box svg{width:12px;height:12px}
+.chk{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:0;background:transparent;padding:0;color:var(--muted);font-size:12.5px}
+.tag{font-size:11px;padding:1px 7px;border-radius:9px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.tag.warn{background:var(--warn-weak);color:var(--warn)}
+.tag.ok{background:var(--ok-weak);color:var(--ok)}
+.tag.neu{background:var(--sub);color:var(--muted);border:1px solid var(--line)}
+.tag.acc{background:var(--accent-weak);color:var(--accent)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+/* shell */
+.top{height:52px;flex:none;display:flex;align-items:center;gap:12px;padding:0 12px 0 0;background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{width:64px;height:52px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line)}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pill{height:30px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-radius:15px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;white-space:nowrap}
+.body{flex:1;display:flex;min-height:0}
+.rail{width:64px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px}
+.rb{width:54px;height:54px;border-radius:8px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--muted)}
+.rb.on{background:var(--accent-weak);color:var(--accent);font-weight:600}
+.rb svg{width:20px;height:20px}
+/* navigator */
+.nav{width:300px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.navh{padding:12px 12px 8px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.tree{flex:1;overflow:auto;padding:6px 0}
+.tr{display:flex;align-items:center;gap:6px;height:30px;padding-right:10px;cursor:pointer;border:0;background:transparent;width:100%;text-align:left;white-space:nowrap;color:var(--text)}
+.tr:hover{background:var(--hover)}
+.tr.on{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
+.tr .lbl{overflow:hidden;text-overflow:ellipsis;flex:1}
+.tr .num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);min-width:30px}
+.lv0{padding-left:8px;font-weight:500}.lv1{padding-left:26px}
+.car{width:14px;height:14px;color:var(--muted);flex:none;transition:transform .12s}
+.car.open{transform:rotate(90deg)}
+.use{width:42px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;flex:none}
+.use i{display:block;height:100%;background:var(--accent)}
+.sp{width:14px;flex:none}
+.navf{border-top:1px solid var(--line);padding:8px 12px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+/* main */
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;min-height:0}
+.mh{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 20px}
+.crumb{font-size:12px;color:var(--muted)}
+.mh h1{margin:4px 0 0;font-size:18px;display:flex;align-items:center;gap:10px}
+.stats{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.stat{height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--line2);background:var(--panel);display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px}
+.stat:hover{background:var(--hover)}
+.stat.on{background:var(--accent-weak);border-color:var(--accent);color:var(--accent);font-weight:600}
+.stat b{font-weight:700}
+.tb{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.selbar{display:flex;align-items:center;gap:8px;padding:8px 20px;background:var(--accent-weak);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.selbar > b{color:var(--accent);margin-right:6px}
+.rel{position:relative;display:inline-flex}
+.wrap{flex:1;min-height:0;overflow:auto;padding:12px 20px 20px}
+.tbl{min-width:900px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.r{display:grid;grid-template-columns:36px 74px minmax(220px,1.6fr) 120px minmax(220px,1.5fr) 120px 64px;align-items:center;min-height:44px;border-top:1px solid var(--line)}
+.r > div{padding:0 8px;min-width:0}
+.r:hover{background:var(--hover)}
+.r.on{background:var(--sel)}
+.r.h{min-height:34px;background:var(--sub);border-top:0;color:var(--muted);font-size:12px;font-weight:600;position:sticky;top:0;z-index:2;border-radius:8px 8px 0 0}
+.r.h:hover{background:var(--sub)}
+.r.free{min-height:34px;background:repeating-linear-gradient(135deg,transparent 0 6px,var(--sub) 6px 12px)}
+.sub{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;background:var(--sub);border-top:1px solid var(--line);font-weight:600}
+.nm{border:1px solid transparent;border-radius:5px;height:30px;padding:0 6px;font:inherit;color:var(--text);background:transparent;width:100%;outline:0}
+.nm:hover{border-color:var(--line2);background:var(--panel)}
+.nm:focus{border-color:var(--accent);background:var(--panel)}
+.dpt b{display:block;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:500}
+.dpt span{font-size:11.5px;color:var(--muted)}
+.dpt.none b{color:var(--warn)}
+.lk{display:flex;gap:4px;align-items:center;min-width:0}
+.lchip{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:12px;background:var(--sub);border:1px solid var(--line);white-space:nowrap;overflow:hidden;font-size:12px;max-width:100%}
+.lchip.send{background:var(--ok-weak);border-color:transparent}
+.lchip.bad{border:1.5px solid var(--warn);background:var(--warn-weak)}
+.lchip .gn{overflow:hidden;text-overflow:ellipsis}
+.more{height:24px;padding:0 8px;border-radius:12px;border:1px solid var(--line2);font-size:12px;color:var(--muted);display:inline-flex;align-items:center;flex:none}
+.none{font-size:12px;color:var(--muted);font-style:italic}
+.val b{display:block;font-weight:600;font-size:12.5px}
+.val span{font-size:11px;color:var(--muted)}
+.st{display:flex;gap:4px;align-items:center}
+.st svg{width:16px;height:16px}
+.pop{position:absolute;z-index:30;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:var(--shadow);padding:6px;min-width:240px}
+.mi{display:flex;align-items:center;gap:10px;width:100%;min-height:32px;padding:6px 10px;border:0;background:transparent;border-radius:6px;cursor:pointer;text-align:left;color:var(--text);white-space:nowrap}
+.mi:hover{background:var(--hover)}
+.mi[disabled]{color:var(--muted);cursor:default;background:transparent}
+.mhd{padding:8px 10px 4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.scrim{position:absolute;inset:0;z-index:20}
+.scrim.dim{background:rgba(10,15,25,.3)}
+/* inspector */
+.insp{width:360px;flex:none;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.ih{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 16px;border-bottom:1px solid var(--line);font-weight:600}
+.ib{flex:1;overflow:auto}
+.sec{border-bottom:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.sec > h4{margin:0;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kv{display:flex;flex-direction:column;gap:4px}
+.kv > span{font-size:11.5px;color:var(--muted);font-weight:500}
+.inp{min-height:30px;border:1px solid var(--line2);border-radius:6px;padding:5px 8px;font:inherit;color:var(--text);background:var(--panel);width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left}
+button.inp{cursor:pointer}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ol{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.oi{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);font-size:12.5px;cursor:pointer;background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;color:var(--text)}
+.oi:first-child{border-top:0}
+.oi:hover{background:var(--hover)}
+.oi .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oi small{display:block;color:var(--muted);font-size:11.5px}
+.arrow{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.arrow.s{background:var(--ok-weak);color:var(--ok)}
+.arrow.r{background:var(--sub);color:var(--muted);border:1px solid var(--line)}
+.sw{width:30px;height:18px;border-radius:9px;background:var(--line2);position:relative;flex:none}
+.sw::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .12s}
+.sw.on{background:var(--accent)}
+.sw.on::after{left:14px}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;padding:0;cursor:pointer;width:100%;text-align:left;color:var(--text)}
+.tg small{display:block;color:var(--muted);font-size:11.5px}
+.hint{display:flex;gap:8px;padding:10px;border-radius:8px;background:var(--warn-weak);color:var(--warn);font-size:12.5px;line-height:1.45}
+.hint.info{background:var(--accent-weak);color:var(--accent)}
+.bigval{font-size:22px;font-weight:600}
+/* sheet */
+.sheet{position:absolute;top:0;right:0;bottom:0;width:560px;max-width:100%;background:var(--panel);z-index:40;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.sheet .sh{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+.sheet .sb{flex:1;overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.sheet .sf{border-top:1px solid var(--line);padding:12px 20px;display:flex;justify-content:flex-end;gap:8px}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:30px;height:30px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;font-size:15px}
+.step span{min-width:44px;text-align:center;font-weight:600}
+.prev{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.pv{display:grid;grid-template-columns:76px minmax(0,1fr) 90px;gap:8px;padding:8px 10px;border-top:1px solid var(--line);font-size:12.5px}
+.pv:first-child{border-top:0;background:var(--sub);font-weight:600;color:var(--muted);font-size:12px}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;background:var(--text);color:#fff;padding:10px 16px;border-radius:8px;box-shadow:var(--shadow)}
+@media (max-width:1180px){.insp{display:none}}
+@media (max-width:860px){.nav{display:none}}
+</style>
+</helmet>
+<div class="g">
+
+<header class="top">
+  <div class="brand"></div>
+  <div style="line-height: 1.25"><b style="font-size: 14px">Krausgasse 12 Top 26</b><div class="muted" style="font-size: 12px">57 Geräte · 771 Gruppenadressen</div></div>
+  <span style="flex: 1"></span>
+  <button class="pill" onClick="{{toggleConn}}"><span class="dot" style="{{connDot}}"></span>{{connLabel}}</button>
+</header>
+
+<div class="body">
+<nav class="rail" aria-label="Bereiche">
+  <span class="rb on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Katalog</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>Prüfung</span>
+  <span class="rb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"></path></svg>Werkzeuge</span>
+</nav>
+
+<!-- NAVIGATOR -->
+<aside class="nav">
+  <div class="navh">
+    <div style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 14px">Projekt
+      <button class="btn ghost icon" onClick="{{openAddMenu}}" aria-label="Gruppe hinzufügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+    </div>
+    <div class="seg"><button>Gebäude</button><button>Topologie</button><button class="on">Gruppenadressen</button></div>
+    <label class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{nq}}" onChange="{{onNq}}" placeholder="Gruppen filtern…" aria-label="Gruppen filtern"></label>
+  </div>
+  <div class="tree">
+    <sc-for list="{{tree}}" as="t" hint-placeholder-count="14">
+      <button class="tr {{t.cls}}" onClick="{{t.click}}" title="{{t.tip}}">
+        <sc-if value="{{t.isMain}}" hint-placeholder-val="{{ true }}"><svg class="car {{t.carCls}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></sc-if>
+        <sc-if value="{{t.isMid}}" hint-placeholder-val="{{ false }}"><span class="sp"></span></sc-if>
+        <span class="num">{{t.num}}</span>
+        <span class="lbl">{{t.label}}</span>
+        <sc-if value="{{t.secure}}" hint-placeholder-val="{{ false }}"><svg class="ico" style="width: 14px; height: 14px; color: var(--ok)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="KNX Data Secure" role="img"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg></sc-if>
+        <sc-if value="{{t.hasWarn}}" hint-placeholder-val="{{ false }}"><span class="dot" style="background: var(--warn)"></span></sc-if>
+        <span class="use" aria-hidden="true"><i style="{{t.use}}"></i></span>
+        <span class="muted" style="font-size: 11.5px; min-width: 22px; text-align: right">{{t.count}}</span>
+      </button>
+    </sc-for>
+  </div>
+  <div class="navf"><span>Adressstil: Dreistufig</span><span>Balken = Belegung</span></div>
+</aside>
+
+<!-- MAIN -->
+<section class="main">
+  <div class="mh">
+    <div class="crumb">{{crumb}}</div>
+    <h1><span class="mono" style="font-size: 15px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--sub)">{{grp.num}}</span>{{grp.name}}
+      <sc-if value="{{grp.secure}}" hint-placeholder-val="{{ false }}"><span class="tag ok">Data Secure</span></sc-if></h1>
+    <div class="stats">
+      <button class="stat {{fl.all}}" onClick="{{fAll}}"><b>{{st.total}}</b> Adressen</button>
+      <button class="stat {{fl.unlinked}}" onClick="{{fUnlinked}}"><span class="dot" style="background: var(--muted)"></span><b>{{st.unlinked}}</b> ohne Verknüpfung</button>
+      <button class="stat {{fl.nosend}}" onClick="{{fNosend}}"><span class="dot" style="background: var(--accent)"></span><b>{{st.nosend}}</b> ohne Sender</button>
+      <button class="stat {{fl.issues}}" onClick="{{fIssues}}"><span class="dot" style="background: var(--warn)"></span><b>{{st.issues}}</b> Konflikte</button>
+      <button class="stat" onClick="{{toggleFree}}"><span class="box {{freeCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Freie Adressen zeigen</button>
+    </div>
+  </div>
+  <div class="tb">
+    <label class="field" style="width: 300px"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{q}}" onChange="{{onQ}}" placeholder="Adresse, Name, Gerät oder Wert…" aria-label="Gruppenadressen durchsuchen"></label>
+    <div class="seg"><button class="{{sc.grp}}" onClick="{{scGrp}}">In dieser Gruppe</button><button class="{{sc.all}}" onClick="{{scAll}}">Im ganzen Projekt</button></div>
+    <span style="flex: 1"></span>
+    <button class="btn primary" onClick="{{openAdd}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Gruppenadressen…</button>
+    <span class="rel">
+      <button class="btn" onClick="{{toggleIo}}">Import/Export<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+      <sc-if value="{{ioMenu}}" hint-placeholder-val="{{ false }}">
+        <div class="pop" style="right: 0; top: 36px">
+          <button class="mi" onClick="{{notImpl}}">Gruppenadressen importieren… (.csv, .xml)</button>
+          <button class="mi" onClick="{{notImpl}}">Gruppenadressen exportieren…</button>
+          <button class="mi" onClick="{{notImpl}}">Als ETS-CSV exportieren…</button>
+        </div>
+      </sc-if>
+    </span>
+  </div>
+  <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+    <div class="selbar">
+      <b>{{selLabel}}</b>
+      <span class="rel">
+        <button class="btn" onClick="{{toggleMove}}">Verschieben nach<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+        <sc-if value="{{moveMenu}}" hint-placeholder-val="{{ false }}">
+          <div class="pop" style="left: 0; top: 36px; max-height: 300px; overflow: auto">
+            <div class="mhd">Mittelgruppe</div>
+            <sc-for list="{{moveTargets}}" as="m" hint-placeholder-count="6">
+              <button class="mi" onClick="{{m.go}}" disabled="{{m.off}}"><span class="mono muted">{{m.num}}</span>{{m.name}}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </span>
+      <span class="rel">
+        <button class="btn" onClick="{{toggleDptMenu}}">Datentyp setzen<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+        <sc-if value="{{dptMenu}}" hint-placeholder-val="{{ false }}">
+          <div class="pop" style="left: 0; top: 36px">
+            <sc-for list="{{dptChoices}}" as="d" hint-placeholder-count="5"><button class="mi" onClick="{{d.set}}"><span class="mono">{{d.id}}</span>{{d.name}}</button></sc-for>
+          </div>
+        </sc-if>
+      </span>
+      <button class="btn" onClick="{{notImpl}}">Kopieren <span class="muted" style="font-size: 11px">⌘C</span></button>
+      <button class="btn" onClick="{{notImpl}}">Exportieren…</button>
+      <button class="btn danger" onClick="{{deleteSel}}">Löschen</button>
+      <span style="flex: 1"></span>
+      <button class="btn ghost" onClick="{{clearSel}}">Auswahl aufheben</button>
+    </div>
+  </sc-if>
+
+  <div class="wrap">
+    <div class="tbl">
+      <div class="r h">
+        <div><button class="chk" onClick="{{toggleAll}}" aria-label="Alle auswählen"><span class="box {{allCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="{{allPath}}"></path></svg></span></button></div>
+        <div>Adresse</div><div>Name</div><div>Datentyp</div><div>Verknüpfte Objekte</div><div>Letzter Wert</div><div></div>
+      </div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+        <sc-if value="{{r.isSub}}" hint-placeholder-val="{{ false }}">
+          <div class="sub"><span class="mono muted">{{r.num}}</span>{{r.name}}<span class="muted" style="font-weight: 400; font-size: 12px">{{r.info}}</span></div>
+        </sc-if>
+        <sc-if value="{{r.isFree}}" hint-placeholder-val="{{ false }}">
+          <div class="r free">
+            <div></div><div class="mono muted">{{r.range}}</div>
+            <div class="muted" style="font-size: 12px">{{r.label}}</div>
+            <div></div>
+            <div><button class="btn sm" onClick="{{r.add}}">+ Hier anlegen</button></div>
+            <div></div><div></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{r.isGa}}" hint-placeholder-val="{{ true }}">
+          <div class="r {{r.cls}}" onClick="{{r.pick}}">
+            <div><button class="chk" onClick="{{r.check}}" aria-label="Adresse auswählen"><span class="box {{r.boxCls}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span></button></div>
+            <div class="mono">{{r.a}}</div>
+            <div><input class="nm" value="{{r.n}}" onChange="{{r.rename}}" aria-label="Name der Gruppenadresse"></div>
+            <div class="dpt {{r.dptCls}}"><b>{{r.dpt}}</b><span>{{r.dptName}}</span></div>
+            <div class="lk">
+              <sc-if value="{{r.hasLinks}}" hint-placeholder-val="{{ true }}">
+                <span class="lchip {{r.l1cls}}" title="{{r.l1tip}}"><span class="mono">{{r.l1pa}}</span><span class="gn">{{r.l1}}</span></span>
+              </sc-if>
+              <sc-if value="{{r.hasMore}}" hint-placeholder-val="{{ false }}"><span class="more">{{r.more}}</span></sc-if>
+              <sc-if value="{{r.noLinks}}" hint-placeholder-val="{{ false }}"><span class="none">nicht verknüpft</span></sc-if>
+            </div>
+            <div class="val"><b>{{r.val}}</b><span>{{r.valT}}</span></div>
+            <div class="st">
+              <sc-if value="{{r.secure}}" hint-placeholder-val="{{ false }}"><svg style="color: var(--ok)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="KNX Data Secure" role="img"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg></sc-if>
+              <sc-if value="{{r.warn}}" hint-placeholder-val="{{ false }}"><svg style="color: var(--warn)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="{{r.warnTip}}"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </sc-for>
+      <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div class="muted" style="padding: 40px; text-align: center">{{emptyText}}</div></sc-if>
+    </div>
+    <p class="muted" style="font-size: 12px; margin: 12px 0 0">Namen direkt in der Tabelle umbenennen. Zeilen per Drag &amp; Drop in eine Gruppe im Navigator verschieben oder auf ein Kommunikationsobjekt ziehen, um zu verknüpfen.</p>
+  </div>
+</section>
+
+<!-- INSPECTOR -->
+<aside class="insp" aria-label="Details der Gruppenadresse">
+  <sc-if value="{{hasGa}}" hint-placeholder-val="{{ true }}">
+    <div class="ih">Gruppenadresse <span class="mono muted" style="font-weight: 400">{{ga.a}}</span></div>
+    <div class="ib">
+      <div class="sec">
+        <div class="g2" style="grid-template-columns: 110px 1fr">
+          <div class="kv"><span>Adresse</span><div class="inp mono">{{ga.a}}</div></div>
+          <div class="kv"><span>Name</span><div class="inp">{{ga.n}}</div></div>
+        </div>
+        <div class="kv"><span>Datentyp</span><button class="inp" onClick="{{cycleDpt}}">{{ga.dptLabel}}<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+        <div class="kv"><span>Beschreibung</span><div class="inp" style="min-height: 44px; align-items: flex-start; color: var(--muted)">{{ga.desc}}</div></div>
+        <button class="tg" onClick="{{toggleSecure}}"><span>KNX Data Secure<small>{{ga.secHint}}</small></span><span class="sw {{ga.secCls}}"></span></button>
+        <button class="tg" onClick="{{toggleCentral}}"><span>Zentral<small>Nicht über Linienkoppler filtern</small></span><span class="sw {{ga.cenCls}}"></span></button>
+      </div>
+
+      <sc-for list="{{ga.hints}}" as="h" hint-placeholder-count="1">
+        <div class="sec" style="padding-top: 10px; padding-bottom: 10px"><div class="hint {{h.cls}}"><b style="flex: none">{{h.icon}}</b><span>{{h.text}}</span></div></div>
+      </sc-for>
+
+      <div class="sec">
+        <h4>Verknüpfte Objekte <span class="muted" style="font-weight: 400">{{ga.linkCount}}</span></h4>
+        <sc-if value="{{ga.hasLinks}}" hint-placeholder-val="{{ true }}">
+          <div class="ol">
+            <sc-for list="{{ga.links}}" as="l" hint-placeholder-count="3">
+              <button class="oi" onClick="{{l.go}}" title="Im Gerät öffnen">
+                <span class="arrow {{l.dirCls}}">{{l.dir}}</span>
+                <span style="min-width: 0"><span class="t"><span class="mono">{{l.pa}}</span> {{l.dev}}</span><small>#{{l.n}} {{l.obj}} · {{l.dpt}}</small></span>
+                <sc-if value="{{l.bad}}" hint-placeholder-val="{{ false }}"><span class="tag warn">DPT</span></sc-if>
+                <sc-if value="{{l.good}}" hint-placeholder-val="{{ true }}"><span class="muted">›</span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+          <span class="muted" style="font-size: 11.5px">↑ sendet auf diese Adresse · ↓ empfängt · Klick öffnet das Objekt im Gerät</span>
+        </sc-if>
+        <sc-if value="{{ga.noLinks}}" hint-placeholder-val="{{ false }}">
+          <div class="muted">Noch mit keinem Objekt verknüpft. Die Adresse auf ein Kommunikationsobjekt ziehen oder im Gerät über „+ Gruppenadresse“ verknüpfen.</div>
+        </sc-if>
+      </div>
+
+      <div class="sec">
+        <h4>Wert am Bus <sc-if value="{{connected}}" hint-placeholder-val="{{ false }}"><span class="tag ok">verbunden</span></sc-if></h4>
+        <div style="display: flex; align-items: baseline; gap: 10px"><span class="bigval">{{ga.val}}</span><span class="muted">{{ga.valT}}</span></div>
+        <sc-if value="{{connected}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; gap: 6px">
+            <label class="field" style="flex: 1"><input value="{{wv}}" onChange="{{onWv}}" placeholder="{{ga.wvHint}}" aria-label="Wert zum Schreiben"></label>
+            <button class="btn primary" onClick="{{writeVal}}">Schreiben</button>
+            <button class="btn" onClick="{{readVal}}">Lesen</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{notConnected}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; align-items: center; gap: 8px"><span class="muted" style="flex: 1">Lesen und Schreiben brauchen eine Verbindung.</span><button class="btn sm" onClick="{{toggleConn}}">Verbinden</button></div>
+        </sc-if>
+      </div>
+
+      <div class="sec">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap">
+          <button class="btn sm" onClick="{{notImpl}}">Im Gruppenmonitor zeigen</button>
+          <button class="btn sm" onClick="{{notImpl}}">Duplizieren</button>
+          <button class="btn sm danger" onClick="{{deleteOne}}">Löschen</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{noGa}}" hint-placeholder-val="{{ false }}">
+    <div class="ih">{{grp.num}} {{grp.name}}</div>
+    <div class="ib"><div class="sec">
+      <div class="kv"><span>Name</span><div class="inp">{{grp.name}}</div></div>
+      <div class="kv"><span>Belegung</span><div>{{grp.usage}}</div></div>
+      <span class="muted">Eine Adresse anklicken, um Details, Verknüpfungen und den Wert am Bus zu sehen.</span>
+    </div></div>
+  </sc-if>
+</aside>
+</div>
+
+<sc-if value="{{anyMenu}}" hint-placeholder-val="{{ false }}"><div class="scrim" onClick="{{closeMenus}}"></div></sc-if>
+
+<sc-if value="{{addMenu}}" hint-placeholder-val="{{ false }}">
+  <div class="pop" style="left: 290px; top: 100px">
+    <button class="mi" onClick="{{notImpl}}">Hauptgruppen hinzufügen…</button>
+    <button class="mi" onClick="{{notImpl}}">Mittelgruppen hinzufügen…</button>
+    <button class="mi" onClick="{{openAdd}}">Gruppenadressen hinzufügen…</button>
+  </div>
+</sc-if>
+
+<!-- ADD SHEET -->
+<sc-if value="{{add}}" hint-placeholder-val="{{ false }}">
+  <div class="scrim dim" onClick="{{closeAdd}}"></div>
+  <div class="sheet" role="dialog" aria-label="Gruppenadressen hinzufügen">
+    <div class="sh">Gruppenadressen hinzufügen <button class="btn ghost icon" onClick="{{closeAdd}}" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+    <div class="sb">
+      <div class="g2">
+        <div class="kv"><span>In Gruppe</span><div class="inp"><span><span class="mono">{{grp.num}}</span> {{grp.name}}</span></div></div>
+        <div class="kv"><span>Beginnen bei (nächste freie)</span><div class="inp mono">{{addStart}}</div></div>
+      </div>
+      <div class="g2">
+        <div class="kv"><span>Anzahl</span><div class="step"><button onClick="{{addDec}}" aria-label="Weniger">−</button><span>{{addCount}}</span><button onClick="{{addInc}}" aria-label="Mehr">+</button></div></div>
+        <div class="kv"><span>Datentyp</span><button class="inp" onClick="{{cycleAddDpt}}">{{addDptLabel}}<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+      </div>
+      <div class="kv"><span>Name (mit {n} für die laufende Nummer)</span><label class="field"><input value="{{addName}}" onChange="{{onAddName}}" aria-label="Namensmuster"></label></div>
+      <div class="kv"><span>Vorschau – belegte Adressen werden übersprungen</span>
+        <div class="prev">
+          <div class="pv"><span>Adresse</span><span>Name</span><span>Datentyp</span></div>
+          <sc-for list="{{addPrev}}" as="p" hint-placeholder-count="3"><div class="pv"><span class="mono">{{p.a}}</span><span>{{p.n}}</span><span class="mono">{{p.d}}</span></div></sc-for>
+        </div>
+      </div>
+    </div>
+    <div class="sf"><button class="btn ghost" onClick="{{closeAdd}}">Abbrechen</button><button class="btn primary" onClick="{{runAdd}}">{{addBtn}}</button></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="toast">{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      grp: '7/1', open: { '1': true, '7': true, '12': false }, nq: '', q: '', scope: 'grp', filter: 'all', showFree: true,
+      sel: '7/1/14', checked: {}, gas: this.initGas(), conn: false, wv: '',
+      ioMenu: false, moveMenu: false, dptMenu: false, addMenu: false,
+      add: false, addCount: 3, addDpt: '1.008', addName: 'Esszimmer Jalousie {n}', toast: ''
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  say(m) { clearTimeout(this.t); this.setState({ toast: m }); this.t = setTimeout(() => this.setState({ toast: '' }), 2400); }
+  initGas() {
+    const L = (pa, dev, n, obj, dpt, send) => ({ pa, dev, n, obj, dpt, send });
+    const J = 'Jalousieaktor 8 fach', T = 'Touch-Display', H = 'Klimasteuerung', S = 'Schaltaktor 20 fach', D = 'Dimmaktor 8 fach', W = 'GPS Wetterstation';
+    const ga = (a, n, dpt, links, val, extra) => Object.assign({ a, n, dpt, links, val: val || null, secure: false, central: false, desc: '' }, extra || {});
+    const list = [
+      ga('1/1/6', 'Test in Betrieb', '', [L('1.1.19', 'Logikmodul 1', 3, 'Eingang 1', '1.001', false)]),
+      ga('1/3/4', 'Terrassentüren Zentral Jalousie', '1.008', [L('1.1.16', J, 23, 'Kanal A Auf/Ab', '1.008', false), L('1.1.16', J, 30, 'Kanal B Auf/Ab', '1.008', false)]),
+      ga('1/3/14', 'Jalousien und Rollo West', '1.008', [L('1.1.16', J, 23, 'Kanal A Auf/Ab', '1.008', false)]),
+      ga('1/3/24', 'Alle Jalousien Auf/Ab', '1.008', [L('1.2.2', T, 60, 'Zentral Auf/Ab', '1.008', true), L('1.1.16', J, 23, 'Kanal A Auf/Ab', '1.008', false), L('1.1.16', J, 25, 'Kanal A Absolute Position', '5.001', false), L('1.1.16', J, 30, 'Kanal B Auf/Ab', '1.008', false)], ['Auf', 'vor 6 h']),
+      ga('1/3/34', 'Wohnzimmertür und Esszimmer', '1.008', [L('1.1.16', J, 23, 'Kanal A Auf/Ab', '1.008', false)]),
+      ga('1/3/50', 'Diagnose Beschattung', '16.000', [L('1.1.16', J, 14, 'Beschattung Diagnose', '16.000', true)], ['OK', 'vor 1 min']),
+      ga('1/7/6', 'Außentemperatur', '9.001', [L('1.1.14', W, 4, 'Temperatur', '9.001', true), L('1.1.16', J, 12, 'Außentemperatur', '9.001', false), L('1.1.48', H, 2, 'Außentemperatur', '9.001', false)], ['4,8 °C', 'vor 12 s']),
+      ga('7/0/0', 'Wohnzimmer Licht Decke Schalten', '1.001', [L('1.2.2', T, 40, 'Taste Licht', '1.001', true), L('1.1.9', S, 12, 'Kanal C Schalten', '1.001', false)], ['Ein', 'vor 4 min']),
+      ga('7/0/1', 'Wohnzimmer Licht Decke Status', '1.001', [L('1.1.9', S, 14, 'Kanal C Status', '1.001', true), L('1.2.2', T, 41, 'Status Licht', '1.001', false)], ['Ein', 'vor 4 min']),
+      ga('7/0/2', 'Stehlampe Dimmen', '3.007', [L('1.1.7', D, 30, 'Kanal B Dimmen relativ', '3.007', false)]),
+      ga('7/0/3', 'Stehlampe Helligkeit', '5.001', [L('1.1.7', D, 32, 'Kanal B Helligkeitswert', '5.001', false)], ['45 %', 'vor 20 min']),
+      ga('7/0/4', 'Stehlampe Status Helligkeit', '5.001', []),
+      ga('7/1/0', 'Terrassentür Zentral Lamelle', '1.007', [L('1.1.16', J, 24, 'Kanal A Lamelle/Stopp', '1.007', false), L('1.1.16', J, 31, 'Kanal B Lamelle/Stopp', '1.007', false)], ['Stopp', 'vor 5 h']),
+      ga('7/1/2', 'Wohnzimmertür Position', '5.001', [L('1.1.16', J, 25, 'Kanal A Absolute Position', '5.001', false)]),
+      ga('7/1/3', 'Wohnzimmertür Status Position', '5.001', []),
+      ga('7/1/4', 'Wohnzimmer Zentral Jalousie', '1.008', [L('1.1.16', J, 23, 'Kanal A Auf/Ab', '1.008', false)], ['Auf', 'vor 3 h']),
+      ga('7/1/10', 'Wohnzimmertür Jalousie Lamelle', '1.007', [L('1.2.2', T, 51, 'Wippe Lamelle', '1.007', true), L('1.1.16', J, 24, 'Kanal A Lamelle/Stopp', '1.007', false)], ['Schritt +', 'vor 2 min']),
+      ga('7/1/14', 'Wohnzimmertür Jalousie Auf/Ab', '1.008', [L('1.2.2', T, 50, 'Wippe Auf/Ab', '1.008', true), L('1.1.36', 'Küche Controller', 8, 'Taste 3 lang', '1.008', true), L('1.1.16', J, 23, 'Kanal A Auf/Ab', '1.008', false)], ['Ab', 'vor 2 min'], { desc: 'Taster links neben der Tür' }),
+      ga('7/1/16', 'Terrassentür Jalousie Auf/Ab', '1.008', [L('1.1.16', J, 30, 'Kanal B Auf/Ab', '1.008', false)], ['Ab', 'vor 2 min']),
+      ga('7/2/0', 'Wohnzimmer Ist-Temperatur', '9.001', [L('1.1.48', H, 5, 'Ist-Temperatur', '9.001', true)], ['21,4 °C', 'vor 30 s']),
+      ga('7/2/1', 'Wohnzimmer Soll-Temperatur', '9.001', [L('1.2.2', T, 70, 'Sollwert', '9.001', true), L('1.1.48', H, 6, 'Sollwert', '9.001', false)], ['22,0 °C', 'vor 2 h']),
+      ga('7/2/2', 'Wohnzimmer Stellgröße', '5.001', [L('1.1.48', H, 7, 'Stellgröße', '5.001', true)], ['34 %', 'vor 1 min'], { secure: true }),
+      ga('7/5/15', 'Wohnzimmer Taster 4 Wippe 4', '1.001', [L('1.2.2', T, 44, 'Taste 4', '1.001', true), L('1.1.16', J, 15, 'Automatik sperren', '1.001', false)], ['Ein', 'vor 8 min']),
+      ga('12/7/1', 'Wetterstation GPS Datum', '19.001', [L('1.1.14', W, 1, 'Datum/Uhrzeit', '19.001', true), L('1.1.16', J, 7, 'Uhrzeit/Datum', '19.001', false)], ['20.11.2026 22:40', 'vor 40 s']),
+      ga('12/7/13', 'Wetterstation Helligkeit', '9.004', [L('1.1.14', W, 13, 'Helligkeit Süd', '9.004', true), L('1.1.16', J, 9, 'Helligkeit', '9.004', false)], ['18 420 lx', 'vor 3 s']),
+      ga('12/7/20', 'Wetterstation Sonne Ost', '1.001', [L('1.1.14', W, 20, 'Sonne Ost', '1.001', true)], ['Aus', 'vor 1 h'])
+    ];
+    const m = {}; list.forEach(g => { m[g.a] = g; }); return m;
+  }
+  groups() {
+    return {
+      main: [['0', 'Wohnung'], ['1', 'Zentral'], ['2', 'Abstellraum'], ['3', 'Bad'], ['4', 'Flur'], ['5', 'WC'], ['6', 'Schlafzimmer'], ['7', 'Wohnzimmer'], ['8', 'Küche'], ['9', 'Esszimmer'], ['10', 'Terrasse'], ['11', 'Keller'], ['12', 'Wetterstation']],
+      mid: { '1': [['1/1', 'Test'], ['1/3', 'Beschattung'], ['1/7', 'Wetter']], '7': [['7/0', 'Licht'], ['7/1', 'Jalousie'], ['7/2', 'Heizung'], ['7/5', 'Taster']], '12': [['12/7', 'Messwerte']] },
+      other: { '0': 64, '2': 12, '3': 38, '4': 22, '5': 9, '6': 41, '8': 57, '9': 33, '10': 18, '11': 26 },
+      secure: { '7/2': true }
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const G = this.groups();
+    const DPTN = { '1.001': 'Schalten', '1.007': 'Schritt', '1.008': 'Auf/Ab', '3.007': 'Dimmen', '5.001': 'Prozent', '9.001': 'Temperatur', '9.004': 'Lux', '16.000': 'Text', '19.001': 'Datum/Zeit' };
+    const set = (o) => () => this.setState(o);
+    const closeAll = { ioMenu: false, moveMenu: false, dptMenu: false, addMenu: false };
+    const all = Object.values(s.gas);
+    const inGrp = (a, g) => a.startsWith(g + '/');
+    const senders = (g) => g.links.filter(l => l.send);
+    const issuesOf = (g) => {
+      const out = [];
+      if (!g.dpt) out.push({ cls: '', icon: '!', text: 'Kein Datentyp gesetzt. Werte können nicht dekodiert und Verknüpfungen nicht geprüft werden.' });
+      const bad = g.links.filter(l => g.dpt && l.dpt !== g.dpt);
+      if (bad.length) out.push({ cls: '', icon: '!', text: 'Datentyp passt nicht: ' + bad.map(l => l.pa + ' #' + l.n + ' (' + l.dpt + ')').join(', ') + ' – erwartet ' + g.dpt + '.' });
+      return out;
+    };
+    const infosOf = (g) => {
+      const out = [];
+      const sd = senders(g);
+      if (g.links.length && !sd.length) out.push({ cls: 'info', icon: 'i', text: 'Kein Objekt sendet auf diese Adresse – sie wird nur von außen (z. B. Visualisierung) beschrieben.' });
+      if (sd.length > 1) out.push({ cls: 'info', icon: 'i', text: sd.length + ' Objekte senden auf diese Adresse (' + sd.map(l => l.pa).join(', ') + '). Das ist bei Tastern üblich.' });
+      return out;
+    };
+    const sortA = (a, b) => { const x = a.split('/').map(Number), y = b.split('/').map(Number); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; };
+
+    // tree
+    const nq = s.nq.trim().toLowerCase();
+    const tree = [];
+    G.main.forEach(([num, name]) => {
+      const mids = G.mid[num] || [];
+      const cnt = mids.length ? all.filter(g => inGrp(g.a, num)).length : (G.other[num] || 0);
+      const midHit = mids.some(m => (m[0] + ' ' + m[1]).toLowerCase().includes(nq));
+      if (nq && !(num + ' ' + name).toLowerCase().includes(nq) && !midHit) return;
+      const open = !!s.open[num] || (!!nq && midHit);
+      tree.push({ isMain: true, isMid: false, num, label: name, count: String(cnt), use: 'width: ' + Math.min(100, Math.round(cnt / 2048 * 100 * 8)) + '%', secure: false,
+        hasWarn: all.some(g => inGrp(g.a, num) && issuesOf(g).length), carCls: open ? 'open' : '', tip: cnt + ' Adressen',
+        cls: 'lv0' + (s.grp === num ? ' on' : ''), click: () => this.setState({ grp: num, open: { ...s.open, [num]: !s.open[num] || s.grp !== num }, sel: null, checked: {}, filter: 'all', ...closeAll }) });
+      if (!open) return;
+      mids.forEach(([mn, mname]) => {
+        const c = all.filter(g => inGrp(g.a, mn)).length;
+        tree.push({ isMain: false, isMid: true, num: mn, label: mname, count: String(c), use: 'width: ' + Math.round(c / 256 * 100 * 6) + '%', secure: !!G.secure[mn],
+          hasWarn: all.some(g => inGrp(g.a, mn) && issuesOf(g).length), carCls: '', tip: c + ' von 256 belegt',
+          cls: 'lv1' + (s.grp === mn ? ' on' : ''), click: () => this.setState({ grp: mn, sel: null, checked: {}, filter: 'all', ...closeAll }) });
+      });
+    });
+
+    // current group
+    const isMid = s.grp.includes('/');
+    const mainNum = s.grp.split('/')[0];
+    const mainName = (G.main.find(m => m[0] === mainNum) || ['', ''])[1];
+    const midName = isMid ? ((G.mid[mainNum] || []).find(m => m[0] === s.grp) || ['', ''])[1] : '';
+    const grpName = isMid ? midName : mainName;
+    const hasData = !!G.mid[mainNum];
+    const q = s.q.trim().toLowerCase();
+    const scopeAll = s.scope === 'all' && !!q;
+    const base = all.filter(g => scopeAll || inGrp(g.a, s.grp));
+    const pass = (g) => {
+      if (s.filter === 'unlinked' && g.links.length) return false;
+      if (s.filter === 'nosend' && (!g.links.length || senders(g).length)) return false;
+      if (s.filter === 'issues' && !issuesOf(g).length) return false;
+      if (q) { const hay = [g.a, g.n, g.dpt, g.val ? g.val[0] : ''].concat(g.links.map(l => l.pa + ' ' + l.dev + ' ' + l.obj)).join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
+      return true;
+    };
+    const vis = base.filter(pass).sort((a, b) => sortA(a.a, b.a));
+    const st = { total: String(base.length), unlinked: String(base.filter(g => !g.links.length).length), nosend: String(base.filter(g => g.links.length && !senders(g).length).length), issues: String(base.filter(g => issuesOf(g).length).length) };
+
+    const rows = [];
+    const gaRow = (g) => {
+      const L = g.links.slice().sort((x, y) => (y.send ? 1 : 0) - (x.send ? 1 : 0));
+      const first = L[0];
+      const iss = issuesOf(g);
+      return { isSub: false, isFree: false, isGa: true, a: g.a, n: g.n, dpt: g.dpt || 'kein DPT', dptName: DPTN[g.dpt] || 'bitte setzen', dptCls: g.dpt ? '' : 'none',
+        hasLinks: L.length > 0, noLinks: !L.length, l1pa: first ? first.pa : '', l1: first ? (first.send ? '↑ ' : '↓ ') + first.dev : '',
+        l1cls: first ? (first.send ? 'send' : '') + (g.dpt && first.dpt !== g.dpt ? ' bad' : '') : '', l1tip: first ? '#' + first.n + ' ' + first.obj : '',
+        hasMore: L.length > 1, more: '+' + (L.length - 1),
+        val: g.val ? g.val[0] : '—', valT: g.val ? g.val[1] : 'kein Wert', secure: g.secure, warn: iss.length > 0, warnTip: iss.length ? iss[0].text : '',
+        cls: s.sel === g.a ? 'on' : '', boxCls: s.checked[g.a] ? 'on' : '',
+        check: (e) => { e.stopPropagation(); this.setState({ checked: { ...s.checked, [g.a]: !s.checked[g.a] } }); },
+        pick: () => this.setState({ sel: g.a, wv: '', ...closeAll }),
+        rename: (e) => this.setState({ gas: { ...s.gas, [g.a]: { ...g, n: e.target.value } } }) };
+    };
+    const freeRows = (mid, used) => {
+      const out = []; let start = null;
+      const max = Math.max(...used, -1);
+      for (let i = 0; i <= max + 1; i++) {
+        const free = !used.includes(i);
+        if (free && start === null) start = i;
+        if ((!free || i === max + 1) && start !== null) {
+          const end = free ? i : i - 1;
+          const n = end - start + 1;
+          const addAt = mid + '/' + start;
+          out.push({ at: start, row: { isSub: false, isFree: true, isGa: false, range: n === 1 ? addAt : mid + '/' + start + '–' + end, label: i === max + 1 && free ? 'frei bis ' + mid + '/255' : (n === 1 ? '1 freie Adresse' : n + ' freie Adressen'), add: () => this.setState({ add: true, grp: mid, ...closeAll }) } });
+          start = null;
+        }
+      }
+      return out;
+    };
+    const mids = isMid ? [[s.grp, midName]] : (G.mid[mainNum] || []);
+    if (scopeAll) vis.forEach(g => rows.push(gaRow(g)));
+    else mids.forEach(([mn, mname]) => {
+      const inMid = vis.filter(g => inGrp(g.a, mn));
+      if (!isMid) { if (!inMid.length) return; rows.push({ isSub: true, isFree: false, isGa: false, num: mn, name: mname, info: inMid.length + ' Adressen' }); }
+      const used = all.filter(g => inGrp(g.a, mn)).map(g => Number(g.a.split('/')[2]));
+      const frees = s.showFree && s.filter === 'all' && !q ? freeRows(mn, used) : [];
+      const merged = inMid.map(g => ({ at: Number(g.a.split('/')[2]), row: gaRow(g) })).concat(frees).sort((x, y) => x.at - y.at);
+      merged.forEach(m => rows.push(m.row));
+    });
+
+    // selected
+    const g = s.sel ? s.gas[s.sel] : null;
+    let ga = { a: '', n: '', dptLabel: '', desc: '', secHint: '', secCls: '', cenCls: '', hints: [], linkCount: '', hasLinks: false, noLinks: false, links: [], val: '', valT: '', wvHint: '' };
+    if (g) {
+      ga = { a: g.a, n: g.n, dptLabel: g.dpt ? g.dpt + ' ' + (DPTN[g.dpt] || '') : 'Kein Datentyp – bitte wählen', desc: g.desc || 'Keine Beschreibung',
+        secHint: g.secure ? 'Telegramme werden verschlüsselt; alle Geräte brauchen Secure' : 'Telegramme unverschlüsselt', secCls: g.secure ? 'on' : '', cenCls: g.central ? 'on' : '',
+        hints: issuesOf(g).concat(infosOf(g)), linkCount: String(g.links.length), hasLinks: g.links.length > 0, noLinks: !g.links.length,
+        links: g.links.slice().sort((x, y) => (y.send ? 1 : 0) - (x.send ? 1 : 0)).map(l => ({ pa: l.pa, dev: l.dev, n: l.n, obj: l.obj, dpt: l.dpt, dir: l.send ? '↑' : '↓', dirCls: l.send ? 's' : 'r', bad: !!g.dpt && l.dpt !== g.dpt, good: !g.dpt || l.dpt === g.dpt, go: () => this.say('Öffnet ' + l.pa + ' › Kommunikationsobjekte › #' + l.n) })),
+        val: g.val ? g.val[0] : '—', valT: g.val ? g.val[1] : 'noch kein Telegramm', wvHint: g.dpt === '1.001' ? 'Ein / Aus' : g.dpt === '1.008' ? 'Auf / Ab' : g.dpt === '5.001' ? '0–100 %' : g.dpt === '9.001' ? '°C' : 'Wert' };
+    }
+    const upd = (patch) => this.setState({ gas: { ...s.gas, [g.a]: { ...g, ...patch } } });
+
+    const checkedList = Object.keys(s.checked).filter(a => s.checked[a] && s.gas[a]);
+    const visChecked = vis.filter(x => s.checked[x.a]).length;
+    const allCls = visChecked === 0 ? '' : visChecked === vis.length ? 'on' : 'mixed';
+    const moveTargets = [];
+    Object.keys(G.mid).forEach(mn => G.mid[mn].forEach(([num, name]) => moveTargets.push({ num, name, off: num === s.grp, go: () => {
+      const gas = { ...s.gas }; const used = Object.keys(gas).filter(a => inGrp(a, num)).map(a => Number(a.split('/')[2]));
+      let next = 0; checkedList.forEach(a => { while (used.includes(next)) next++; const na = num + '/' + next; used.push(next); const old = gas[a]; delete gas[a]; gas[na] = { ...old, a: na }; });
+      this.setState({ gas, checked: {}, sel: null, ...closeAll }); this.say(checkedList.length + (checkedList.length === 1 ? ' Adresse' : ' Adressen') + ' nach ' + num + ' verschoben – Verknüpfungen bleiben erhalten');
+    } })));
+    const dptChoices = ['1.001', '1.008', '5.001', '9.001', '16.000'].map(id => ({ id, name: DPTN[id], set: () => { const gas = { ...s.gas }; checkedList.forEach(a => { gas[a] = { ...gas[a], dpt: id }; }); this.setState({ gas, ...closeAll }); this.say('Datentyp ' + id + ' gesetzt'); } }));
+
+    // add sheet
+    const targetMid = isMid ? s.grp : (G.mid[mainNum] || [[mainNum + '/0']])[0][0];
+    const usedT = all.filter(x => inGrp(x.a, targetMid)).map(x => Number(x.a.split('/')[2]));
+    const newAddrs = []; let i = 0; while (newAddrs.length < s.addCount && i < 256) { if (!usedT.includes(i)) newAddrs.push(i); i++; }
+    const addPrev = newAddrs.map((sub, k) => ({ a: targetMid + '/' + sub, n: s.addName.replace(/\{n\}/g, String(k + 1)), d: s.addDpt }));
+    const addDpts = ['1.008', '1.007', '5.001', '1.001', '9.001'];
+
+    return {
+      tree, crumb: 'Gruppenadressen › ' + mainNum + ' ' + mainName + (isMid ? ' › ' + s.grp + ' ' + midName : ''),
+      grp: { num: s.grp, name: grpName, secure: !!G.secure[s.grp], usage: isMid ? base.length + ' von 256 Adressen belegt' : base.length + ' Adressen in ' + mids.length + ' Mittelgruppen' },
+      st, fl: { all: s.filter === 'all' ? 'on' : '', unlinked: s.filter === 'unlinked' ? 'on' : '', nosend: s.filter === 'nosend' ? 'on' : '', issues: s.filter === 'issues' ? 'on' : '' },
+      fAll: set({ filter: 'all' }), fUnlinked: set({ filter: 'unlinked' }), fNosend: set({ filter: 'nosend' }), fIssues: set({ filter: 'issues' }),
+      freeCls: s.showFree ? 'on' : '', toggleFree: set({ showFree: !s.showFree }),
+      nq: s.nq, onNq: (e) => this.setState({ nq: e.target.value }), q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
+      sc: { grp: s.scope === 'grp' ? 'on' : '', all: s.scope === 'all' ? 'on' : '' }, scGrp: set({ scope: 'grp' }), scAll: set({ scope: 'all' }),
+      rows, noRows: rows.length === 0, emptyText: hasData ? 'Keine Adressen für diesen Filter.' : 'Beispieldaten gibt es nur für 1 Zentral, 7 Wohnzimmer und 12 Wetterstation.',
+      allCls, allPath: allCls === 'mixed' ? 'M6 12h12' : 'M5 12l5 5 9-10',
+      toggleAll: () => { const c = { ...s.checked }; const on = visChecked !== vis.length; vis.forEach(x => { c[x.a] = on; }); this.setState({ checked: c }); },
+      hasSel: checkedList.length > 0, selLabel: checkedList.length === 1 ? '1 Adresse ausgewählt' : checkedList.length + ' Adressen ausgewählt', clearSel: set({ checked: {} }),
+      moveMenu: s.moveMenu, toggleMove: set({ ...closeAll, moveMenu: !s.moveMenu }), moveTargets,
+      dptMenu: s.dptMenu, toggleDptMenu: set({ ...closeAll, dptMenu: !s.dptMenu }), dptChoices,
+      deleteSel: () => { const gas = { ...s.gas }; const linked = checkedList.filter(a => gas[a].links.length).length; checkedList.forEach(a => { delete gas[a]; }); this.setState({ gas, checked: {}, sel: null }); this.say(checkedList.length + ' gelöscht' + (linked ? ' – ' + linked + ' davon waren verknüpft (⌘Z macht es rückgängig)' : '')); },
+      ioMenu: s.ioMenu, toggleIo: set({ ...closeAll, ioMenu: !s.ioMenu }),
+      addMenu: s.addMenu, openAddMenu: set({ ...closeAll, addMenu: !s.addMenu }),
+      anyMenu: s.ioMenu || s.moveMenu || s.dptMenu || s.addMenu, closeMenus: set(closeAll),
+      hasGa: !!g, noGa: !g, ga,
+      cycleDpt: () => { if (!g) return; const opts = ['1.001', '1.007', '1.008', '5.001', '9.001']; upd({ dpt: opts[(opts.indexOf(g.dpt) + 1) % opts.length] }); },
+      toggleSecure: () => g && upd({ secure: !g.secure }), toggleCentral: () => g && upd({ central: !g.central }),
+      deleteOne: () => { if (!g) return; const gas = { ...s.gas }; delete gas[g.a]; this.setState({ gas, sel: null }); this.say(g.a + ' gelöscht (⌘Z macht es rückgängig)'); },
+      connected: s.conn, notConnected: !s.conn, connDot: 'background: ' + (s.conn ? 'var(--ok)' : 'var(--danger)'), connLabel: s.conn ? '192.168.0.99 · TCP' : 'Nicht verbunden',
+      toggleConn: set({ conn: !s.conn }),
+      wv: s.wv, onWv: (e) => this.setState({ wv: e.target.value }),
+      writeVal: () => { if (!g || !s.wv) return; upd({ val: [s.wv, 'gerade eben · geschrieben'] }); this.setState({ wv: '' }); this.say(g.a + ' ← ' + s.wv); },
+      readVal: () => { if (!g) return; this.say('Leseanfrage an ' + g.a + ' gesendet'); upd({ val: [g.val ? g.val[0] : 'Aus', 'gerade eben · Antwort'] }); },
+      add: s.add, openAdd: set({ add: true, ...closeAll }), closeAdd: set({ add: false }),
+      addStart: addPrev.length ? addPrev[0].a : '–', addCount: String(s.addCount), addInc: set({ addCount: Math.min(32, s.addCount + 1) }), addDec: set({ addCount: Math.max(1, s.addCount - 1) }),
+      addDptLabel: s.addDpt + ' ' + DPTN[s.addDpt], cycleAddDpt: set({ addDpt: addDpts[(addDpts.indexOf(s.addDpt) + 1) % addDpts.length] }),
+      addName: s.addName, onAddName: (e) => this.setState({ addName: e.target.value }), addPrev,
+      addBtn: addPrev.length === 1 ? '1 Adresse hinzufügen' : addPrev.length + ' Adressen hinzufügen',
+      runAdd: () => { const gas = { ...s.gas }; addPrev.forEach(p => { gas[p.a] = { a: p.a, n: p.n, dpt: p.d, links: [], val: null, secure: false, central: false, desc: '' }; }); this.setState({ gas, add: false, grp: targetMid, sel: addPrev.length ? addPrev[0].a : null }); this.say(addPrev.length + ' Adressen in ' + targetMid + ' angelegt'); },
+      notImpl: () => { this.setState(closeAll); this.say('Im Klickdummy nicht umgesetzt'); },
+      hasToast: !!s.toast, toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
