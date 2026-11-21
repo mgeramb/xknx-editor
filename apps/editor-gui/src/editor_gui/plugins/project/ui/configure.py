@@ -680,16 +680,16 @@ class ConfigurePanel:
         the rounding of a pixel and go to the next row), else each beside the one before while it
         fits."""
 
-        def beside(width: float) -> None:
+        def beside(label: str) -> None:
             if one_line:
                 imgui.same_line()
             else:
-                same_line_if_fits(width)
+                _same_line_if_fits(label)
 
         self._render_scope_selector(device)
         # Workflow order: dry run (preview changes) → program → preview memory image.
         if self._on_eval_device is not None:
-            beside(button_width(S.BTN_EVAL_DEVICE))
+            beside(S.BTN_EVAL_DEVICE)
             enabled = (
                 bool(device.individual_address)
                 and device.has_application
@@ -757,7 +757,7 @@ class ConfigurePanel:
             if self._on_program_device is not None:
                 imgui.same_line()
             else:
-                beside(button_width(MEMORY_PREVIEW_BUTTON))
+                beside(MEMORY_PREVIEW_BUTTON)
             imgui.begin_disabled(not device.has_application)
             if imgui.button(MEMORY_PREVIEW_BUTTON):
                 self._open_memory_preview(device)

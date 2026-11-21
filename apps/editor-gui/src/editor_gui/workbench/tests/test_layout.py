@@ -12,6 +12,7 @@ from imgui_bundle import imgui
 from editor_gui.plugins.base.registry import PanelDefinition
 from editor_gui.widgets import choice
 from editor_gui.widgets.choice import ChoiceColors, chosen_fill
+from editor_gui.widgets.tabs import forget_shown_tab_bars
 from editor_gui.workbench import layout
 from editor_gui.workbench.group_objects import toggle_button
 from editor_gui.workbench.layout import Workbench
@@ -19,6 +20,8 @@ from editor_gui.workbench.layout import Workbench
 
 @pytest.fixture
 def frame() -> Iterator[None]:
+    # The tab bars remembered are those of another context.
+    forget_shown_tab_bars()
     ctx = imgui.create_context()
     imgui.get_io().display_size = imgui.ImVec2(800, 600)
     imgui.get_io().backend_flags |= imgui.BackendFlags_.renderer_has_textures
@@ -28,6 +31,7 @@ def frame() -> Iterator[None]:
     imgui.end()
     imgui.end_frame()
     imgui.destroy_context(ctx)
+    forget_shown_tab_bars()
 
 
 def _workbench(
