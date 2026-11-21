@@ -12,17 +12,18 @@ from dataclasses import dataclass
 from imgui_bundle import hello_imgui, imgui
 
 from editor_gui.plugins.base.registry import PanelDefinition
+from editor_gui.widgets.choice import chosen_fill
 from editor_gui.widgets.dpi import px
+from editor_gui.widgets.tabs import begin_tab_bar
 from editor_gui.widgets.tree import collapsing_header
 from editor_gui.workbench import state
-from editor_gui.workbench.group_objects import segmented
 from editor_gui.workbench.strings import S
 
-# Font Awesome 6 icons of the activity rail.
+# Font Awesome icons of the activity rail (those of the icon font the app loads).
 _ICON_PROJECT = ""  # folder-open
 _ICON_CATALOG = ""  # book
 _ICON_BUS = ""  # clock-rotate-left (history of telegrams)
-_ICON_CHECK = ""  # clipboard-check
+_ICON_CHECK = ""  # check-circle
 _ICON_TOOLS = ""  # wrench
 
 _RAIL_WIDTH = 72.0
@@ -59,9 +60,13 @@ class Workbench:
         self,
         panels: list[PanelDefinition],
         labels: dict[str, Callable[[], str]],
+        device_section: Callable[[], tuple[str, bool]] | None = None,
     ) -> None:
         self._panels = {panel.name: panel for panel in panels}
         self._labels = labels
+        # The title of the inspector's first section for what is selected (a device, a space, an
+        # area, a line, a group range or address) and whether the manufacturer's section applies.
+        self._device_section = device_section
         self._areas = (
             _Area(
                 "project", _ICON_PROJECT, lambda: S.AREA_PROJECT, ("editor", "cockpit")
@@ -83,6 +88,7 @@ class Workbench:
         )
         self.area = "project"
         self.view = "buildings"
+        self._select_view: str | None = None
         self._tab: dict[str, str] = {}
         self._select_tab: str | None = None
         self.bottom_tab = "operations"
@@ -175,6 +181,7 @@ class Workbench:
         inspector section or its tab of the bottom panel."""
         if name in _NAVIGATOR_VIEWS:
             self.view = name
+            self._select_view = name
             return
         if name in _INSPECTOR_PANELS:
             if not self.show_inspector:
@@ -228,13 +235,22 @@ class Workbench:
             imgui.get_color_u32(imgui.Col_.border),
         )
         if imgui.begin_child("##wb_nav", imgui.ImVec2(0, 0)):
-            views = list(_NAVIGATOR_VIEWS)
-            index = views.index(self.view) if self.view in views else 0
-            index = segmented(
-                "wb_views", [self._label(view)() for view in views], index
-            )
-            self.view = views[index]
-            imgui.spacing()
+            if begin_tab_bar("##wb_views"):
+                for view in _NAVIGATOR_VIEWS:
+                    flags = (
+                        imgui.TabItemFlags_.set_selected
+                        if self._select_view == view
+                        else 0
+                    )
+                    if imgui.begin_tab_item(
+                        f"{self._label(view)()}###{view}", None, flags
+                    )[0]:
+                        # A view asked for shows at once; its tab follows in the next frame.
+                        if self._select_view is None:
+                            self.view = view
+                        imgui.end_tab_item()
+                imgui.end_tab_bar()
+            self._select_view = None
             self._panel(self.view)
         imgui.end_child()
 
@@ -246,23 +262,18 @@ class Workbench:
         low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
         on = area.key == self.area
         draw = imgui.get_window_draw_list()
-        accent = imgui.get_style_color_vec4(imgui.Col_.check_mark)
+        # As the theme draws a button: its corners, its hovered color, and the chosen area
+        # pressed (see chosen_fill).
+        rounding = imgui.get_style().frame_rounding
         if on:
             draw.add_rect_filled(
-                low,
-                high,
-                imgui.get_color_u32(imgui.ImVec4(accent.x, accent.y, accent.z, 0.22)),
-                px(8),
+                low, high, imgui.get_color_u32(chosen_fill()), rounding
             )
         elif imgui.is_item_hovered():
             draw.add_rect_filled(
-                low, high, imgui.get_color_u32(imgui.Col_.frame_bg_hovered), px(8)
+                low, high, imgui.get_color_u32(imgui.Col_.button_hovered), rounding
             )
-        color = (
-            imgui.get_color_u32(accent)
-            if on
-            else imgui.get_color_u32(imgui.Col_.text_disabled)
-        )
+        color = imgui.get_color_u32(imgui.Col_.text if on else imgui.Col_.text_disabled)
         label = area.label()
         icon_size = imgui.calc_text_size(area.icon)
         label_size = imgui.calc_text_size(label)
@@ -290,7 +301,7 @@ class Workbench:
             self._panel(panels[0])
             return
         current = self._tab.get(area.key, panels[0])
-        if imgui.begin_tab_bar(f"##wb_tabs_{area.key}"):
+        if begin_tab_bar(f"##wb_tabs_{area.key}"):
             for name in panels:
                 flags = (
                     imgui.TabItemFlags_.set_selected if self._select_tab == name else 0
@@ -316,18 +327,27 @@ class Workbench:
                 render()
                 imgui.spacing()
             imgui.pop_id()
+        title, device = (
+            self._device_section()
+            if self._device_section is not None
+            else (self._label("device")(), True)
+        )
         for name in _INSPECTOR_PANELS:
             if name not in self._panels:
                 continue
+            # The manufacturer's section only while a device is selected.
+            if name == "manufacturer" and not device:
+                continue
+            label = title if name == "device" else self._label(name)()
             flags = imgui.TreeNodeFlags_.default_open if name == "device" else 0
             imgui.push_id(name)
-            if collapsing_header(f"{self._label(name)()}###{name}", flags):
+            if collapsing_header(f"{label}###{name}", flags):
                 self._panels[name].render()
                 imgui.spacing()
             imgui.pop_id()
 
     def _render_bottom(self) -> None:
-        if imgui.begin_tab_bar("##wb_bottom_tabs"):
+        if begin_tab_bar("##wb_bottom_tabs"):
             for name in _BOTTOM_PANELS:
                 if name not in self._panels:
                     continue

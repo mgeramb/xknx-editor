@@ -4191,20 +4191,25 @@ class KnxGuiApp:
             done / total, S.PROGRESS_APPLICATION_PROGRAMS.format(done=done, total=total)
         )
 
+    def device_section(self) -> tuple[str, bool]:
+        """The title of the Device tab for what is selected (a space, an area, a line, a group
+        range or address by its type, else "Device") and whether that is a device (else the
+        Manufacturer tab does not apply)."""
+        space = self._project_plugin.selected_space()
+        element = self._project_plugin.selected_element() if space is None else None
+        if space is not None:
+            return space_type_name(space.space_type) or _DOCK_LABELS["device"](), False
+        if element is not None:
+            return _ELEMENT_TITLES[element.title_kind](), False
+        return _DOCK_LABELS["device"](), True
+
     def _sync_device_section(self) -> None:
         """While a space is selected in the Buildings tree, an area or a line in the Topology tree,
         or a group range or group address, the Device tab shows it, titled with its type
         (Building, Floor, …, Area, Line, Main Group, …), and the Manufacturer tab is hidden and
         left out of the menus; selecting a device again restores both."""
-        space = self._project_plugin.selected_space()
-        element = self._project_plugin.selected_element() if space is None else None
-        if space is not None:
-            title = space_type_name(space.space_type) or _DOCK_LABELS["device"]()
-        elif element is not None:
-            title = _ELEMENT_TITLES[element.title_kind]()
-        else:
-            title = _DOCK_LABELS["device"]()
-        other = space is not None or element is not None
+        title, device = self.device_section()
+        other = not device
         for window in hello_imgui.get_runner_params().docking_params.dockable_windows:
             name = _dock_window_name(window)
             if name == "device":
@@ -4619,7 +4624,8 @@ class KnxGuiApp:
             imgui.align_text_to_frame_padding()
             imgui.text(f"\uf07c  {name}")
         else:
-            if _bar_menu(f"\uf07c  {name}  \u25be##wb_project"):
+            # A Font Awesome caret: the fonts have no "\u25be".
+            if _bar_menu(f"\uf07c  {name}  \uf0d7##wb_project"):
                 self._render_file_menu()
                 imgui.end_menu()
             if _bar_menu(f"{_ICON_MENU}##wb_menus"):
@@ -8200,7 +8206,9 @@ def _main() -> None:
     runner_params.ini_filename = str(ini_path)
     if workbench_state.enabled():
         # The redesign's zones, always as built at the start.
-        app.workbench = Workbench(app.get_all_panels(), _DOCK_LABELS)
+        app.workbench = Workbench(
+            app.get_all_panels(), _DOCK_LABELS, app.device_section
+        )
         docking = runner_params.docking_params
         docking.docking_splits = app.workbench.docking_splits()
         docking.dockable_windows = app.workbench.dockable_windows()

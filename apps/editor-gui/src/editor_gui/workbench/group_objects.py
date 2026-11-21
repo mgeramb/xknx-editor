@@ -21,6 +21,7 @@ from editor_gui.device import (
     object_size_text,
 )
 from editor_gui.widgets.checkbox import checkbox
+from editor_gui.widgets.choice import chosen_fill
 from editor_gui.widgets.dpi import px
 from editor_gui.widgets.filter_box import filter_box
 from editor_gui.widgets.flow import button_width, checkbox_width, same_line_if_fits
@@ -46,34 +47,42 @@ _OPEN = "\uf0d7"
 _CLOSED = "\uf0da"
 
 
-def _accent() -> imgui.ImVec4:
-    return imgui.get_style_color_vec4(imgui.Col_.check_mark)
-
-
 def _soft(color: imgui.ImVec4, alpha: float) -> int:
     return imgui.get_color_u32(imgui.ImVec4(color.x, color.y, color.z, alpha))
 
 
+def toggle_button(
+    label: str, on: bool, size: imgui.ImVec2 | None = None, *, dim_off: bool = False
+) -> bool:
+    """A button in the theme's colors and corners that stays pressed while ``on`` (in the
+    theme's chosen fill, see :func:`chosen_fill`); with ``dim_off`` its text is dimmed while it
+    is off. Whether it was clicked."""
+    colors = 0
+    if on:
+        imgui.push_style_color(imgui.Col_.button, chosen_fill())
+        colors += 1
+    elif dim_off:
+        imgui.push_style_color(
+            imgui.Col_.text, imgui.get_style_color_vec4(imgui.Col_.text_disabled)
+        )
+        colors += 1
+    clicked = imgui.button(label, size if size is not None else imgui.ImVec2(0, 0))
+    imgui.pop_style_color(colors)
+    return clicked
+
+
 def segmented(str_id: str, labels: list[str], current: int) -> int:
-    """A segmented control: buttons side by side, the chosen one filled; the chosen index."""
+    """A segmented control: toggle buttons side by side, the chosen one pressed; the chosen
+    index."""
     imgui.push_id(str_id)
     imgui.push_style_var(imgui.StyleVar_.item_spacing, imgui.ImVec2(px(2), px(2)))
-    imgui.push_style_var(imgui.StyleVar_.frame_rounding, px(5))
     chosen = current
     for index, label in enumerate(labels):
         if index:
             imgui.same_line()
-        on = index == current
-        if on:
-            imgui.push_style_color(imgui.Col_.button, _soft(_accent(), 0.35))
-        else:
-            imgui.push_style_color(
-                imgui.Col_.button, imgui.get_color_u32(imgui.Col_.frame_bg)
-            )
-        if imgui.button(f"{label}##{index}"):
+        if toggle_button(f"{label}##{index}", index == current):
             chosen = index
-        imgui.pop_style_color()
-    imgui.pop_style_var(2)
+    imgui.pop_style_var()
     imgui.pop_id()
     return chosen
 
@@ -99,7 +108,7 @@ def chip(
             imgui.Col_.frame_bg_hovered if hovered else imgui.Col_.frame_bg
         )
         border = imgui.get_color_u32(imgui.Col_.border)
-    rounding = size.y / 2
+    rounding = imgui.get_style().frame_rounding
     if not dashed:
         draw.add_rect_filled(low, high, fill, rounding)
     draw.add_rect(low, high, border, rounding)
@@ -296,15 +305,13 @@ class RedesignedGroupObjectsTable(GroupObjectsTable):
             imgui.ImVec2(
                 low.x + imgui.get_content_region_avail().x + px(4), low.y + height
             ),
-            _soft(_accent(), 0.14),
-            px(6),
+            imgui.get_color_u32(chosen_fill()),
+            imgui.get_style().frame_rounding,
         )
         imgui.set_cursor_screen_pos(imgui.ImVec2(low.x + px(4), low.y + px(5)))
         imgui.align_text_to_frame_padding()
         with bold():
-            imgui.text_colored(
-                _accent(), S.SELECTED(len(selected)).format(count=len(selected))
-            )
+            imgui.text(S.SELECTED(len(selected)).format(count=len(selected)))
         if self._on_auto_create_gas is not None:
             create = WS.GROUP_OBJECTS_BATCH_TITLE + "…"
             same_line_if_fits(button_width(create))
@@ -496,8 +503,6 @@ class RedesignedGroupObjectsTable(GroupObjectsTable):
         side = imgui.get_frame_height()
         imgui.push_style_var(imgui.StyleVar_.item_spacing, imgui.ImVec2(px(3), 0))
         imgui.push_style_var(imgui.StyleVar_.frame_padding, imgui.ImVec2(0, 0))
-        imgui.push_style_var(imgui.StyleVar_.frame_rounding, px(4))
-        accent = _accent()
         for index, (attr, _letter, _name) in enumerate(FLAG_LABELS):
             if index:
                 imgui.same_line()
@@ -505,25 +510,21 @@ class RedesignedGroupObjectsTable(GroupObjectsTable):
             locked = attr != "communication" and bool(
                 getattr(co.flags, f"{attr}_locked", False)
             )
-            if on:
-                imgui.push_style_color(imgui.Col_.button, _soft(accent, 0.30))
-                imgui.push_style_color(imgui.Col_.text, accent)
-            else:
-                imgui.push_style_color(imgui.Col_.button, _soft(accent, 0.0))
-                imgui.push_style_color(
-                    imgui.Col_.text, imgui.get_color_u32(imgui.Col_.text_disabled)
-                )
             imgui.begin_disabled(locked)
-            if imgui.button(f"{flag_letter(attr)}##{attr}", imgui.ImVec2(side, side)):
+            if toggle_button(
+                f"{flag_letter(attr)}##{attr}",
+                on,
+                imgui.ImVec2(side, side),
+                dim_off=True,
+            ):
                 self._set_flag(device, co.id, attr, not on)
             imgui.end_disabled()
-            imgui.pop_style_color(2)
             if imgui.is_item_hovered(imgui.HoveredFlags_.allow_when_disabled):
                 name = flag_name(attr)
                 imgui.set_tooltip(
                     WS.TOOLTIP_LOCKED.format(name=name) if locked else name
                 )
-        imgui.pop_style_var(3)
+        imgui.pop_style_var(2)
 
     def _render_links(
         self, device: Device, co: ComObject, links: list[GroupLink]

@@ -33,7 +33,12 @@ from editor_gui.plugins.project.ui.status_field import status_combo
 from editor_gui.widgets.combo import end_combo
 from editor_gui.widgets.dpi import label_column_width, px, px_vec2
 from editor_gui.widgets.filter_box import filter_box
-from editor_gui.widgets.flow import button_width, same_line_if_fits
+from editor_gui.widgets.flow import (
+    button_width,
+    fits_beside,
+    right_edge,
+    same_line_if_fits,
+)
 from editor_gui.widgets.fonts import heading, italic
 from editor_gui.widgets.icon_button import ICON_COPY, copy_button, icon_button_width
 from editor_gui.widgets.spinner import loading
@@ -662,17 +667,29 @@ class ConfigurePanel:
         )
         imgui.same_line()
         free = imgui.get_content_region_avail().x - width
-        if free >= style.item_spacing.x * 2:
+        beside = free >= style.item_spacing.x * 2
+        if beside:
             imgui.set_cursor_pos_x(imgui.get_cursor_pos_x() + free)
         else:
             imgui.new_line()
-        self._render_programming(device)
+        self._render_programming(device, one_line=beside)
 
-    def _render_programming(self, device: Device) -> None:
+    def _render_programming(self, device: Device, *, one_line: bool = False) -> None:
+        """The download scope and the programming buttons: with ``one_line`` all on the row (it
+        was measured to fit, right-aligned up to the edge: asked again, a button could miss it by
+        the rounding of a pixel and go to the next row), else each beside the one before while it
+        fits."""
+
+        def beside(width: float) -> None:
+            if one_line:
+                imgui.same_line()
+            else:
+                same_line_if_fits(width)
+
         self._render_scope_selector(device)
         # Workflow order: dry run (preview changes) → program → preview memory image.
         if self._on_eval_device is not None:
-            _same_line_if_fits(S.BTN_EVAL_DEVICE)
+            beside(button_width(S.BTN_EVAL_DEVICE))
             enabled = (
                 bool(device.individual_address)
                 and device.has_application
@@ -685,7 +702,19 @@ class ConfigurePanel:
             _no_application_tooltip(device)
 
         if self._on_program_device is not None:
-            _same_line_if_fits(S.BTN_PROGRAM_DEVICE)
+            # Programming and the preview of its memory image stay together: on the row beside
+            # the buttons before them, or else right-aligned on the next one.
+            style = imgui.get_style()
+            pair = button_width(S.BTN_PROGRAM_DEVICE)
+            if self._open_memory_preview is not None:
+                pair += style.item_spacing.x + button_width(MEMORY_PREVIEW_BUTTON)
+            if one_line or fits_beside(pair):
+                imgui.same_line()
+            else:
+                start = imgui.get_cursor_screen_pos()
+                imgui.set_cursor_screen_pos(
+                    imgui.ImVec2(max(start.x, right_edge() - pair), start.y)
+                )
             try:
                 capabilities = self._capabilities(device)
                 allowed = capabilities is None or capabilities.programming_error is None
@@ -725,7 +754,10 @@ class ConfigurePanel:
                 )
 
         if self._open_memory_preview is not None:
-            _same_line_if_fits(MEMORY_PREVIEW_BUTTON)
+            if self._on_program_device is not None:
+                imgui.same_line()
+            else:
+                beside(button_width(MEMORY_PREVIEW_BUTTON))
             imgui.begin_disabled(not device.has_application)
             if imgui.button(MEMORY_PREVIEW_BUTTON):
                 self._open_memory_preview(device)
