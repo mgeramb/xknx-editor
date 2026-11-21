@@ -1,0 +1,1 @@
+App-Icon des XKNX Editors (512 × 512 PNG, aus `apps/editor-gui/src/editor_gui/assets/app_settings/icon.png`): weiße Schrift „XKNX editor“ auf schwarzem, abgerundetem Quadrat. Unverändert verwenden, nicht einfärben; auf dunklem Grund mit `line2`-Rahmen absetzen.
