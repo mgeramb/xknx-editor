@@ -4619,7 +4619,11 @@ class KnxGuiApp:
             name = (meta.name if meta and meta.name else None) or (
                 path.name if path is not None else "?"
             )
-        if workbench.mode != "wide":
+        phone = workbench.mode == "phone"
+        if phone:
+            # No room for the project's name; the tabs below show what there is.
+            name = ""
+        if workbench.mode in ("mid", "narrow"):
             # The navigator's list is folded away or over the workspace: a switch for it.
             with _bar_item_spacing():
                 if imgui.menu_item("\uf0c9##wb_navigator", "", workbench.nav_open)[0]:
@@ -4649,8 +4653,10 @@ class KnxGuiApp:
             if self._project_service.is_open
             else 0
         )
-        pending_text = WB.PENDING(pending).format(count=pending) if pending else ""
-        icons = ("\uf0db", "\uf2d1", _ICON_SETTINGS)
+        pending_text = (
+            WB.PENDING(pending).format(count=pending) if pending and not phone else ""
+        )
+        icons = (_ICON_SETTINGS,) if phone else ("\uf0db", "\uf2d1", _ICON_SETTINGS)
         right = sum(_menu_width(icon) for icon in icons)
         if pending_text:
             right += _menu_width(pending_text) + style.item_spacing.x
@@ -4692,14 +4698,17 @@ class KnxGuiApp:
                 if imgui.menu_item(f"{pending_text}##wb_pending", "", False)[0]:
                     workbench.show("operations")
                 imgui.pop_style_color()
-            if imgui.menu_item("\uf0db##wb_inspector", "", workbench.show_inspector)[0]:
-                workbench.toggle_inspector()
-            if imgui.is_item_hovered():
-                imgui.set_tooltip(WB.TOGGLE_INSPECTOR)
-            if imgui.menu_item("\uf2d1##wb_bottom", "", workbench.show_bottom)[0]:
-                workbench.toggle_bottom()
-            if imgui.is_item_hovered():
-                imgui.set_tooltip(WB.TOGGLE_BOTTOM_PANEL)
+            if not phone:
+                if imgui.menu_item(
+                    "\uf0db##wb_inspector", "", workbench.show_inspector
+                )[0]:
+                    workbench.toggle_inspector()
+                if imgui.is_item_hovered():
+                    imgui.set_tooltip(WB.TOGGLE_INSPECTOR)
+                if imgui.menu_item("\uf2d1##wb_bottom", "", workbench.show_bottom)[0]:
+                    workbench.toggle_bottom()
+                if imgui.is_item_hovered():
+                    imgui.set_tooltip(WB.TOGGLE_BOTTOM_PANEL)
             if imgui.menu_item(f"{_ICON_SETTINGS}##settings", "", False)[0]:
                 self._settings_window.open()
         if imgui.is_item_hovered():

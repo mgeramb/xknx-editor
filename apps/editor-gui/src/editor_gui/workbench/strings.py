@@ -61,6 +61,11 @@ class WorkbenchStrings:
     def MORE_MENUS(self) -> str:
         return _("More")
 
+    # The tab of the phone's bar with what does not have a tab of its own.
+    @property
+    def MORE(self) -> str:
+        return _("More")
+
     # Group objects.
     @property
     def FILTER_ALL(self) -> str:

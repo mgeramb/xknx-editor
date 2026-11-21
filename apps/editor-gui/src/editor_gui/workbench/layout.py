@@ -27,15 +27,25 @@ _ICON_BUS = ""  # clock-rotate-left (history of telegrams)
 _ICON_CHECK = ""  # check-circle
 _ICON_TOOLS = ""  # wrench
 
+_ICON_MORE = ""  # ellipsis-h
+_ICON_BACK = ""  # chevron-left
+_ICON_INFO = ""  # info-circle
+
 _RAIL_WIDTH = 72.0
 _RAIL_BUTTON_HEIGHT = 54.0
+_PHONE_TAB_HEIGHT = 60.0
+_PHONE_ROW_HEIGHT = 48.0
 
 # The layouts by the width of the window (the steps of the browser UI's ``form_factor``): "wide"
 # has all zones docked; "mid" (a tablet in landscape) folds the navigator's list away and shows the
 # inspector over the workspace; "narrow" (a tablet in portrait) also shows the navigator's list over
-# the workspace, and the inspector as a sheet from below.
+# the workspace, and the inspector as a sheet from below; "phone" shows one view after the other
+# with a tab bar below (Project, Bus, Check, More).
 WIDE_MIN = 1280.0
 MID_MIN = 1000.0
+PHONE_MIN = 600.0
+# The tabs of the phone's bar.
+_PHONE_TABS = ("project", "bus", "check", "more")
 # A width right at a limit must not flip the layout back and forth.
 _MARGIN = 40.0
 # How long a new width has to stay before the layout changes (resizing, turning the device).
@@ -43,9 +53,13 @@ _SETTLE = 0.4
 
 
 def layout_mode(width: float, current: str | None = None) -> str:
-    """The layout for a window of this width: ``"wide"``, ``"mid"`` or ``"narrow"``. With the
-    layout shown now, a limit is crossed only by a little more than it."""
-    wide, mid = WIDE_MIN, MID_MIN
+    """The layout for a window of this width: ``"wide"``, ``"mid"``, ``"narrow"`` or ``"phone"``.
+    With the layout shown now, a limit is crossed only by a little more than it."""
+    wide, mid, phone = WIDE_MIN, MID_MIN, PHONE_MIN
+    if current == "phone":
+        phone += _MARGIN
+    elif current is not None:
+        phone -= _MARGIN
     if current == "wide":
         wide -= _MARGIN
     elif current is not None:
@@ -58,7 +72,7 @@ def layout_mode(width: float, current: str | None = None) -> str:
         return "wide"
     if width >= mid:
         return "mid"
-    return "narrow"
+    return "narrow" if width >= phone else "phone"
 
 
 def overlay_rect(
@@ -66,15 +80,53 @@ def overlay_rect(
 ) -> tuple[float, float, float, float]:
     """The place (x, y, width, height) of an overlay over the workspace ``area``: the navigator's
     list from the left edge, the inspector from the right edge in "mid" and as a sheet from below
-    in "narrow". ``unit`` is the size of a pixel (the scale of the display)."""
+    in "narrow" and on the phone. ``unit`` is the size of a pixel (the scale of the display)."""
     x, y, width, height = area
     if kind == "navigator":
         return x, y, min(width * 0.85, 340.0 * unit), height
+    if mode == "phone":
+        sheet = height * 0.78
+        return x, y + height - sheet, width, sheet
     if mode == "narrow":
         sheet = height * 0.55
         return x, y + height - sheet, width, sheet
     over = min(width * 0.6, 360.0 * unit)
     return x + width - over, y, over, height
+
+
+def _icon_button(
+    button_id: str, icon: str, label: str, size: imgui.ImVec2, on: bool
+) -> bool:
+    """An icon over its label, filled while ``on`` (a button of the rail or the phone's bar)."""
+    clicked = imgui.invisible_button(button_id, size)
+    low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+    draw = imgui.get_window_draw_list()
+    # As the theme draws a button: its corners, its hovered color, and the chosen one pressed
+    # (see chosen_fill).
+    rounding = imgui.get_style().frame_rounding
+    if on:
+        draw.add_rect_filled(low, high, imgui.get_color_u32(chosen_fill()), rounding)
+    elif imgui.is_item_hovered():
+        draw.add_rect_filled(
+            low, high, imgui.get_color_u32(imgui.Col_.button_hovered), rounding
+        )
+    color = imgui.get_color_u32(imgui.Col_.text if on else imgui.Col_.text_disabled)
+    icon_size = imgui.calc_text_size(icon)
+    label_size = imgui.calc_text_size(label)
+    top = low.y + (size.y - icon_size.y - label_size.y - px(3)) / 2
+    draw.add_text(imgui.ImVec2(low.x + (size.x - icon_size.x) / 2, top), color, icon)
+    draw.push_clip_rect(low, high, True)
+    draw.add_text(
+        imgui.ImVec2(
+            low.x + max(0.0, (size.x - label_size.x) / 2), top + icon_size.y + px(3)
+        ),
+        color,
+        label,
+    )
+    draw.pop_clip_rect()
+    if imgui.is_item_hovered() and label_size.x > size.x:
+        imgui.set_tooltip(label)
+    return clicked
 
 
 # The windows of the zones (their ids after ``###``).
@@ -160,6 +212,13 @@ class Workbench:
         self._opened = -1
         self._selection: object = None
         self._selection_key = selection_key
+        # The phone: the tab of its bar, in "project" whether the list or the device is shown, in
+        # "more" what was chosen, and what was selected when a view was last shown (a device
+        # selected elsewhere, e.g. from a finding, is shown at once).
+        self.phone_tab = "project"
+        self.phone_screen = "list"
+        self.phone_more: str | None = None
+        self._phone_seen: object = None
 
     def _label(self, name: str) -> Callable[[], str]:
         return self._labels.get(name, lambda: name)
@@ -182,12 +241,22 @@ class Workbench:
             window.include_in_view_menu = False
             window.remember_is_visible = False
             window.imgui_window_flags = imgui.WindowFlags_.no_collapse
-            if name == INSPECTOR:
-                window.is_visible = self.show_inspector
-            elif name == BOTTOM:
-                window.is_visible = self.show_bottom
+            window.is_visible = self._zone_visible(name)
             windows.append(window)
         return windows
+
+    def _zone_visible(self, name: str) -> bool:
+        """Whether the window ``name`` is a zone of the layout now (the phone has the workspace
+        only)."""
+        if name == WORKSPACE:
+            return True
+        if self.mode == "phone":
+            return False
+        if name == INSPECTOR:
+            return self.show_inspector and self.mode == "wide"
+        if name == BOTTOM:
+            return self.show_bottom
+        return True
 
     def docking_splits(self) -> list[hello_imgui.DockingSplit]:
         flags = (
@@ -206,6 +275,8 @@ class Workbench:
             item.node_flags = flags
             splits.append(item)
 
+        if self.mode == "phone":
+            return splits
         split("LeftSpace", imgui.Dir.left, self._left_ratio())
         if self.show_bottom:
             split("BottomSpace", imgui.Dir.down, 0.26)
@@ -235,11 +306,7 @@ class Workbench:
         """Build the zones again after the inspector or the bottom panel was shown or hidden."""
         params = hello_imgui.get_runner_params().docking_params
         for window in params.dockable_windows:
-            name = window.label.split("###")[-1]
-            if name == INSPECTOR:
-                window.is_visible = self.show_inspector and self.mode == "wide"
-            elif name == BOTTOM:
-                window.is_visible = self.show_bottom
+            window.is_visible = self._zone_visible(window.label.split("###")[-1])
         params.docking_splits = self.docking_splits()
         params.layout_reset = True
 
@@ -290,6 +357,10 @@ class Workbench:
         elif mode == "wide" and was != "wide":
             self.show_inspector = self._wide_inspector
         self.nav_open = mode == "mid"
+        if mode == "phone":
+            self.phone_screen = "list"
+            self.phone_more = None
+            self._phone_seen = self._selection_key() if self._selection_key else None
         self._relayout()
 
     def toggle_bottom(self) -> None:
@@ -304,7 +375,9 @@ class Workbench:
         if name in _NAVIGATOR_VIEWS:
             self.view = name
             self._select_view = name
-            if self.mode != "wide" and not self.nav_open:
+            if self.mode == "phone":
+                self.phone_tab, self.phone_screen = "project", "list"
+            elif self.mode != "wide" and not self.nav_open:
                 self.toggle_nav()
             return
         if name in _INSPECTOR_PANELS:
@@ -314,7 +387,9 @@ class Workbench:
         if name in _BOTTOM_PANELS:
             self.bottom_tab = name
             self._select_bottom = name
-            if not self.show_bottom:
+            if self.mode == "phone":
+                self.phone_tab, self.phone_more = "more", name
+            elif not self.show_bottom:
                 self.toggle_bottom()
             return
         for area in self._areas:
@@ -322,6 +397,13 @@ class Workbench:
                 self.area = area.key
                 self._tab[area.key] = name
                 self._select_tab = name
+                if self.mode == "phone":
+                    if area.key in _PHONE_TABS:
+                        self.phone_tab = area.key
+                        if area.key == "project" and name == "editor":
+                            self.phone_screen = "device"
+                    else:
+                        self.phone_tab, self.phone_more = "more", area.key
                 return
 
     # The zones.
@@ -388,47 +470,24 @@ class Workbench:
         """An icon over its label, filled while its area is shown."""
         size = imgui.ImVec2(px(_RAIL_WIDTH) - px(8), px(_RAIL_BUTTON_HEIGHT))
         imgui.set_cursor_pos_x(px(4))
-        clicked = imgui.invisible_button(f"##rail_{area.key}", size)
-        low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
-        on = area.key == self.area
-        draw = imgui.get_window_draw_list()
-        # As the theme draws a button: its corners, its hovered color, and the chosen area
-        # pressed (see chosen_fill).
-        rounding = imgui.get_style().frame_rounding
-        if on:
-            draw.add_rect_filled(
-                low, high, imgui.get_color_u32(chosen_fill()), rounding
-            )
-        elif imgui.is_item_hovered():
-            draw.add_rect_filled(
-                low, high, imgui.get_color_u32(imgui.Col_.button_hovered), rounding
-            )
-        color = imgui.get_color_u32(imgui.Col_.text if on else imgui.Col_.text_disabled)
-        label = area.label()
-        icon_size = imgui.calc_text_size(area.icon)
-        label_size = imgui.calc_text_size(label)
-        top = low.y + (size.y - icon_size.y - label_size.y - px(3)) / 2
-        draw.add_text(
-            imgui.ImVec2(low.x + (size.x - icon_size.x) / 2, top), color, area.icon
+        return _icon_button(
+            f"##rail_{area.key}", area.icon, area.label(), size, area.key == self.area
         )
-        draw.push_clip_rect(low, high, True)
-        draw.add_text(
-            imgui.ImVec2(
-                low.x + max(0.0, (size.x - label_size.x) / 2), top + icon_size.y + px(3)
-            ),
-            color,
-            label,
-        )
-        draw.pop_clip_rect()
-        if imgui.is_item_hovered() and label_size.x > size.x:
-            imgui.set_tooltip(label)
-        return clicked
 
     def _render_workspace(self) -> None:
         position, size = imgui.get_window_pos(), imgui.get_window_size()
         self._area = (position.x, position.y, size.x, size.y)
-        area = next(a for a in self._areas if a.key == self.area)
+        if self.mode == "phone":
+            self._render_phone()
+        else:
+            self._render_area(self.area)
+
+    def _render_area(self, key: str) -> None:
+        """The panels of an area: the one, or tabs for several."""
+        area = next(a for a in self._areas if a.key == key)
         panels = [name for name in area.panels if name in self._panels]
+        if not panels:
+            return
         if len(panels) == 1:
             self._panel(panels[0])
             return
@@ -447,6 +506,125 @@ class Workbench:
             imgui.end_tab_bar()
         self._tab[area.key] = current
         self._select_tab = None
+
+    # The phone: one view after the other, the tabs of the bar below.
+
+    def _render_phone(self) -> None:
+        seen = self._selection_key() if self._selection_key else None
+        if seen != self._phone_seen:
+            # A device selected (in the list, or from a finding) is shown at once.
+            self._phone_seen = seen
+            if self._device_section is None or self._device_section()[1]:
+                self.phone_tab, self.phone_screen = "project", "device"
+        height = px(_PHONE_TAB_HEIGHT)
+        spacing = imgui.get_style().item_spacing.y
+        # Bigger fields and buttons for fingers.
+        imgui.push_style_var(imgui.StyleVar_.frame_padding, imgui.ImVec2(px(10), px(9)))
+        body = imgui.ImVec2(0, imgui.get_content_region_avail().y - height - spacing)
+        if imgui.begin_child("##wb_phone_body", body):
+            self._render_phone_body()
+        imgui.end_child()
+        imgui.pop_style_var()
+        self._render_phone_tabs(height)
+
+    def _render_phone_body(self) -> None:
+        tab = self.phone_tab
+        if tab == "project":
+            if self.phone_screen == "device":
+                if self._phone_header(S.AREA_PROJECT, back=True, info=True):
+                    self.phone_screen = "list"
+                self._panel("editor")
+            else:
+                # Rows further apart, so a finger hits the right one.
+                imgui.push_style_var(
+                    imgui.StyleVar_.item_spacing, imgui.ImVec2(px(8), px(12))
+                )
+                self._render_nav_list()
+                imgui.pop_style_var()
+        elif tab in ("bus", "check"):
+            self._render_area(tab)
+        elif self.phone_more is None:
+            self._render_phone_more()
+        else:
+            key = self.phone_more
+            if self._phone_header(self._more_label(key), back=True, info=False):
+                self.phone_more = None
+            if any(area.key == key for area in self._areas):
+                self._render_area(key)
+            else:
+                self._panel(key)
+
+    def _more_items(self) -> list[tuple[str, str]]:
+        """What the phone's "More" tab lists: the areas without a tab of their own, and the panels
+        of the bottom panel."""
+        items = [
+            (area.key, area.label())
+            for area in self._areas
+            if area.key not in _PHONE_TABS
+        ]
+        items += [
+            (name, self._label(name)())
+            for name in _BOTTOM_PANELS
+            if name in self._panels
+        ]
+        return items
+
+    def _more_label(self, key: str) -> str:
+        return next((label for item, label in self._more_items() if item == key), key)
+
+    def _render_phone_more(self) -> None:
+        for key, label in self._more_items():
+            imgui.push_id(key)
+            if imgui.selectable(
+                f"{label}##more", False, 0, imgui.ImVec2(0, px(_PHONE_ROW_HEIGHT))
+            )[0]:
+                self.phone_more = key
+            imgui.pop_id()
+
+    def _phone_header(self, title: str, back: bool, info: bool) -> bool:
+        """A row with the button back, the title and the button for the inspector; whether back
+        was pressed."""
+        pressed = False
+        size = imgui.ImVec2(px(48), px(40))
+        if back:
+            pressed = imgui.button(f"{_ICON_BACK}##wb_back", size)
+            imgui.same_line()
+        imgui.align_text_to_frame_padding()
+        imgui.text(title)
+        if info:
+            style = imgui.get_style()
+            imgui.same_line(imgui.get_window_width() - size.x - style.window_padding.x)
+            if imgui.button(f"{_ICON_INFO}##wb_info", size):
+                self.toggle_inspector()
+        imgui.separator()
+        return pressed
+
+    def _render_phone_tabs(self, height: float) -> None:
+        by_key = {area.key: area for area in self._areas}
+        tabs = (
+            (key, by_key[key].icon, by_key[key].label())
+            if key in by_key
+            else (key, _ICON_MORE, S.MORE)
+            for key in _PHONE_TABS
+        )
+        width = imgui.get_content_region_avail().x / len(_PHONE_TABS)
+        imgui.push_style_var(imgui.StyleVar_.item_spacing, imgui.ImVec2(0, 0))
+        for index, (key, icon, label) in enumerate(tabs):
+            if index:
+                imgui.same_line()
+            if _icon_button(
+                f"##phone_{key}",
+                icon,
+                label,
+                imgui.ImVec2(width, height),
+                key == self.phone_tab,
+            ):
+                # The tab shown again leads back to its list.
+                if key == self.phone_tab:
+                    self.phone_screen = "list"
+                    self.phone_more = None
+                self.phone_tab = key
+        imgui.pop_style_var()
 
     def _render_inspector(self) -> None:
         offer = state.inspector_offer()
