@@ -7,7 +7,7 @@ A UX redesign proposal for the editor GUI, with clickable prototypes and a desig
 | File | Content |
 | --- | --- |
 | `project/Analyse.dc.html` | Analysis of the current GUI, design principles, zone diagram, where each of the 22 panels and the menus go |
-| `project/Main.dc.html` | Clickable prototype of the new layout |
+| `project/Main.dc.html` | Clickable prototype of the new layout; responsive, its four modes (wide, mid, narrow, phone) follow the window width as in `KleineBildschirme.dc.html` |
 | `project/Kommunikationsobjekte.dc.html` | Group objects: filters, links, flags, batch GA creation with name templates |
 | `project/Gruppenadressen.dc.html` | Group addresses: tree with usage, free ranges, bulk edits, inspector |
 | `project/Bus.dc.html` | Bus and monitor: recording, telegrams, bus monitor mode, values, statistics, timeline, bus diagram |

@@ -38,7 +38,8 @@ button{font:inherit;color:inherit}
 .proj{display:flex;flex-direction:column;line-height:1.25;padding:4px 8px;border-radius:6px;border:0;background:transparent;cursor:pointer;text-align:left}
 .proj:hover{background:var(--hover)}
 .proj b{font-size:14px}
-.proj span{font-size:12px;color:var(--muted)}
+.proj{min-width:0;max-width:340px}
+.proj span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .search{flex:1;max-width:520px;margin:0 auto;height:34px;border-radius:8px;border:1px solid var(--line2);background:var(--sub);display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted);cursor:pointer}
 .search:hover{border-color:var(--accent)}
 .kbd{margin-left:auto;font-size:11px;border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--muted)}
@@ -220,15 +221,148 @@ button{font:inherit;color:inherit}
 .stat{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .statc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:150px}
 .statc b{font-size:22px;display:block}
-@media (max-width:1100px){.insp{display:none}}
-@media (max-width:820px){.nav{display:none}.search .kbd{display:none}}
+/* ---- responsive: the mode follows the width of the window: wide >= 1280, mid >= 1000, narrow >= 600, phone < 600
+   (the steps of the browser UI's form_factor, see KleineBildschirme.dc.html) ---- */
+.body,.main{position:relative}
+.navtoggle,.grab{display:none}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line2);margin:8px auto 0;flex:none}
+.oscrim{position:absolute;inset:0;z-index:15;background:rgba(15,20,30,.28);border:0;padding:0;cursor:pointer}
+.koseg{width:280px}
+.search span:not(.kbd){overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.proj b{white-space:nowrap}
+/* touch sizes on tablets */
+.m-mid .navtoggle,.m-narrow .navtoggle{display:inline-flex}
+.m-mid .rail,.m-narrow .rail,.m-mid .brand,.m-narrow .brand{width:60px}
+.m-mid .search .kbd,.m-narrow .search .kbd{display:none}
+.m-mid .search{max-width:380px}
+.m-mid .btn,.m-narrow .btn,.m-mid .pill,.m-narrow .pill{height:36px}
+.m-mid .btn.icon,.m-narrow .btn.icon{width:36px}
+.m-mid .tr,.m-narrow .tr{height:44px}
+.m-mid .tab,.m-narrow .tab{height:40px}
+.m-mid .seg button,.m-narrow .seg button{height:34px}
+.m-mid .pt,.m-narrow .pt,.m-mid .mi,.m-narrow .mi{height:42px}
+.m-mid .field,.m-narrow .field{height:38px}
+.m-mid .ctl,.m-narrow .ctl{height:36px}
+.m-mid .flag,.m-narrow .flag{width:28px;height:28px}
+/* mid: the navigator can be folded away, the inspector lies over the content */
+.m-mid .nav{width:270px}
+.m-mid .kor{grid-template-columns:36px 44px minmax(160px,1.4fr) 110px 190px minmax(160px,1.2fr) 36px}
+.m-mid .kot{min-width:760px}
+.m-mid .insp,.m-narrow .insp{position:absolute;z-index:18;box-shadow:-10px 0 30px rgba(20,30,50,.2)}
+.m-mid .insp{right:0;top:0;bottom:0;width:330px}
+/* narrow: the navigator slides in, the inspector is a sheet from below */
+.m-narrow .nav{position:absolute;left:60px;top:0;bottom:0;width:320px;z-index:20;box-shadow:8px 0 30px rgba(20,30,50,.22)}
+.m-narrow .insp{left:60px;right:0;bottom:0;top:auto;width:auto;height:55%;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -10px 30px rgba(20,30,50,.2)}
+.m-narrow .grab,.m-phone .grab{display:block}
+.m-narrow .top{gap:8px}
+.m-narrow .search{flex:0 0 40px;max-width:40px;margin:0 auto 0 0;padding:0;justify-content:center}
+.m-narrow .search span{display:none}
+.m-narrow .proj span,.m-narrow .hide-narrow{display:none}
+.m-narrow .dhead{padding:12px 14px 0}
+.m-narrow .toolbar{padding:8px 14px}
+.m-narrow .toolbar .field{width:auto;flex:1 1 200px}
+.m-narrow .koseg{width:auto;flex:1 1 240px}
+.m-narrow .devcfg{margin:10px 14px 12px}
+.m-narrow .ptree{width:150px}
+.m-narrow .pform{padding:12px 14px}
+.m-narrow .prow{grid-template-columns:minmax(110px,200px) minmax(0,1fr)}
+.m-narrow .kowrap{padding:0 14px 12px}
+.m-narrow .kot{min-width:0}
+.m-narrow .kor{grid-template-columns:36px 40px minmax(0,1.4fr) 190px minmax(0,1.2fr) 36px}
+.m-narrow .kor>:nth-child(4){display:none}
+.m-narrow .drawer{height:40%}
+.m-narrow .view{padding:14px}
+.m-narrow .tg6{grid-template-columns:96px 70px minmax(0,1fr) 110px}
+.m-narrow .tg6>:nth-child(2),.m-narrow .tg6>:nth-child(3){display:none}
+.m-narrow .pal{width:calc(100% - 24px)}
+/* phone: one view after the other, tab bar below, sheets from below */
+.m-phone.app{min-height:0}
+.m-phone .main{flex:1 1 auto}
+.m-phone .btn{height:44px}
+.m-phone .btn.icon{width:44px}
+.m-phone .tr{height:48px}
+.m-phone .mi{height:46px}
+.m-phone .field{height:42px}
+.m-phone .view{padding:14px}
+.m-phone .toolbar .field{width:auto;flex:1 1 160px}
+.m-phone .insp{position:absolute;z-index:18;left:0;right:0;bottom:0;top:auto;width:auto;height:78%;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -10px 30px rgba(20,30,50,.25)}
+.m-phone .pop:not(.pal){left:0 !important;right:0 !important;top:auto !important;bottom:0 !important;width:auto !important;max-height:80%;overflow:auto;border:0;border-radius:16px 16px 0 0;padding:8px 8px 24px;box-shadow:0 -10px 30px rgba(20,30,50,.25)}
+.m-phone .pal{left:0;top:0;transform:none;width:100%;max-width:none;height:100%;border:0;border-radius:0;display:flex;flex-direction:column}
+.m-phone .pal .list{max-height:none;flex:1}
+.m-phone .toast{bottom:84px;max-width:calc(100% - 32px);text-align:center}
+.p-top{height:52px;flex:none;display:flex;align-items:center;gap:2px;padding:0 6px;background:var(--panel);border-bottom:1px solid var(--line)}
+.p-top .plogo{width:30px;height:30px;border-radius:7px;margin:0 6px;flex:none;display:block}
+.ib{width:44px;height:44px;border-radius:8px;border:0;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--text);padding:0}
+.ib:hover{background:var(--hover)}
+.ib svg{width:22px;height:22px}
+.p-top .ttl{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;border:0;background:transparent;padding:4px 6px;border-radius:6px;cursor:pointer;text-align:left;color:var(--text)}
+.p-top .ttl b{max-width:100%;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-top .ttl span{max-width:100%;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pscroll{flex:1;min-height:0;overflow:auto;background:var(--panel)}
+.p-seg{display:flex;margin:10px 14px 0;background:var(--sub);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.p-seg button{flex:1;height:36px;border:0;border-radius:7px;background:transparent;cursor:pointer;color:var(--muted);font-size:13px}
+.p-seg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.p-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;cursor:pointer;color:var(--text)}
+.p-row.on{background:var(--sel)}
+.p-row .lb{flex:1;min-width:0}
+.p-row .lb b{display:block;font-weight:500}
+.p-row .lb span{font-size:12px;color:var(--muted)}
+.p-dh{padding:14px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.p-dh b{font-size:17px;line-height:1.3}
+.p-dh .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.p-btnrow{display:flex;gap:8px}
+.p-btnrow .split{flex:1}
+.p-btnrow .split .btn:first-child{flex:1;justify-content:center}
+.p-pick{margin:12px 14px 0;height:46px;border:1px solid var(--line2);border-radius:10px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;cursor:pointer;background:var(--sub);width:calc(100% - 28px);color:var(--text)}
+.p-pick span{color:var(--muted);font-size:12px}
+.p-f{display:flex;flex-direction:column;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.p-f label{font-size:12.5px;color:var(--muted)}
+.p-f .ctl{height:44px;cursor:default}
+.p-pad{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.p-card{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--panel);cursor:pointer;text-align:left;width:100%;color:var(--text)}
+.p-card .ct{display:flex;align-items:center;gap:8px}
+.p-card .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;color:var(--muted);min-width:24px}
+.p-card .nm{flex:1;font-weight:500}
+.p-card .gl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.gac{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;background:var(--accent-weak);color:var(--accent);padding:2px 7px;border-radius:6px;white-space:nowrap}
+.flagtxt{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;color:var(--muted);letter-spacing:.08em}
+.p-chips{display:flex;gap:6px;padding:10px 14px 0;overflow:auto}
+.p-chips button{height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;white-space:nowrap;font-size:12.5px;flex:none}
+.p-chips button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.tel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.tel .tg{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tel .tv{font-weight:600;text-align:right}
+.tel .ts{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tel .tm{font-size:12px;color:var(--muted);text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}
+.p-send{position:absolute;left:0;right:0;bottom:0;z-index:5;background:var(--panel);border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px}
+.p-send .field{flex:1}
+.p-strip{flex:none;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border:0;border-top:1px solid var(--warn);background:var(--warn-weak);color:var(--warn);font-weight:600;cursor:pointer;width:100%}
+.p-tabs{flex:none;height:60px;display:flex;background:var(--panel);border-top:1px solid var(--line);padding:4px}
+.p-tabs button{flex:1;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--muted);position:relative}
+.p-tabs button.on{color:var(--accent);font-weight:600}
+.p-tabs svg{width:24px;height:24px}
+.p-badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:16px;padding:0 4px;border-radius:8px;background:var(--warn);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.app.dark .p-badge{color:#1b1f26}
+.p-sheet{position:absolute;left:0;right:0;bottom:0;z-index:21;background:var(--panel);border-radius:16px 16px 0 0;padding:0 0 24px;display:flex;flex-direction:column;max-height:78%;box-shadow:0 -10px 30px rgba(20,30,50,.25)}
+.p-sheet .shd{padding:6px 16px 10px;font-weight:600;font-size:16px}
+.p-sheet .sbody{overflow:auto;padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--panel);text-align:left;width:100%;color:var(--text)}
+.opt.on{border-color:var(--accent);background:var(--accent-weak)}
+.opt .rad{width:20px;height:20px;border-radius:50%;border:2px solid var(--line2);flex:none}
+.opt.on .rad{border:6px solid var(--accent)}
+.p-op{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.p-help{padding:0 16px;line-height:1.5;overflow:auto}
 </style>
 </helmet>
-<div class="app {{themeCls}}">
+<div class="app {{themeCls}} {{modeCls}}">
 
 <!-- ============ TOP BAR ============ -->
+<sc-if value="{{notPhone}}" hint-placeholder-val="{{ true }}">
 <header class="top">
   <div class="brand"><img src="/_blob/0f0b152bc3764184a3f557234f496a9e" alt="XKNX Editor" width="32" height="32" style="display:block;border-radius:7px"></div>
+  <button class="btn ghost icon navtoggle" onClick="{{toggleNav}}" aria-label="Navigator ein- oder ausblenden">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg>
+  </button>
   <button class="proj" onClick="{{toggleProjMenu}}" aria-label="Projektmenü">
     <b>Krausgasse 12 Top 26</b>
     <span>57 Geräte · 771 Gruppenadressen · gespeichert</span>
@@ -243,8 +377,8 @@ button{font:inherit;color:inherit}
     {{pendingLabel}}
   </button>
   <button class="pill" onClick="{{toggleConn}}">
-    <span class="dot {{connDot}}"></span>{{connLabel}}
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+    <span class="dot {{connDot}}"></span>{{connLabelTop}}
+    <svg class="ico hide-narrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
   </button>
   <button class="btn ghost icon" onClick="{{toggleTheme}}" aria-label="Hell/Dunkel umschalten">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"></path></svg>
@@ -253,9 +387,26 @@ button{font:inherit;color:inherit}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path></svg>
   </button>
 </header>
+</sc-if>
+
+<!-- ============ PHONE: TITLE BAR ============ -->
+<sc-if value="{{isPhone}}" hint-placeholder-val="{{ false }}">
+<header class="p-top">
+  <sc-if value="{{pBack}}" hint-placeholder-val="{{ false }}">
+    <button class="ib" onClick="{{pGoBack}}" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+  </sc-if>
+  <sc-if value="{{pNoBack}}" hint-placeholder-val="{{ true }}">
+    <img class="plogo" src="/_blob/0f0b152bc3764184a3f557234f496a9e" alt="XKNX Editor" width="30" height="30">
+  </sc-if>
+  <button class="ttl" onClick="{{pTitleTap}}"><b>{{pTitle}}</b><span>{{pSub}}</span></button>
+  <button class="ib" onClick="{{openPalette}}" aria-label="Suchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+  <button class="ib" onClick="{{toggleConn}}" aria-label="Verbindung"><span class="dot {{connDot}}" style="width: 10px; height: 10px"></span></button>
+</header>
+</sc-if>
 
 <div class="body">
 <!-- ============ ACTIVITY RAIL ============ -->
+<sc-if value="{{notPhone}}" hint-placeholder-val="{{ true }}">
 <nav class="rail" aria-label="Bereiche">
   <button class="rb {{rail.project}}" onClick="{{goProject}}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>
@@ -284,6 +435,9 @@ button{font:inherit;color:inherit}
     Einstell.
   </button>
 </nav>
+</sc-if>
+
+<sc-if value="{{showOScrim}}" hint-placeholder-val="{{ false }}"><button class="oscrim" onClick="{{closeOverlays}}" aria-label="Schließen"></button></sc-if>
 
 <!-- ============ NAVIGATOR ============ -->
 <sc-if value="{{showNav}}" hint-placeholder-val="{{ true }}">
@@ -371,7 +525,7 @@ button{font:inherit;color:inherit}
 <!-- ============ MAIN ============ -->
 <main class="main">
 
-<sc-if value="{{isProjectRail}}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{deskProject}}" hint-placeholder-val="{{ true }}">
   <section class="dhead">
     <div class="drow">
       <div class="dtitle">
@@ -442,7 +596,7 @@ button{font:inherit;color:inherit}
     <sc-if value="{{tabIsKo}}" hint-placeholder-val="{{ true }}">
       <div class="toolbar">
         <label class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{koQ}}" onChange="{{onKoQ}}" placeholder="Objekt, Funktion oder Gruppenadresse…" aria-label="Kommunikationsobjekte filtern"></label>
-        <div class="seg" style="width: 280px">
+        <div class="seg koseg">
           <button class="{{koF.all}}" onClick="{{koAll}}">Alle</button>
           <button class="{{koF.linked}}" onClick="{{koLinked}}">Verknüpft</button>
           <button class="{{koF.free}}" onClick="{{koFree}}">Unverknüpft</button>
@@ -506,7 +660,7 @@ button{font:inherit;color:inherit}
 </sc-if>
 
 <!-- BUS -->
-<sc-if value="{{isBusRail}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{deskBus}}" hint-placeholder-val="{{ false }}">
   <div class="view">
     <div class="vh"><h2>{{busTitle}}</h2>
       <sc-if value="{{connected}}" hint-placeholder-val="{{ false }}"><span class="tag ok">Aufzeichnung läuft</span></sc-if>
@@ -517,9 +671,9 @@ button{font:inherit;color:inherit}
     </div>
     <sc-if value="{{connected}}" hint-placeholder-val="{{ false }}">
       <div style="border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel)">
-        <div class="tgr h"><span>Zeit</span><span>Typ</span><span>Quelle</span><span>Ziel</span><span>Name</span><span>Wert</span></div>
+        <div class="tgr tg6 h"><span>Zeit</span><span>Typ</span><span>Quelle</span><span>Ziel</span><span>Name</span><span>Wert</span></div>
         <sc-for list="{{telegrams}}" as="t" hint-placeholder-count="8">
-          <div class="tgr"><span class="mono">{{t.time}}</span><span>{{t.type}}</span><span class="mono">{{t.src}}</span><span class="mono">{{t.dst}}</span><span>{{t.name}}</span><span>{{t.val}}</span></div>
+          <div class="tgr tg6"><span class="mono">{{t.time}}</span><span>{{t.type}}</span><span class="mono">{{t.src}}</span><span class="mono">{{t.dst}}</span><span>{{t.name}}</span><span>{{t.val}}</span></div>
         </sc-for>
       </div>
     </sc-if>
@@ -561,7 +715,7 @@ button{font:inherit;color:inherit}
 </sc-if>
 
 <!-- WERKZEUGE -->
-<sc-if value="{{isToolsRail}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{deskTools}}" hint-placeholder-val="{{ false }}">
   <div class="view">
     <div class="vh"><h2>Werkzeuge</h2></div>
     <div class="cards">
@@ -576,7 +730,7 @@ button{font:inherit;color:inherit}
 </sc-if>
 
 <!-- KATALOG -->
-<sc-if value="{{isCatalogRail}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{deskCatalog}}" hint-placeholder-val="{{ false }}">
   <div class="view">
     <div class="vh"><h2>{{cat.name}}</h2><span class="tag neu">{{cat.mfr}}</span><span style="flex: 1"></span><button class="btn primary" onClick="{{addFromCatalog}}">Zum Projekt hinzufügen</button></div>
     <div style="background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 760px">
@@ -588,11 +742,131 @@ button{font:inherit;color:inherit}
     <p class="muted" style="margin-top: 14px">Tipp: Produkt direkt in einen Raum im Navigator ziehen.</p>
   </div>
 </sc-if>
+
+<!-- ============ PHONE VIEWS ============ -->
+<sc-if value="{{pNav}}" hint-placeholder-val="{{ false }}">
+<div class="pscroll">
+  <div class="p-seg"><button class="{{scope.buildings}}" onClick="{{scopeBuildings}}">Gebäude</button><button class="{{scope.topology}}" onClick="{{scopeTopology}}">Topologie</button><button class="{{scope.gas}}" onClick="{{scopeGas}}">GA</button></div>
+  <div class="p-pad" style="padding-bottom: 6px"><label class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{navQ}}" onChange="{{onNavQ}}" placeholder="{{navPlaceholder}}" aria-label="Filter"></label></div>
+  <sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+    <button class="tr {{r.cls}}" onClick="{{r.click}}">
+      <sc-if value="{{r.hasKids}}" hint-placeholder-val="{{ true }}"><svg class="car {{r.carCls}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></sc-if>
+      <sc-if value="{{r.noKids}}" hint-placeholder-val="{{ false }}"><span class="sp"></span></sc-if>
+      <sc-if value="{{r.hasPa}}" hint-placeholder-val="{{ false }}"><span class="pa mono">{{r.pa}}</span></sc-if>
+      <span class="lbl">{{r.label}}</span>
+      <sc-if value="{{r.hasDot}}" hint-placeholder-val="{{ false }}"><span class="dot {{r.dot}}"></span></sc-if>
+    </button>
+  </sc-for>
+  <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div class="empty">Keine Treffer.</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{pDevShow}}" hint-placeholder-val="{{ false }}">
+<div class="pscroll">
+  <div class="p-dh">
+    <b>{{dev.name}}</b>
+    <div class="meta"><span class="mono">{{dev.pa}}</span><span>{{dev.room}}</span><span class="tag {{dev.stCls}}">{{dev.stLabel}}</span></div>
+    <div class="p-btnrow">
+      <div class="split">
+        <button class="btn primary" onClick="{{programDefault}}">Programmieren</button>
+        <button class="btn primary" onClick="{{toggleProgMenu}}" aria-label="Programmierart wählen"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+      </div>
+      <button class="btn icon" onClick="{{toggleMoreMenu}}" aria-label="Weitere Geräteaktionen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="19" cy="12" r="1.8"></circle></svg></button>
+    </div>
+  </div>
+  <div class="p-seg"><button class="{{tabs.params}}" onClick="{{tabParams}}">Parameter</button><button class="{{tabs.ko}}" onClick="{{tabKo}}">Objekte</button><button class="{{tabs.info}}" onClick="{{tabInfo}}">Info</button></div>
+
+  <sc-if value="{{tabIsParams}}" hint-placeholder-val="{{ true }}">
+    <button class="p-pick" onClick="{{openPages}}"><b>{{pageTitle}}</b><span>{{pageNo}} ▾</span></button>
+    <div style="padding-bottom: 8px">
+      <sc-for list="{{form.sections}}" as="s" hint-placeholder-count="2">
+        <sc-for list="{{s.fields}}" as="f" hint-placeholder-count="3">
+          <div class="p-f"><label>{{f.label}}</label><div style="display: flex; gap: 6px"><span class="ctl" style="flex: 1">{{f.value}}<sc-if value="{{f.isSel}}" hint-placeholder-val="{{ true }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></sc-if></span><sc-if value="{{f.hasUnit}}" hint-placeholder-val="{{ false }}"><span class="ctl" style="flex: none; width: auto; min-width: 110px">{{f.unit}}<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span></sc-if></div></div>
+        </sc-for>
+      </sc-for>
+      <div class="p-pad"><button class="btn" style="justify-content: center" onClick="{{openHelp}}">Hilfe zu dieser Seite</button><span class="muted" style="font-size: 12px; text-align: center">Inhalt vom Gerät vorgegeben</span></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tabIsKo}}" hint-placeholder-val="{{ false }}">
+    <div class="p-pad" style="padding-bottom: 0"><label class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{koQ}}" onChange="{{onKoQ}}" placeholder="Objekt, Funktion oder Adresse…" aria-label="Kommunikationsobjekte filtern"></label></div>
+    <div class="p-chips"><sc-for list="{{koChips}}" as="c" hint-placeholder-count="4"><button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+    <div class="p-pad">
+      <sc-for list="{{pKos}}" as="k" hint-placeholder-count="5">
+        <button class="p-card" onClick="{{k.open}}">
+          <div class="ct"><span class="num">{{k.n}}</span><span class="nm">{{k.name}}</span><span class="flagtxt">{{k.flags}}</span></div>
+          <div class="gl"><sc-for list="{{k.gas}}" as="g" hint-placeholder-count="1"><span class="gac">{{g.a}}</span></sc-for><sc-if value="{{k.noGa}}" hint-placeholder-val="{{ false }}"><span class="muted" style="font-size: 12px">Nicht verknüpft · antippen zum Verknüpfen</span></sc-if></div>
+        </button>
+      </sc-for>
+      <sc-if value="{{noKos}}" hint-placeholder-val="{{ false }}"><div class="empty">Dieses Gerät hat keine Kommunikationsobjekte.</div></sc-if>
+      <div class="muted" style="font-size: 12px">Antippen öffnet das Objekt als Blatt. Mehrfachauswahl und Namensvorlagen gibt es am Tablet.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tabIsInfo}}" hint-placeholder-val="{{ false }}">
+    <sc-for list="{{devSections}}" as="s" hint-placeholder-count="4">
+      <div class="isec">
+        <button class="isech" onClick="{{s.toggle}}"><svg class="car {{s.carCls}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>{{s.title}}</button>
+        <sc-if value="{{s.open}}" hint-placeholder-val="{{ true }}">
+          <div class="isecb">
+            <sc-for list="{{s.fields}}" as="f" hint-placeholder-count="3"><div class="kv"><span>{{f.k}}</span><div class="inp {{f.cls}}">{{f.v}}</div></div></sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </sc-if>
+  <div style="height: 24px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{pBus}}" hint-placeholder-val="{{ false }}">
+<div class="pscroll">
+  <sc-if value="{{connected}}" hint-placeholder-val="{{ false }}">
+    <div class="p-chips"><sc-for list="{{busChips}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for><button onClick="{{notImpl}}">Filter…</button></div>
+    <div style="padding-top: 6px">
+      <sc-for list="{{pTels}}" as="t" hint-placeholder-count="6">
+        <div class="tel"><span class="tg"><span class="mono">{{t.dst}}</span> {{t.name}}</span><span class="tv">{{t.val}}</span><span class="ts">{{t.type}} · {{t.src}}</span><span class="tm">{{t.time}}</span></div>
+      </sc-for>
+    </div>
+    <div style="height: 80px"></div>
+  </sc-if>
+  <sc-if value="{{notConnected}}" hint-placeholder-val="{{ true }}">
+    <div class="empty" style="padding: 48px 20px"><div style="font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px">Keine Verbindung zum Bus</div><div style="margin-bottom: 16px">Verbinde ein Gateway, um Telegramme mitzuschneiden.</div><button class="btn primary" onClick="{{connect}}">Mit 192.168.0.99 verbinden</button></div>
+  </sc-if>
+</div>
+<sc-if value="{{connected}}" hint-placeholder-val="{{ false }}">
+  <div class="p-send"><label class="field">7/1/14 Wohnzimmertür Jalousie</label><span class="field" style="flex: none; width: 70px">Ab</span><button class="btn primary" onClick="{{sendTelegram}}">Senden</button></div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{pMore}}" hint-placeholder-val="{{ false }}">
+<div class="pscroll">
+  <sc-for list="{{moreItems}}" as="m" hint-placeholder-count="8">
+    <button class="p-row" onClick="{{m.run}}"><span class="lb"><b>{{m.label}}</b><span>{{m.sub}}</span></span><sc-if value="{{m.tab}}" hint-placeholder-val="{{ false }}"><span class="tag neu">Tablet empfohlen</span></sc-if><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+  </sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{pCatalog}}" hint-placeholder-val="{{ false }}">
+<div class="pscroll">
+  <sc-for list="{{catalog}}" as="c" hint-placeholder-count="6">
+    <button class="p-row {{c.cls}}" onClick="{{c.pick}}"><span class="lb"><b>{{c.name}}</b><span>{{c.mfr}}</span></span></button>
+  </sc-for>
+  <div class="p-pad">
+    <b style="font-size: 15px">{{cat.name}}</b>
+    <div class="kv"><span>Bestellnummer</span><div>{{cat.order}}</div></div>
+    <div class="kv"><span>Applikation</span><div>{{cat.app}}</div></div>
+    <div class="kv"><span>Im Projekt verwendet</span><div>{{cat.used}}</div></div>
+    <button class="btn primary" style="justify-content: center" onClick="{{addFromCatalog}}">Zum Projekt hinzufügen</button>
+  </div>
+</div>
+</sc-if>
 </main>
 
 <!-- ============ INSPECTOR ============ -->
 <sc-if value="{{showInspector}}" hint-placeholder-val="{{ true }}">
 <aside class="insp" aria-label="Eigenschaften">
+  <div class="grab"></div>
   <div class="ihead">{{inspTitle}}
     <button class="btn ghost icon" onClick="{{toggleInspector}}" aria-label="Eigenschaften schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
   </div>
@@ -675,7 +949,7 @@ button{font:inherit;color:inherit}
 </div>
 
 <!-- ============ DRAWER ============ -->
-<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{drawerShow}}" hint-placeholder-val="{{ false }}">
 <section class="drawer">
   <div class="dtabs">
     <button class="tab {{dt.ops}}" onClick="{{dtOps}}">Vorgänge <span class="cnt">{{opsCount}}</span></button>
@@ -694,7 +968,7 @@ button{font:inherit;color:inherit}
     </sc-if>
     <sc-if value="{{dtIsMon}}" hint-placeholder-val="{{ false }}">
       <sc-for list="{{telegrams}}" as="t" hint-placeholder-count="5">
-        <div class="tgr"><span class="mono">{{t.time}}</span><span>{{t.type}}</span><span class="mono">{{t.src}}</span><span class="mono">{{t.dst}}</span><span>{{t.name}}</span><span>{{t.val}}</span></div>
+        <div class="tgr tg6"><span class="mono">{{t.time}}</span><span>{{t.type}}</span><span class="mono">{{t.src}}</span><span class="mono">{{t.dst}}</span><span>{{t.name}}</span><span>{{t.val}}</span></div>
       </sc-for>
       <sc-if value="{{notConnected}}" hint-placeholder-val="{{ false }}"><div class="empty">Nicht verbunden.</div></sc-if>
     </sc-if>
@@ -713,6 +987,7 @@ button{font:inherit;color:inherit}
 </sc-if>
 
 <!-- ============ STATUS BAR ============ -->
+<sc-if value="{{notPhone}}" hint-placeholder-val="{{ true }}">
 <footer class="status">
   <button class="sb" onClick="{{toggleConn}}"><span class="dot {{connDot}}"></span>{{connStatus}}</button>
   <span class="sep"></span>
@@ -724,9 +999,45 @@ button{font:inherit;color:inherit}
   <span class="sep"></span>
   <button class="sb" onClick="{{goCheck}}"><span class="dot orange"></span>274 Warnungen</button>
   <span style="flex: 1"></span>
-  <span class="sb" style="cursor: default"><span class="dot green"></span>MCP</span>
-  <span class="sb" style="cursor: default">KNX Master v323</span>
+  <span class="sb hide-narrow" style="cursor: default"><span class="dot green"></span>MCP</span>
+  <span class="sb hide-narrow" style="cursor: default">KNX Master v323</span>
 </footer>
+</sc-if>
+
+<!-- ============ PHONE: PENDING STRIP AND TAB BAR ============ -->
+<sc-if value="{{pOpsStrip}}" hint-placeholder-val="{{ false }}"><button class="p-strip" onClick="{{openOps}}"><span>{{opsLine}}</span><span>Anzeigen ›</span></button></sc-if>
+<sc-if value="{{pFab}}" hint-placeholder-val="{{ false }}"><button class="p-strip" onClick="{{showPending}}"><span>{{pendingLabel}}</span><span>Anzeigen ›</span></button></sc-if>
+<sc-if value="{{isPhone}}" hint-placeholder-val="{{ false }}">
+<nav class="p-tabs" aria-label="Bereiche">
+  <button class="{{pBot.project}}" onClick="{{goProject}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</button>
+  <button class="{{pBot.bus}}" onClick="{{goBus}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</button>
+  <button class="{{pBot.check}}" onClick="{{goCheck}}"><span class="p-badge">274</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Prüfung</button>
+  <button class="{{pBot.more}}" onClick="{{goTools}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>Mehr</button>
+</nav>
+</sc-if>
+
+<!-- ============ PHONE: SHEETS ============ -->
+<sc-if value="{{pSheetOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="scrim dim" onClick="{{closeSheet}}"></div>
+  <div class="p-sheet">
+    <div class="grab" style="display: block; margin-bottom: 8px"></div>
+    <sc-if value="{{sheetPages}}" hint-placeholder-val="{{ false }}">
+      <div class="shd">Parameterseite</div>
+      <div class="sbody"><sc-for list="{{pageOpts}}" as="p" hint-placeholder-count="7"><button class="opt {{p.cls}}" onClick="{{p.pick}}"><span class="rad"></span><span><b>{{p.label}}</b></span></button></sc-for></div>
+    </sc-if>
+    <sc-if value="{{sheetHelp}}" hint-placeholder-val="{{ false }}">
+      <div class="shd">{{form.helpTitle}}</div>
+      <div class="p-help">{{form.help}}</div>
+    </sc-if>
+    <sc-if value="{{sheetOps}}" hint-placeholder-val="{{ false }}">
+      <div class="shd">Vorgänge</div>
+      <div class="sbody">
+        <sc-for list="{{ops}}" as="o" hint-placeholder-count="2"><div class="p-op"><b>{{o.label}}</b><span class="muted" style="font-size: 12px">{{o.state}}</span><div class="bar"><i style="{{o.barStyle}}"></i></div><button class="btn" onClick="{{o.cancel}}">{{o.btn}}</button></div></sc-for>
+        <sc-if value="{{noOps}}" hint-placeholder-val="{{ false }}"><div class="empty">Keine laufenden Vorgänge.</div></sc-if>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
 
 <!-- ============ POPOVERS ============ -->
 <sc-if value="{{anyPop}}" hint-placeholder-val="{{ false }}"><div class="scrim {{scrimCls}}" onClick="{{closePops}}"></div></sc-if>
@@ -820,13 +1131,23 @@ class Component extends DCLogic {
       collapsed: { tests: false, dach: false, sth: true, bad: true, kue: true, wz: true, g0: true, g2: true, g3: true, g4: true, g12: false, l12: false },
       koFilter: 'all', koQ: '', checked: {}, flagOv: {}, grpClosed: {}, groupBy: true,
       ops: [], navQ: '', bus: 'group', secOpen: { dev: true, app: true, prog: true, note: false, mfr: false, ip: false },
-      issueOpen: { pend: true }, toast: '', allCh: false, done: {}, catSel: 0
+      issueOpen: { pend: true }, toast: '', allCh: false, done: {}, catSel: 0,
+      // responsive: mode follows the window width, the rest is the state of the small layouts
+      mode: this.modeOf(typeof window !== 'undefined' ? window.innerWidth : 1440),
+      navCollapsed: false, navOver: false, inspOpen: false, pDev: false, pSheet: null, koCh: 'all', busKind: 'all'
     };
   }
+  modeOf(w) { return w >= 1280 ? 'wide' : w >= 1000 ? 'mid' : w >= 600 ? 'narrow' : 'phone'; }
   componentDidMount() {
     this.timer = setInterval(() => this.tick(), 350);
+    this.onResize = () => {
+      const m = this.modeOf(window.innerWidth);
+      if (m !== this.state.mode) this.setState({ mode: m, navOver: false, inspOpen: false, pSheet: null });
+    };
+    window.addEventListener('resize', this.onResize);
+    this.onResize();
   }
-  componentWillUnmount() { clearInterval(this.timer); clearTimeout(this.toastT); }
+  componentWillUnmount() { clearInterval(this.timer); clearTimeout(this.toastT); window.removeEventListener('resize', this.onResize); }
   tick() {
     const ops = this.state.ops;
     if (!this.state.conn || !ops.some(o => o.st === 'run' || o.st === 'wait')) return;
@@ -952,14 +1273,15 @@ class Component extends DCLogic {
     const s = this.state;
     const { D, B, T, G, GA, F, KO, gaLinks } = this.data();
     const set = (o) => () => this.setState(o);
-    const closeAll = { palette: false, connPop: false, progMenu: false, moreMenu: false, projMenu: false };
+    const closeAll = { palette: false, connPop: false, progMenu: false, moreMenu: false, projMenu: false, pSheet: null };
+    const mode = s.mode, isPhone = mode === 'phone', isWide = mode === 'wide', isMid = mode === 'mid', isNarrow = mode === 'narrow';
     const dark = s.dark === null ? !!this.props.dark : s.dark;
     const stOf = (d) => s.done[d.pa] ? 'ok' : d.st;
     const ST = { ok: ['ok', 'Programmiert'], pending: ['warn', 'Programmierung ausstehend'], error: ['err', 'Nicht in Betrieb'], unknown: ['neu', 'Status unbekannt'] };
     const pendingList = Object.values(D).filter(d => stOf(d) === 'pending');
 
-    const selectDevice = (pa) => this.setState({ sel: pa, page: null, insp: 'device', ko: null, rail: 'project', checked: {}, ...closeAll, q: '' });
-    const selectGa = (a) => this.setState({ ga: a, insp: 'ga', inspector: true, ...closeAll });
+    const selectDevice = (pa) => this.setState({ sel: pa, page: null, insp: 'device', ko: null, rail: 'project', checked: {}, ...closeAll, q: '', pDev: true, navOver: false, inspOpen: false });
+    const selectGa = (a) => this.setState({ ga: a, insp: 'ga', inspector: true, inspOpen: true, navOver: false, ...closeAll });
 
     // ---- navigator rows
     const tree = s.scope === 'buildings' ? B : s.scope === 'topology' ? T : G;
@@ -1013,7 +1335,7 @@ class Component extends DCLogic {
       if (kq && !(k.n + ' ' + k.ch + ' ' + k.name + ' ' + k.fn + ' ' + k.gas.join(' ') + ' ' + k.gas.map(a => GA[a][0]).join(' ')).toLowerCase().includes(kq)) return false;
       return true;
     });
-    const pickKo = (k) => (e) => { this.setState({ ko: k.n, insp: 'ko', inspector: true }); };
+    const pickKo = (k) => (e) => { this.setState({ ko: k.n, insp: 'ko', inspector: true, inspOpen: true }); };
     const koRows = [];
     let lastCh = null;
     const sorted = s.groupBy ? vis : vis.slice().sort((a, b) => a.n - b.n);
@@ -1044,7 +1366,7 @@ class Component extends DCLogic {
       flagList: F.map(f => ({ title: flagTitles[f] + ' (' + f + ')', cls: flagOn(koObj, f) ? 'on' : '', toggle: () => this.setState({ flagOv: { ...s.flagOv, [koObj.n + f]: !flagOn(koObj, f) } }) }))
     } : { n: '', name: '', fn: '', dpt: '', dptName: '', len: '', ch: '', hasGa: false, gaList: [], flagList: [] };
 
-    const gaV = s.ga ? { a: s.ga, n: GA[s.ga][0], dpt: GA[s.ga][1], links: (gaLinks[s.ga] || []).map(l => ({ pa: l.pa, text: '#' + l.n + ' ' + l.text, go: () => this.setState({ sel: l.pa, rail: 'project', tab: 'ko', ko: l.n, insp: 'ko' }) })) } : { a: '', n: '', dpt: '', links: [] };
+    const gaV = s.ga ? { a: s.ga, n: GA[s.ga][0], dpt: GA[s.ga][1], links: (gaLinks[s.ga] || []).map(l => ({ pa: l.pa, text: '#' + l.n + ' ' + l.text, go: () => this.setState({ sel: l.pa, rail: 'project', tab: 'ko', ko: l.n, insp: 'ko', pDev: true, inspOpen: true, navOver: false }) })) } : { a: '', n: '', dpt: '', links: [] };
 
     // ---- inspector device sections
     const sec = (id, title, fields, actions) => ({ title, open: !!s.secOpen[id], carCls: s.secOpen[id] ? 'open' : '', toggle: () => this.setState({ secOpen: { ...s.secOpen, [id]: !s.secOpen[id] } }), fields, hasActions: !!actions, actions: actions || [] });
@@ -1064,6 +1386,7 @@ class Component extends DCLogic {
       cancel: () => this.setState({ ops: o.st === 'ok' || o.st === 'cancel' ? s.ops.filter(x => x.id !== o.id) : s.ops.map(x => x.id === o.id ? { ...x, st: 'cancel' } : x) })
     }));
     const active = s.ops.filter(o => o.st === 'run' || o.st === 'wait').length;
+    const opsStatusText = (n) => n ? n + (n === 1 ? ' Vorgang' : ' Vorgänge') : 'Keine Vorgänge';
     const enqueue = (list, mode) => {
       let id = Date.now();
       const add = list.filter(x => !s.ops.some(o => o.dev === x.pa && (o.st === 'wait' || o.st === 'run'))).map(x => ({ id: id++, dev: x.pa, label: x.pa + ' ' + x.name.replace(/^Verteiler \/ /, '') + ' – ' + mode, st: 'wait', p: 0 }));
@@ -1078,7 +1401,7 @@ class Component extends DCLogic {
     const cmds = [
       ['Gerät programmieren (Partiell)', '⌘⇧P', () => enqueue([d], 'Partiell')],
       ['Alle ausstehenden Geräte programmieren', '', () => enqueue(pendingList, 'Partiell')],
-      ['Gruppenadresse hinzufügen…', '', () => this.setState({ scope: 'gas', rail: 'project', ...closeAll })],
+      ['Gruppenadresse hinzufügen…', '', () => this.setState({ scope: 'gas', rail: 'project', pDev: false, ...closeAll })],
       ['Gruppenmonitor öffnen', '', () => this.setState({ rail: 'bus', bus: 'group', ...closeAll })],
       ['Projekt prüfen', '', () => this.setState({ rail: 'check', ...closeAll })],
       ['.knxproj exportieren…', '⌘E', () => { this.setState(closeAll); this.say('Export-Dialog (im Klickdummy nicht umgesetzt)'); }],
@@ -1089,7 +1412,7 @@ class Component extends DCLogic {
     const devHits = Object.values(D).filter(x => !q || (x.pa + ' ' + x.name).toLowerCase().includes(q)).slice(0, q ? 8 : 4)
       .map(x => ({ label: x.name, ref: x.pa, hasRef: true, hint: x.room, cls: '', run: () => selectDevice(x.pa) }));
     const gaHits = Object.keys(GA).filter(a => q && (a + ' ' + GA[a][0]).toLowerCase().includes(q)).slice(0, 6)
-      .map(a => ({ label: GA[a][0], ref: a, hasRef: true, hint: GA[a][1], cls: '', run: () => this.setState({ rail: 'project', scope: 'gas', ga: a, insp: 'ga', inspector: true, ...closeAll }) }));
+      .map(a => ({ label: GA[a][0], ref: a, hasRef: true, hint: GA[a][1], cls: '', run: () => this.setState({ rail: 'project', scope: 'gas', pDev: false, ga: a, insp: 'ga', inspector: true, inspOpen: true, ...closeAll }) }));
     const palGroups = [];
     if (cmds.length) palGroups.push({ title: 'Befehle', items: cmds });
     if (devHits.length) palGroups.push({ title: 'Geräte', items: devHits });
@@ -1124,22 +1447,62 @@ class Component extends DCLogic {
     const cc = catalogData[s.catSel];
 
     const anyPop = s.palette || s.connPop || s.progMenu || s.moreMenu || s.projMenu;
-    const rightOff = s.inspector ? 'right: 348px' : 'right: 18px';
+    const rightOff = isWide && s.inspector ? 'right: 348px' : 'right: 18px';
+    const tabE = s.tab === 'info' && !isPhone ? 'params' : s.tab;
+    const notImpl = () => { this.setState(closeAll); this.say('Im Klickdummy nicht umgesetzt'); };
+
+    // ---- small layouts (mode: wide >= 1280, mid >= 1000, narrow >= 600, phone < 600)
+    const showNav = isWide ? true : isMid ? !s.navCollapsed : isNarrow ? s.navOver : false;
+    const flatPages = pg.tree.filter(p => !p.grp);
+    const pageIdx = Math.max(0, flatPages.findIndex(p => p.id === page));
+    const pageOpts = flatPages.map(p => ({ label: p.label, cls: p.id === page ? 'on' : '', pick: () => this.setState({ page: p.id, pSheet: null }) }));
+    const chans = []; kos.forEach(k => { if (!chans.includes(k.ch)) chans.push(k.ch); });
+    const koChips = [['all', 'Alle'], ...chans.map(c => [c, c])].map(([id, label]) => ({ label, cls: s.koCh === id ? 'on' : '', pick: set({ koCh: id }) }));
+    const pKos = vis.filter(k => s.koCh === 'all' || k.ch === s.koCh).map(k => ({ n: k.n, name: k.name, flags: F.map(f => flagOn(k, f) ? f : '·').join(''), gas: k.gas.map(a => ({ a })), noGa: !k.gas.length, open: pickKo(k) }));
+    const busKinds = [['all', 'Alle'], ['w', 'Schreiben'], ['r', 'Lesen / Antwort']];
+    const busChips = busKinds.map(([id, label]) => ({ label, cls: s.busKind === id ? 'on' : '', pick: set({ busKind: id }) }));
+    const pTels = telegrams.filter(t => s.busKind === 'all' || (s.busKind === 'w' ? t.type === 'Schreiben' : t.type !== 'Schreiben'));
+    const firstOp = s.ops.find(o => o.st === 'run' || o.st === 'wait');
+    const opsLine = active ? opsStatusText(active) + (firstOp ? ' · ' + (firstOp.st === 'run' ? firstOp.p + ' %' : 'wartet') : '') : '';
+    const onList = s.rail === 'project' && !s.pDev;
+    const pBack = isPhone && ((s.rail === 'project' && s.pDev) || s.rail === 'catalog');
+    const pTitles = {
+      project: s.pDev ? [d.name, d.pa + ' · ' + d.room] : ['Krausgasse 12 Top 26', '57 Geräte · ' + pendingList.length + ' ausstehend'],
+      bus: ['Gruppenmonitor', s.conn ? 'Aufzeichnung läuft' : 'Nicht verbunden'], check: ['Prüfung', '274 Warnungen'], tools: ['Mehr', 'Alles Weitere'], catalog: ['Katalog', cc[0]]
+    };
+    const moreItems = [
+      { label: 'Gruppenadressen', sub: 'Ansehen, umbenennen, Wert lesen', tab: false, run: set({ rail: 'project', scope: 'gas', pDev: false, navQ: '' }) },
+      { label: 'Katalog', sub: 'Gerät hinzufügen, .knxprod importieren', tab: true, run: set({ rail: 'catalog' }) },
+      ...tools.map(t => ({ label: t.title, sub: t.desc, tab: true, run: notImpl })),
+      { label: 'Hell / Dunkel', sub: 'Darstellung wechseln', tab: false, run: set({ dark: !dark }) },
+      { label: 'Einstellungen', sub: 'Sprache, Verbindung, Darstellung', tab: false, run: notImpl }
+    ];
 
     return {
-      themeCls: dark ? 'dark' : '',
+      themeCls: dark ? 'dark' : '', modeCls: 'm-' + mode, isPhone, notPhone: !isPhone,
       rail: { project: s.rail === 'project' ? 'on' : '', catalog: s.rail === 'catalog' ? 'on' : '', bus: s.rail === 'bus' ? 'on' : '', check: s.rail === 'check' ? 'on' : '', tools: s.rail === 'tools' ? 'on' : '' },
       isProjectRail: s.rail === 'project', isCatalogRail: s.rail === 'catalog', isBusRail: s.rail === 'bus', isCheckRail: s.rail === 'check', isToolsRail: s.rail === 'tools',
-      showNav: true,
-      goProject: set({ rail: 'project' }), goCatalog: set({ rail: 'catalog' }), goBus: set({ rail: 'bus' }), goCheck: set({ rail: 'check' }), goTools: set({ rail: 'tools' }),
+      showNav,
+      deskProject: !isPhone && s.rail === 'project', deskBus: !isPhone && s.rail === 'bus', deskTools: !isPhone && s.rail === 'tools', deskCatalog: !isPhone && s.rail === 'catalog',
+      pNav: isPhone && onList, pDevShow: isPhone && s.rail === 'project' && s.pDev, pBus: isPhone && s.rail === 'bus', pMore: isPhone && s.rail === 'tools', pCatalog: isPhone && s.rail === 'catalog',
+      pBack, pNoBack: !pBack, pGoBack: s.rail === 'catalog' ? set({ rail: 'tools' }) : set({ pDev: false, inspOpen: false }),
+      pTitle: (pTitles[s.rail] || pTitles.project)[0], pSub: (pTitles[s.rail] || pTitles.project)[1], pTitleTap: pBack ? () => {} : set({ ...closeAll, projMenu: !s.projMenu }),
+      pBot: { project: s.rail === 'project' ? 'on' : '', bus: s.rail === 'bus' ? 'on' : '', check: s.rail === 'check' ? 'on' : '', more: s.rail === 'tools' || s.rail === 'catalog' ? 'on' : '' },
+      pFab: isPhone && onList && pendingList.length > 0 && !active, pOpsStrip: isPhone && active > 0, opsLine, openOps: set({ pSheet: 'ops' }),
+      pSheetOpen: isPhone && !!s.pSheet, sheetPages: s.pSheet === 'pages', sheetHelp: s.pSheet === 'help', sheetOps: s.pSheet === 'ops', closeSheet: set({ pSheet: null }),
+      openPages: set({ pSheet: 'pages' }), openHelp: set({ pSheet: 'help' }), pageOpts, pageNo: 'Seite ' + (pageIdx + 1) + ' von ' + flatPages.length,
+      koChips, pKos, busChips, pTels, moreItems, sendTelegram: () => this.say('Gesendet: 7/1/14 ← Ab'),
+      toggleNav: isMid ? set({ navCollapsed: !s.navCollapsed }) : set({ navOver: !s.navOver, inspOpen: false }),
+      showOScrim: (isNarrow && s.navOver) || (!isWide && s.inspOpen), closeOverlays: set({ navOver: false, inspOpen: false }),
+      goProject: set({ rail: 'project', navOver: false, inspOpen: false, ...(s.rail === 'project' ? { pDev: false } : {}) }), goCatalog: set({ rail: 'catalog', navOver: false, inspOpen: false }), goBus: set({ rail: 'bus', navOver: false, inspOpen: false }), goCheck: set({ rail: 'check', navOver: false, inspOpen: false }), goTools: set({ rail: 'tools', navOver: false, inspOpen: false }),
       scope: { buildings: s.scope === 'buildings' ? 'on' : '', topology: s.scope === 'topology' ? 'on' : '', gas: s.scope === 'gas' ? 'on' : '' },
       scopeBuildings: set({ scope: 'buildings', navQ: '' }), scopeTopology: set({ scope: 'topology', navQ: '' }), scopeGas: set({ scope: 'gas', navQ: '' }),
       navQ: s.navQ, onNavQ: (e) => this.setState({ navQ: e.target.value }), navPlaceholder: s.scope === 'gas' ? 'Adresse oder Name filtern…' : 'Räume, Geräte, Funktionen filtern…',
       rows, noRows: rows.length === 0,
       dev: { pa: d.pa, name: d.name, app: d.app, mfr: d.mfr, room: d.room, stCls: st[0], stLabel: st[1], paramCount: d.jal ? 642 : d.router ? 48 : 36, koCount: kos.length ? 139 : 0 },
-      tabs: { params: s.tab === 'params' ? 'on' : '', ko: s.tab === 'ko' ? 'on' : '' }, tabIsParams: s.tab === 'params', tabIsKo: s.tab === 'ko',
-      tabParams: set({ tab: 'params' }), tabKo: set({ tab: 'ko' }),
-      pages, form, allChCls: s.allCh ? 'on' : '', toggleAllCh: set({ allCh: !s.allCh }),
+      tabs: { params: tabE === 'params' ? 'on' : '', ko: tabE === 'ko' ? 'on' : '', info: tabE === 'info' ? 'on' : '' }, tabIsParams: tabE === 'params', tabIsKo: tabE === 'ko', tabIsInfo: tabE === 'info',
+      tabParams: set({ tab: 'params' }), tabKo: set({ tab: 'ko' }), tabInfo: set({ tab: 'info' }),
+      pages, pageTitle: lbl, form, allChCls: s.allCh ? 'on' : '', toggleAllCh: set({ allCh: !s.allCh }),
       koQ: s.koQ, onKoQ: (e) => this.setState({ koQ: e.target.value }),
       koF: { all: s.koFilter === 'all' ? 'on' : '', linked: s.koFilter === 'linked' ? 'on' : '', free: s.koFilter === 'free' ? 'on' : '' },
       koAll: set({ koFilter: 'all' }), koLinked: set({ koFilter: 'linked' }), koFree: set({ koFilter: 'free' }),
@@ -1147,21 +1510,21 @@ class Component extends DCLogic {
       koSummary: kos.length ? vis.length + ' von 139 Objekten · ' + kos.filter(k => k.gas.length).length + ' verknüpft (Auszug)' : '',
       koRows, hasKos: kos.length > 0, noKos: kos.length === 0,
       hasChecked: nChecked > 0, checkedLabel: nChecked === 1 ? '1 Objekt ausgewählt' : nChecked + ' Objekte ausgewählt', clearChecked: set({ checked: {} }),
-      showInspector: s.inspector, toggleInspector: set({ inspector: !s.inspector }),
+      showInspector: isWide ? s.inspector : s.inspOpen, toggleInspector: isWide ? set({ inspector: !s.inspector }) : set({ inspOpen: !s.inspOpen, navOver: false }),
       inspTitle: s.insp === 'ko' && koObj ? 'Kommunikationsobjekt' : s.insp === 'ga' ? 'Gruppenadresse' : 'Geräteeigenschaften',
       inspDevice: s.insp === 'device' || (s.insp === 'ko' && !koObj), inspKo: s.insp === 'ko' && !!koObj, inspGa: s.insp === 'ga' && !!s.ga,
       devSections, ko: koV, ga: gaV,
-      drawerOpen: s.drawer, closeDrawer: set({ drawer: false }),
+      drawerShow: s.drawer && !isPhone, closeDrawer: set({ drawer: false }),
       dt: { ops: s.dtab === 'ops' ? 'on' : '', mon: s.dtab === 'mon' ? 'on' : '', log: s.dtab === 'log' ? 'on' : '', hist: s.dtab === 'hist' ? 'on' : '' },
       dtIsOps: s.dtab === 'ops', dtIsMon: s.dtab === 'mon', dtIsLog: s.dtab === 'log', dtIsHist: s.dtab === 'hist',
       dtOps: set({ drawer: !(s.drawer && s.dtab === 'ops'), dtab: 'ops' }), dtMon: set({ drawer: !(s.drawer && s.dtab === 'mon'), dtab: 'mon' }),
       dtLog: set({ drawer: !(s.drawer && s.dtab === 'log'), dtab: 'log' }), dtHist: set({ drawer: !(s.drawer && s.dtab === 'hist'), dtab: 'hist' }),
       sbOps: s.drawer && s.dtab === 'ops' ? 'on' : '', sbMon: s.drawer && s.dtab === 'mon' ? 'on' : '', sbLog: s.drawer && s.dtab === 'log' ? 'on' : '', sbHist: s.drawer && s.dtab === 'hist' ? 'on' : '',
-      ops, noOps: ops.length === 0, opsCount: String(active), opsStatus: active ? active + (active === 1 ? ' Vorgang' : ' Vorgänge') : 'Keine Vorgänge',
+      ops, noOps: ops.length === 0, opsCount: String(active), opsStatus: opsStatusText(active),
       log: [{ t: '22:39:12', lvl: 'Fehler', cls: 'err', msg: 'Tunnel connection could not be established (192.168.0.99, TCP)' }, { t: '22:38:40', lvl: 'Info', cls: 'neu', msg: 'Projekt „Krausgasse 12 Top 26“ geöffnet – 57 Geräte, 771 Gruppenadressen' }, { t: '22:38:39', lvl: 'Info', cls: 'neu', msg: 'MCP-Server gestartet' }, { t: '22:38:37', lvl: 'Info', cls: 'neu', msg: 'KNX Master v323 geladen' }],
       history: [{ t: '2026-11-20 22:31', msg: '1.1.16 Kanal A: Fahrzeit Ab 56 → 58 s' }, { t: '2026-11-20 22:30', msg: '1.1.16 #23 mit 1/3/34 verknüpft' }, { t: '2026-11-20 22:12', msg: 'Gruppenadresse 7/1/14 umbenannt' }],
       connected: s.conn, notConnected: !s.conn, connDot: s.conn ? 'green' : 'red',
-      connLabel: s.conn ? '192.168.0.99 · TCP' : 'Nicht verbunden', connStatus: s.conn ? 'Verbunden über 1.1.0 IP-Router' : 'Keine Verbindung zum Gateway',
+      connLabel: s.conn ? '192.168.0.99 · TCP' : 'Nicht verbunden', connLabelTop: isNarrow ? (s.conn ? 'Verbunden' : 'Getrennt') : (s.conn ? '192.168.0.99 · TCP' : 'Nicht verbunden'), connStatus: s.conn ? 'Verbunden über 1.1.0 IP-Router' : 'Keine Verbindung zum Gateway',
       toggleConn: set({ ...closeAll, connPop: !s.connPop }), connect: () => { this.setState({ conn: true, ...closeAll }); this.say('Verbunden mit 192.168.0.99'); }, disconnect: set({ conn: false, ...closeAll }),
       pendingCount: String(pendingList.length), pendingLabel: pendingList.length ? pendingList.length + ' ausstehend' : 'Alles programmiert',
       showPending: set({ rail: 'check', issueOpen: { ...s.issueOpen, pend: true }, ...closeAll }),
@@ -1175,7 +1538,7 @@ class Component extends DCLogic {
       busTitle: (busList.find(b => b[0] === s.bus) || busList[0])[1], busViews, telegrams,
       issues, tools, catalog, cat: { name: cc[0], mfr: cc[1], order: cc[2], app: cc[3], used: cc[4] },
       addFromCatalog: () => this.say('Gerät hinzugefügt – im Navigator in einen Raum ziehen (Klickdummy)'),
-      notImpl: () => { this.setState(closeAll); this.say('Im Klickdummy nicht umgesetzt'); },
+      notImpl,
       hasToast: !!s.toast, toast: s.toast
     };
   }
