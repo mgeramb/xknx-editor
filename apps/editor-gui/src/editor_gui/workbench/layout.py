@@ -6,6 +6,7 @@ before; only where it is shown changes.
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -28,6 +29,53 @@ _ICON_TOOLS = ""  # wrench
 
 _RAIL_WIDTH = 72.0
 _RAIL_BUTTON_HEIGHT = 54.0
+
+# The layouts by the width of the window (the steps of the browser UI's ``form_factor``): "wide"
+# has all zones docked; "mid" (a tablet in landscape) folds the navigator's list away and shows the
+# inspector over the workspace; "narrow" (a tablet in portrait) also shows the navigator's list over
+# the workspace, and the inspector as a sheet from below.
+WIDE_MIN = 1280.0
+MID_MIN = 1000.0
+# A width right at a limit must not flip the layout back and forth.
+_MARGIN = 40.0
+# How long a new width has to stay before the layout changes (resizing, turning the device).
+_SETTLE = 0.4
+
+
+def layout_mode(width: float, current: str | None = None) -> str:
+    """The layout for a window of this width: ``"wide"``, ``"mid"`` or ``"narrow"``. With the
+    layout shown now, a limit is crossed only by a little more than it."""
+    wide, mid = WIDE_MIN, MID_MIN
+    if current == "wide":
+        wide -= _MARGIN
+    elif current is not None:
+        wide += _MARGIN
+    if current in ("wide", "mid"):
+        mid -= _MARGIN
+    elif current is not None:
+        mid += _MARGIN
+    if width >= wide:
+        return "wide"
+    if width >= mid:
+        return "mid"
+    return "narrow"
+
+
+def overlay_rect(
+    mode: str, kind: str, area: tuple[float, float, float, float], unit: float
+) -> tuple[float, float, float, float]:
+    """The place (x, y, width, height) of an overlay over the workspace ``area``: the navigator's
+    list from the left edge, the inspector from the right edge in "mid" and as a sheet from below
+    in "narrow". ``unit`` is the size of a pixel (the scale of the display)."""
+    x, y, width, height = area
+    if kind == "navigator":
+        return x, y, min(width * 0.85, 340.0 * unit), height
+    if mode == "narrow":
+        sheet = height * 0.55
+        return x, y + height - sheet, width, sheet
+    over = min(width * 0.6, 360.0 * unit)
+    return x + width - over, y, over, height
+
 
 # The windows of the zones (their ids after ``###``).
 NAVIGATOR = "wb_navigator"
@@ -61,6 +109,7 @@ class Workbench:
         panels: list[PanelDefinition],
         labels: dict[str, Callable[[], str]],
         device_section: Callable[[], tuple[str, bool]] | None = None,
+        selection_key: Callable[[], object] | None = None,
     ) -> None:
         self._panels = {panel.name: panel for panel in panels}
         self._labels = labels
@@ -95,6 +144,22 @@ class Workbench:
         self._select_bottom: str | None = None
         self.show_inspector = True
         self.show_bottom = True
+        # The layout by the width of the window, the width it was made for, and whether the
+        # navigator's list is shown (docked in "mid", over the workspace in "narrow").
+        self.mode = "wide"
+        self.nav_open = True
+        self._width = 1440.0
+        self._sized = False
+        self._since: float | None = None
+        # The inspector as it was in "wide", shown again when the window gets wide again.
+        self._wide_inspector = True
+        # The workspace's place on the screen, which the overlays lie over.
+        self._area: tuple[float, float, float, float] | None = None
+        # The frame an overlay was opened in, and what was selected then (choosing something
+        # else in the navigator's list closes it).
+        self._opened = -1
+        self._selection: object = None
+        self._selection_key = selection_key
 
     def _label(self, name: str) -> Callable[[], str]:
         return self._labels.get(name, lambda: name)
@@ -141,12 +206,24 @@ class Workbench:
             item.node_flags = flags
             splits.append(item)
 
-        split("LeftSpace", imgui.Dir.left, 0.25)
+        split("LeftSpace", imgui.Dir.left, self._left_ratio())
         if self.show_bottom:
             split("BottomSpace", imgui.Dir.down, 0.26)
-        if self.show_inspector:
+        if self.show_inspector and self.mode == "wide":
             split("RightSpace", imgui.Dir.right, 0.24)
         return splits
+
+    def list_docked(self) -> bool:
+        """Whether the navigator's list is in its zone (else only the rail is)."""
+        return self.mode == "wide" or (self.mode == "mid" and self.nav_open)
+
+    def _left_ratio(self) -> float:
+        width = max(self._width, 1.0)
+        if self.mode == "wide":
+            return 0.25
+        if self.list_docked():
+            return min(0.4, px(_RAIL_WIDTH + 270.0) / width)
+        return min(0.3, px(_RAIL_WIDTH + 16.0) / width)
 
     def main_dock_space_flags(self) -> int:
         return int(
@@ -160,7 +237,7 @@ class Workbench:
         for window in params.dockable_windows:
             name = window.label.split("###")[-1]
             if name == INSPECTOR:
-                window.is_visible = self.show_inspector
+                window.is_visible = self.show_inspector and self.mode == "wide"
             elif name == BOTTOM:
                 window.is_visible = self.show_bottom
         params.docking_splits = self.docking_splits()
@@ -168,6 +245,51 @@ class Workbench:
 
     def toggle_inspector(self) -> None:
         self.show_inspector = not self.show_inspector
+        if self.mode == "wide":
+            self._relayout()
+        elif self.show_inspector:
+            # One overlay at a time.
+            self._opened = imgui.get_frame_count()
+            if self.mode == "narrow":
+                self.nav_open = False
+
+    def toggle_nav(self) -> None:
+        """Fold the navigator's list away or show it again (it is always there in "wide")."""
+        self.nav_open = not self.nav_open
+        if self.mode == "mid":
+            self._relayout()
+        elif self.nav_open:
+            self._opened = imgui.get_frame_count()
+            self._selection = self._selection_key() if self._selection_key else None
+            self.show_inspector = False
+
+    def update_size(self, width: float) -> None:
+        """Switch to the layout for a window of this width, once the width has settled."""
+        wanted = layout_mode(width, self.mode)
+        if self._sized and wanted == self.mode:
+            self._since = None
+            self._width = width
+            return
+        if self._sized:
+            now = time.monotonic()
+            if self._since is None:
+                self._since = now
+            if now - self._since < _SETTLE:
+                return
+        self._since = None
+        self._sized = True
+        self._width = width
+        self._set_mode(wanted)
+
+    def _set_mode(self, mode: str) -> None:
+        was = self.mode
+        self.mode = mode
+        if was == "wide" and mode != "wide":
+            self._wide_inspector = self.show_inspector
+            self.show_inspector = False
+        elif mode == "wide" and was != "wide":
+            self.show_inspector = self._wide_inspector
+        self.nav_open = mode == "mid"
         self._relayout()
 
     def toggle_bottom(self) -> None:
@@ -182,6 +304,8 @@ class Workbench:
         if name in _NAVIGATOR_VIEWS:
             self.view = name
             self._select_view = name
+            if self.mode != "wide" and not self.nav_open:
+                self.toggle_nav()
             return
         if name in _INSPECTOR_PANELS:
             if not self.show_inspector:
@@ -223,8 +347,12 @@ class Workbench:
             for area in self._areas:
                 if self._rail_button(area):
                     self.area = area.key
+                    if self.mode == "narrow":
+                        self.nav_open = False
         imgui.end_child()
         imgui.pop_style_var()
+        if not self.list_docked():
+            return
         imgui.same_line()
         low = imgui.get_cursor_screen_pos()
         imgui.get_window_draw_list().add_line(
@@ -235,24 +363,26 @@ class Workbench:
             imgui.get_color_u32(imgui.Col_.border),
         )
         if imgui.begin_child("##wb_nav", imgui.ImVec2(0, 0)):
-            if begin_tab_bar("##wb_views"):
-                for view in _NAVIGATOR_VIEWS:
-                    flags = (
-                        imgui.TabItemFlags_.set_selected
-                        if self._select_view == view
-                        else 0
-                    )
-                    if imgui.begin_tab_item(
-                        f"{self._label(view)()}###{view}", None, flags
-                    )[0]:
-                        # A view asked for shows at once; its tab follows in the next frame.
-                        if self._select_view is None:
-                            self.view = view
-                        imgui.end_tab_item()
-                imgui.end_tab_bar()
-            self._select_view = None
-            self._panel(self.view)
+            self._render_nav_list()
         imgui.end_child()
+
+    def _render_nav_list(self) -> None:
+        """The navigator's views as tabs, and the one shown."""
+        if begin_tab_bar("##wb_views"):
+            for view in _NAVIGATOR_VIEWS:
+                flags = (
+                    imgui.TabItemFlags_.set_selected if self._select_view == view else 0
+                )
+                if imgui.begin_tab_item(f"{self._label(view)()}###{view}", None, flags)[
+                    0
+                ]:
+                    # A view asked for shows at once; its tab follows in the next frame.
+                    if self._select_view is None:
+                        self.view = view
+                    imgui.end_tab_item()
+            imgui.end_tab_bar()
+        self._select_view = None
+        self._panel(self.view)
 
     def _rail_button(self, area: _Area) -> bool:
         """An icon over its label, filled while its area is shown."""
@@ -295,6 +425,8 @@ class Workbench:
         return clicked
 
     def _render_workspace(self) -> None:
+        position, size = imgui.get_window_pos(), imgui.get_window_size()
+        self._area = (position.x, position.y, size.x, size.y)
         area = next(a for a in self._areas if a.key == self.area)
         panels = [name for name in area.panels if name in self._panels]
         if len(panels) == 1:
@@ -345,6 +477,83 @@ class Workbench:
                 self._panels[name].render()
                 imgui.spacing()
             imgui.pop_id()
+
+    # The overlays of "mid" and "narrow": the inspector, and in "narrow" the navigator's list.
+
+    def render_overlays(self) -> None:
+        """Draw the overlay over the workspace, after the zones. A click beside it closes it, so
+        does choosing something in the navigator's list."""
+        if self.mode == "wide" or self._area is None:
+            return
+        if self.mode == "narrow" and self.nav_open:
+            selection = self._selection_key() if self._selection_key else None
+            if selection != self._selection:
+                self.nav_open = False
+                return
+            self._overlay("navigator", S.NAVIGATOR, self._render_nav_list)
+        elif self.show_inspector:
+            self._overlay("inspector", S.INSPECTOR, self._render_inspector)
+
+    def _overlay(self, kind: str, title: str, body: Callable[[], None]) -> None:
+        assert self._area is not None
+        x, y, width, height = self._area
+        opening = imgui.get_frame_count() <= self._opened + 1
+        # The workspace dimmed; a click on it closes the overlay.
+        imgui.set_next_window_pos(imgui.ImVec2(x, y))
+        imgui.set_next_window_size(imgui.ImVec2(width, height))
+        imgui.push_style_var(imgui.StyleVar_.window_padding, imgui.ImVec2(0, 0))
+        # The zones are drawn with the docking space, which comes to the front when something in
+        # them is clicked: the scrim and the overlay are brought over it again in each frame.
+        imgui.set_next_window_focus()
+        closed = False
+        if imgui.begin(
+            f"##wb_scrim_{kind}",
+            None,
+            imgui.WindowFlags_.no_decoration
+            | imgui.WindowFlags_.no_background
+            | imgui.WindowFlags_.no_move
+            | imgui.WindowFlags_.no_saved_settings
+            | imgui.WindowFlags_.no_docking
+            | imgui.WindowFlags_.no_nav,
+        ):
+            imgui.get_window_draw_list().add_rect_filled(
+                imgui.ImVec2(x, y),
+                imgui.ImVec2(x + width, y + height),
+                imgui.get_color_u32(imgui.ImVec4(0.0, 0.0, 0.0, 0.32)),
+            )
+            imgui.invisible_button(
+                f"##wb_scrim_button_{kind}", imgui.ImVec2(width, height)
+            )
+            # On the press, not the release: a touch screen or the browser UI may deliver both in
+            # one frame, which a button does not count as a click.
+            closed = (
+                imgui.is_item_hovered() and imgui.is_mouse_clicked(0) and not opening
+            )
+        imgui.end()
+        imgui.pop_style_var()
+        left, top, over_width, over_height = overlay_rect(
+            self.mode, kind, self._area, px(1.0)
+        )
+        imgui.set_next_window_pos(imgui.ImVec2(left, top))
+        imgui.set_next_window_size(imgui.ImVec2(over_width, over_height))
+        imgui.set_next_window_focus()
+        expanded, opened = imgui.begin(
+            f"{title}###wb_overlay_{kind}",
+            True,
+            imgui.WindowFlags_.no_collapse
+            | imgui.WindowFlags_.no_move
+            | imgui.WindowFlags_.no_resize
+            | imgui.WindowFlags_.no_saved_settings
+            | imgui.WindowFlags_.no_docking,
+        )
+        if expanded:
+            body()
+        imgui.end()
+        if closed or not opened:
+            if kind == "navigator":
+                self.nav_open = False
+            else:
+                self.show_inspector = False
 
     def _render_bottom(self) -> None:
         if begin_tab_bar("##wb_bottom_tabs"):

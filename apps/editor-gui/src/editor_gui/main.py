@@ -4619,6 +4619,13 @@ class KnxGuiApp:
             name = (meta.name if meta and meta.name else None) or (
                 path.name if path is not None else "?"
             )
+        if workbench.mode != "wide":
+            # The navigator's list is folded away or over the workspace: a switch for it.
+            with _bar_item_spacing():
+                if imgui.menu_item("\uf0c9##wb_navigator", "", workbench.nav_open)[0]:
+                    workbench.toggle_nav()
+            if imgui.is_item_hovered():
+                imgui.set_tooltip(WB.NAVIGATOR)
         if self._mac_menu is not None:
             # The menus are in the menu bar at the top of the screen.
             imgui.align_text_to_frame_padding()
@@ -5770,9 +5777,21 @@ class KnxGuiApp:
         if settled and seen:
             self._tab_order = []
 
+    def selection_key(self) -> object:
+        """What is selected (a device, a space or an element of a tree), to see it change."""
+        device = self._project_service.selected_device
+        return (
+            device.node_id if device is not None else None,
+            id(self._project_plugin.selected_space()),
+            id(self._project_plugin.selected_element()),
+        )
+
     def render_overlays(self) -> None:
         if web.active_hub is not None:
             self._update_web_layout()
+        if self.workbench is not None:
+            self.workbench.update_size(imgui.get_io().display_size.x)
+            self.workbench.render_overlays()
         self._handle_editor_requests()
         self._settle_tab_order()
         self._project_service.take_rechecked_devices()
@@ -8207,7 +8226,10 @@ def _main() -> None:
     if workbench_state.enabled():
         # The redesign's zones, always as built at the start.
         app.workbench = Workbench(
-            app.get_all_panels(), _DOCK_LABELS, app.device_section
+            app.get_all_panels(),
+            _DOCK_LABELS,
+            app.device_section,
+            app.selection_key,
         )
         docking = runner_params.docking_params
         docking.docking_splits = app.workbench.docking_splits()
