@@ -35,6 +35,8 @@ _RAIL_WIDTH = 72.0
 _RAIL_BUTTON_HEIGHT = 54.0
 _PHONE_TAB_HEIGHT = 60.0
 _PHONE_ROW_HEIGHT = 48.0
+# The gap between the rows of the phone's list (the rows react as far as half of it up and down).
+_ROW_GAP = 12.0
 
 # The layouts by the width of the window (the steps of the browser UI's ``form_factor``): "wide"
 # has all zones docked; "mid" (a tablet in landscape) folds the navigator's list away and shows the
@@ -535,12 +537,17 @@ class Workbench:
                     self.phone_screen = "list"
                 self._panel("editor")
             else:
-                # Rows further apart, so a finger hits the right one.
+                # Rows further apart, each reacting a little beyond its text (as far as the gap
+                # between them, so a tap between two rows still hits one of them).
+                style = imgui.get_style()
+                before = style.touch_extra_padding
+                style.touch_extra_padding = imgui.ImVec2(px(6), px(_ROW_GAP / 2))
                 imgui.push_style_var(
-                    imgui.StyleVar_.item_spacing, imgui.ImVec2(px(8), px(12))
+                    imgui.StyleVar_.item_spacing, imgui.ImVec2(px(8), px(_ROW_GAP))
                 )
                 self._render_nav_list()
                 imgui.pop_style_var()
+                style.touch_extra_padding = before
         elif tab in ("bus", "check"):
             self._render_area(tab)
         elif self.phone_more is None:
