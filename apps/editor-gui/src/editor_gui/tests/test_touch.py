@@ -88,13 +88,46 @@ def test_tap_clicks_at_the_release() -> None:
     assert ui.calls == [("move", 10, 20)]
     finger(g, ui, "move", 12, 21)
     finger(g, ui, "up", 12, 21)
-    # The release waits until the frame after the press shows what it opened.
+    # The finger lifted before a frame showed the pointer under it: the press waits for that
+    # frame, and the release for the frame after the press shows what it opened.
+    assert ui.buttons() == []
+    assert g.active
+    _frames(g, ui, 1)
     assert ui.buttons() == [("button", 0, True)]
     assert g.active
     _frames(g, ui, 2)
     assert ui.buttons() == [("button", 0, True), ("button", 0, False)]
     assert ui.calls[-2:] == [("button", 0, False), ("leave",)]
     assert not g.active
+
+
+def test_tap_with_a_frame_under_the_finger_presses_at_once() -> None:
+    ui = FakeUi()
+    g = TouchGestures(ui)
+    finger(g, ui, "down", 10, 20)
+    ui.frames += 1  # the finger rested long enough for a frame
+    finger(g, ui, "up", 10, 20)
+    assert ui.buttons() == [("button", 0, True)]
+    _frames(g, ui, 2)
+    assert ui.buttons() == [("button", 0, True), ("button", 0, False)]
+    assert ui.calls[-2:] == [("button", 0, False), ("leave",)]
+
+
+def test_a_quick_tap_is_not_taken_for_one_that_opened_a_window() -> None:
+    """The window noted with the press is the one under the finger: a quick tap, lifted before
+    a frame, must not see the window of the last tap's place (none after it) and then the one it
+    really touched as another one, which would drop the release (the buttons did not react)."""
+    ui = FakeUi()
+    ui.window = 0  # nothing under the pointer after the last tap
+    g = TouchGestures(ui)
+    finger(g, ui, "down", 10, 20)
+    finger(g, ui, "up", 10, 20)
+    ui.window = 3  # the first frame sees the pointer over a window
+    _frames(g, ui, 1)
+    _frames(g, ui, 2)
+    assert ui.buttons() == [("button", 0, True), ("button", 0, False)]
+    # The pointer stayed on the item until the release: no leaving in between.
+    assert ui.calls[-3:] == [("button", 0, True), ("button", 0, False), ("leave",)]
 
 
 def test_tap_does_not_click_what_its_press_opened_under_the_finger() -> None:
@@ -104,6 +137,7 @@ def test_tap_does_not_click_what_its_press_opened_under_the_finger() -> None:
     g = TouchGestures(ui)
     finger(g, ui, "down", 10, 20)
     finger(g, ui, "up", 10, 20)
+    _frames(g, ui, 1)  # the press
     ui.window = 2  # the submenu the press opened
     _frames(g, ui, 2)
     assert ui.calls[-3:] == [("leave",), ("button", 0, False), ("leave",)]
@@ -117,6 +151,7 @@ def test_next_finger_releases_a_waiting_tap() -> None:
     finger(g, ui, "down", 30, 40)
     assert ui.buttons() == [("button", 0, True), ("button", 0, False)]
     assert ui.calls[-1] == ("move", 30, 40)
+    assert g.active  # the new finger is down
 
 
 def test_swipe_scrolls_and_never_presses() -> None:

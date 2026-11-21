@@ -113,11 +113,20 @@ class TouchGestures:
         # A tap pressed and not released yet: the frame it pressed in and the window that was
         # under the finger then.
         self._tap: tuple[int, int] | None = None
+        # A tap whose finger lifted before a frame showed the pointer where it touched: its press
+        # waits for that frame, so the window noted for it is the one under the finger.
+        self._press_due = False
 
     @property
     def active(self) -> bool:
-        """A finger is down, a tap waits for its release, or the content still moves on."""
-        return self._state != "idle" or self._flinging or self._tap is not None
+        """A finger is down, a tap waits for its press or release, or the content still moves
+        on."""
+        return (
+            self._state != "idle"
+            or self._flinging
+            or self._tap is not None
+            or self._press_due
+        )
 
     def needs_frame(self, event: dict[str, Any]) -> bool:
         """Whether ``event`` has to wait for the next frame: whether a swipe scrolls depends on
@@ -136,7 +145,11 @@ class TouchGestures:
         y = float(event.get("y", self._last[1]))
         ui = self._ui
         if phase == "down":
-            # The next finger comes before the last tap's release: release it now.
+            # The next finger comes before the last tap's press or release: do it now.
+            if self._press_due:
+                self._press_due = False
+                ui.button(0, True)
+                self._tap = (ui.frame(), 0)
             self._release_tap(away=False)
             self._flinging = False
             self._target = None
@@ -185,9 +198,14 @@ class TouchGestures:
             return
         if phase == "up":
             if self._state == "touched":
-                # Released once it is clear what the press opened (see step).
-                ui.button(0, True)
-                self._tap = (ui.frame(), ui.pointer_window())
+                # Released once it is clear what the press opened (see step). Pressed once a frame
+                # has shown the pointer where the finger touched: the window under it, noted
+                # with the press, would be that of the last tap's place otherwise, and the
+                # release would be taken for one of a window the press opened.
+                if ui.frame() > self._down_frame:
+                    self._press()
+                else:
+                    self._press_due = True
             elif self._state == "hold":
                 # A long press: the right button.
                 ui.button(1, True)
@@ -215,6 +233,9 @@ class TouchGestures:
     def step(self, now: float) -> None:
         """Once per frame (``now`` in seconds, any clock): release a tap, scroll by the finger's
         movement, or let the content move on after a swipe."""
+        if self._press_due and self._ui.frame() > self._down_frame:
+            self._press_due = False
+            self._press()
         if self._tap is not None:
             pressed, window = self._tap
             if self._ui.frame() >= pressed + _TAP_RELEASE_FRAMES:
@@ -243,6 +264,11 @@ class TouchGestures:
         self._velocity = (vx * decay, vy * decay)
         if not moved or math.hypot(*self._velocity) < _FLING_STOP:
             self._flinging = False
+
+    def _press(self) -> None:
+        """Press the button where the finger touched, to release it a few frames later."""
+        self._ui.button(0, True)
+        self._tap = (self._ui.frame(), self._ui.pointer_window())
 
     def _release_tap(self, *, away: bool) -> None:
         """Release a tap's press, with the pointer off the app when ``away``."""
