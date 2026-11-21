@@ -1,0 +1,42 @@
+<!-- @dsCard height=320 -->
+<div class="cv">
+  <!--
+    blocks: accent 240×208 (slab), text 160×320 (ink slab, bleeds top/right/bottom), ok 112×96 (bleeds bottom), warn 112×56, accent-weak 64×112; corners radius-lg, bleeding edges square.
+    arrangement: one tall ink slab at the right edge with satellites stepping down-left from the accent slab, all right of x = 480.
+    pattern: literal motif – the KNX bus: two bus lines (focus-w strokes, cut out in panel) with device taps as discs at a space-24 × 2 pitch, chosen because every device in the app hangs on a line like this.
+    steps and radii: pitch 48 (2 × space-24), gaps space-16, disc r = space-6, radius-lg 12.
+  -->
+  <svg class="art" viewBox="0 0 960 320" width="960" height="320" aria-hidden="true">
+    <rect class="b-weak r" x="480" y="96" width="64" height="112"></rect>
+    <rect class="b-accent r" x="560" y="0" width="240" height="208"></rect>
+    <rect class="b-ink" x="816" y="0" width="160" height="320"></rect>
+    <rect class="b-ok" x="560" y="224" width="112" height="112"></rect>
+    <rect class="b-warn r" x="688" y="224" width="112" height="56"></rect>
+    <line class="bus" x1="560" y1="64" x2="960" y2="64"></line>
+    <line class="bus" x1="560" y1="152" x2="960" y2="152"></line>
+    <circle class="tap" cx="600" cy="64" r="6"></circle><circle class="tap" cx="648" cy="64" r="6"></circle><circle class="tap" cx="696" cy="64" r="6"></circle><circle class="tap" cx="744" cy="64" r="6"></circle>
+    <circle class="tap" cx="840" cy="64" r="6"></circle><circle class="tap" cx="888" cy="64" r="6"></circle><circle class="tap" cx="936" cy="64" r="6"></circle>
+    <circle class="tap" cx="624" cy="152" r="6"></circle><circle class="tap" cx="672" cy="152" r="6"></circle><circle class="tap" cx="720" cy="152" r="6"></circle>
+    <circle class="tap" cx="864" cy="152" r="6"></circle><circle class="tap" cx="912" cy="152" r="6"></circle>
+  </svg>
+  <div class="txt">
+    <div class="name">XKNX<br>Editor</div>
+    <div class="tag">Feste Zonen, ein Inspektor, Zustand auf einen Blick.</div>
+  </div>
+</div>
+<style>
+  html, body { margin: 0; background: var(--panel); }
+  .cv { position: relative; width: 960px; height: 320px; overflow: hidden; background: var(--panel); }
+  .art { position: absolute; inset: 0; }
+  .b-accent { fill: var(--accent); }
+  .b-weak { fill: var(--accent-weak); }
+  .b-ink { fill: var(--text); }
+  .b-ok { fill: var(--ok); }
+  .b-warn { fill: var(--warn); }
+  .r { rx: var(--radius-lg); }
+  .bus { stroke: var(--panel); stroke-width: var(--focus-w); }
+  .tap { fill: var(--panel); }
+  .txt { position: absolute; left: 32px; bottom: 32px; max-width: 440px; display: flex; flex-direction: column; gap: 12px; }
+  .name { font-family: var(--font-sans); font-weight: 700; font-size: 104px; line-height: .95; color: var(--text); letter-spacing: -0.01em; }
+  .tag { font-family: var(--font-sans); font-size: 14px; line-height: 20px; color: var(--muted); }
+</style>

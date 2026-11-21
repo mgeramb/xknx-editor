@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kleine Bildschirme</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.pg{--bg:#f4f5f7;--panel:#ffffff;--sub:#f8f9fb;--line:#e2e5ea;--line2:#d3d8df;--text:#1b2230;--muted:#586273;--accent:#1f5fd1;--accent-ink:#ffffff;--accent-weak:#e8effc;--warn:#9a4a00;--warn-weak:#fff1df;--danger:#b42318;--danger-weak:#fdecea;--ok:#1a7334;--ok-weak:#e5f4ea;--sel:#e8effc;--hover:#f0f2f5;
+  width:1440px;box-sizing:border-box;padding:72px 80px 96px;background:#fff;font-family:Inter,system-ui,sans-serif;color:var(--text);font-size:14px;display:flex;flex-direction:column;gap:64px}
+.pg *{box-sizing:border-box}
+.pg button{font:inherit;color:inherit}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.muted{color:var(--muted)}
+.eyebrow{font-size:13px;font-weight:600;color:#1f5fd1;letter-spacing:.06em;text-transform:uppercase}
+h1{margin:0;font-size:40px;line-height:1.15;font-weight:700}
+h2{margin:0;font-size:26px;line-height:1.2;font-weight:700}
+.lead{margin:0;font-size:17px;line-height:1.55;color:var(--muted);max-width:920px}
+.sec{display:flex;flex-direction:column;gap:20px}
+.sec>p{margin:0;color:var(--muted);line-height:1.6;max-width:920px}
+/* verdict cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.card{border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.card .dim{font-size:12px;color:var(--muted)}
+.card b{font-size:18px}
+.card span{color:var(--muted);line-height:1.55}
+.verdict{align-self:flex-start;font-size:12px;font-weight:600;padding:3px 10px;border-radius:10px}
+.v-ok{background:var(--ok-weak);color:var(--ok)}
+.v-mid{background:var(--accent-weak);color:var(--accent)}
+.v-lim{background:var(--warn-weak);color:var(--warn)}
+/* tables */
+.tbl{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tr5{display:grid;grid-template-columns:200px repeat(4,minmax(0,1fr));gap:16px;padding:11px 16px;border-top:1px solid var(--line);line-height:1.45}
+.tr4{display:grid;grid-template-columns:230px 150px 170px minmax(0,1fr);gap:16px;padding:11px 16px;border-top:1px solid var(--line);line-height:1.45}
+.thd{background:#f4f5f7;font-weight:600;font-size:12px;color:var(--muted);border-top:0}
+.tr5 b,.tr4 b{font-weight:600}
+.code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;background:#f1f2f4;padding:1px 5px;border-radius:4px}
+/* simulator */
+.simbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--sub);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.seg button{height:34px;border:0;border-radius:7px;background:transparent;cursor:pointer;color:var(--muted);font-size:13px;padding:0 14px;white-space:nowrap}
+.seg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.simwrap{display:flex;gap:40px;align-items:flex-start}
+.simwrap.col{flex-direction:column}
+.bezel{flex:none;background:#1d2128;border-radius:34px;padding:14px;box-shadow:0 20px 50px rgba(20,30,50,.22)}
+.bezel.ph{border-radius:52px;padding:12px}
+.screen{position:relative;overflow:hidden;background:var(--bg);border-radius:22px;display:flex;flex-direction:column;font-size:13px}
+.bezel.ph .screen{border-radius:42px}
+.sc-l{width:1133px;height:744px}
+.sc-p{width:744px;height:1133px}
+.sc-ph{width:390px;height:844px}
+.notes{display:flex;flex-direction:column;gap:14px;max-width:440px}
+.simwrap.col .notes{max-width:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.note{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+.note .n{width:24px;height:24px;border-radius:50%;background:#1f5fd1;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.note b{display:block;margin-bottom:2px}
+.note span{color:var(--muted);line-height:1.5}
+.hint{font-size:12px;color:var(--muted)}
+/* ---------- tablet UI ---------- */
+.t-top{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 10px;background:var(--panel);border-bottom:1px solid var(--line)}
+.ib{width:40px;height:40px;border-radius:8px;border:0;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--text)}
+.ib:hover{background:var(--hover)}
+.ib.on{background:var(--accent-weak);color:var(--accent)}
+.ib svg{width:20px;height:20px}
+.t-proj{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.t-proj b{font-size:14px;white-space:nowrap}
+.t-proj span{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.t-search{flex:1;max-width:380px;margin:0 auto;height:40px;border-radius:9px;border:1px solid var(--line2);background:var(--sub);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden}
+.pill{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-radius:18px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;white-space:nowrap;flex:none}
+.pill.pending{border-color:var(--warn);color:var(--warn);background:var(--warn-weak);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.dot.green{background:var(--ok)}.dot.orange{background:var(--warn)}.dot.red{background:var(--danger)}.dot.grey{background:var(--line2)}
+.t-body{flex:1;display:flex;min-height:0;position:relative}
+.t-rail{width:64px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px}
+.rb{width:58px;height:56px;border-radius:9px;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:9px;color:var(--muted)}
+.rb.on{background:var(--accent-weak);color:var(--accent);font-weight:600}
+.rb svg{width:22px;height:22px}
+.t-nav{width:270px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.t-nav.over{position:absolute;left:64px;top:0;bottom:0;width:320px;z-index:20;box-shadow:8px 0 30px rgba(20,30,50,.22)}
+.scrim{position:absolute;inset:0;background:rgba(15,20,30,.28);z-index:15;border:0;cursor:pointer}
+.navhd{padding:10px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+.tseg{display:flex;background:var(--sub);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+.tseg button{flex:1;height:32px;border:0;border-radius:6px;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap;padding:0 4px}
+.tseg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.fld{height:36px;border-radius:8px;border:1px solid var(--line2);background:var(--panel);display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--muted)}
+.list{flex:1;overflow:auto;padding:4px 0}
+.grp{padding:12px 12px 4px;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.row{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 12px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer;color:var(--text)}
+.row:hover{background:var(--hover)}
+.row.on{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
+.row .pa{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;color:var(--muted);min-width:46px}
+.row .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--panel)}
+.dhead{padding:12px 16px 0;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.dtitle{display:flex;align-items:center;gap:12px}
+.dtitle .nm{flex:1;min-width:0}
+.dtitle .nm b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtitle .nm span{font-size:12px;color:var(--muted)}
+.chip{font-size:11.5px;padding:2px 8px;border-radius:10px;white-space:nowrap;font-weight:500}
+.chip.ok{background:var(--ok-weak);color:var(--ok)}.chip.warn{background:var(--warn-weak);color:var(--warn)}.chip.err{background:var(--danger-weak);color:var(--danger)}.chip.neu{background:#f1f2f4;color:var(--muted)}
+.btnp{height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff !important;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btns{height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line2);background:var(--panel);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.tabs{display:flex;gap:4px}
+.tabs button{height:40px;padding:0 14px;border:0;background:transparent;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.ed{flex:1;display:flex;min-height:0}
+.ed.stack{flex-direction:column}
+.pages{width:190px;flex:none;background:#f7f8fa;border-right:1px solid var(--line);overflow:auto;padding:6px 0}
+.pages button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:0 14px;height:40px;cursor:pointer;color:var(--text)}
+.pages button.on{background:var(--sel);color:var(--accent);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.form{flex:1;min-width:0;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:6px}
+.form h4{margin:0 0 6px;font-size:14px}
+.fr{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:center;min-height:44px;border-bottom:1px solid #eef0f3}
+.ctl{height:36px;border:1px solid var(--line2);border-radius:7px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#fff;gap:6px}
+.ctl .u{color:var(--muted);font-size:12px}
+.help{border-top:1px solid var(--line);background:#f7f8fa;padding:10px 16px;font-size:12.5px;color:var(--muted);line-height:1.5;flex:none}
+.help b{color:var(--text)}
+.edfix{position:relative}
+.edfix:after{content:"Inhalt aus der Gerätekonfiguration – bleibt unverändert";position:absolute;right:10px;bottom:8px;font-size:10.5px;color:#1a7334;background:#e5f4ea;padding:2px 8px;border-radius:9px;pointer-events:none}
+.kot{flex:1;overflow:auto}
+.kor{display:grid;grid-template-columns:44px minmax(0,1.4fr) minmax(0,1fr) 110px;gap:10px;align-items:center;min-height:46px;padding:0 16px;border-bottom:1px solid #eef0f3}
+.kor.wide{grid-template-columns:44px minmax(0,1.4fr) 120px minmax(0,1fr) 110px}
+.kor.h{min-height:34px;background:#f7f8fa;font-size:11.5px;font-weight:600;color:var(--muted)}
+.gac{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;background:var(--accent-weak);color:var(--accent);padding:2px 7px;border-radius:6px;white-space:nowrap}
+.flags{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;color:var(--muted);letter-spacing:.08em}
+.t-status{height:30px;flex:none;display:flex;align-items:center;gap:16px;padding:0 12px;background:var(--panel);border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.t-status button{border:0;background:transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;height:30px}
+.insp{position:absolute;z-index:12;background:var(--panel);display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(20,30,50,.18)}
+.insp.side{right:0;top:0;bottom:0;width:330px;border-left:1px solid var(--line)}
+.insp.sheet{left:64px;right:0;bottom:0;height:46%;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -10px 30px rgba(20,30,50,.18)}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line2);margin:8px auto 0;flex:none}
+.ihd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:600}
+.ibody{padding:12px 14px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px;font-size:12.5px}
+.kv span:first-child{color:var(--muted)}
+.ttoast{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);background:#1b2230;color:#fff;padding:9px 14px;border-radius:9px;font-size:12.5px;z-index:40;white-space:nowrap}
+/* ---------- phone UI ---------- */
+.p-stat{height:44px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 6px;font-size:13px;font-weight:600;background:var(--panel)}
+.p-top{height:50px;flex:none;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+.p-top .ttl{flex:1;min-width:0;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-top .sub{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.p-body{flex:1;overflow:auto;min-height:0;background:var(--panel);position:relative}
+.p-tabs{height:84px;flex:none;display:flex;background:var(--panel);border-top:1px solid var(--line);padding:6px 4px 26px}
+.p-tabs button{flex:1;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--muted);position:relative}
+.p-tabs button.on{color:var(--accent);font-weight:600}
+.p-tabs svg{width:24px;height:24px}
+.p-badge{position:absolute;top:0;left:calc(50% + 6px);min-width:18px;height:16px;padding:0 4px;border-radius:8px;background:var(--warn);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.p-fab{position:absolute;left:12px;right:12px;bottom:96px;height:48px;border-radius:14px;border:1px solid var(--warn);background:var(--warn-weak);color:var(--warn);font-weight:600;display:flex;align-items:center;justify-content:space-between;padding:0 14px;cursor:pointer;z-index:5;box-shadow:0 6px 18px rgba(20,30,50,.14)}
+.p-pad{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.p-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 14px;border:0;border-bottom:1px solid #eef0f3;background:transparent;width:100%;text-align:left;cursor:pointer;color:var(--text)}
+.p-row .lb{flex:1;min-width:0}
+.p-row .lb b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-row .lb span{font-size:12px;color:var(--muted)}
+.p-row svg.chev{width:16px;height:16px;color:var(--muted);flex:none}
+.p-dh{padding:14px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.p-dh b{font-size:17px;line-height:1.3}
+.p-dh .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.p-btnrow{display:flex;gap:8px}
+.p-btnrow .btnp{flex:1;justify-content:center;height:46px}
+.p-btnrow .btns{height:46px}
+.p-seg{display:flex;margin:10px 14px 0;background:var(--sub);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.p-seg button{flex:1;height:34px;border:0;border-radius:7px;background:transparent;cursor:pointer;color:var(--muted);font-size:13px}
+.p-seg button.on{background:var(--panel);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.p-pick{margin:12px 14px 0;height:46px;border:1px solid var(--line2);border-radius:10px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;cursor:pointer;background:#f7f8fa;width:calc(100% - 28px)}
+.p-pick span{color:var(--muted);font-size:12px}
+.p-f{display:flex;flex-direction:column;gap:6px;padding:10px 14px;border-bottom:1px solid #eef0f3}
+.p-f label{font-size:12.5px;color:var(--muted)}
+.p-f .ctl{height:44px}
+.p-card{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:#fff;cursor:pointer;text-align:left;width:100%}
+.p-card .top{display:flex;align-items:center;gap:8px}
+.p-card .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;color:var(--muted);min-width:24px}
+.p-card .nm{flex:1;font-weight:500}
+.p-card .gas{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.p-chips{display:flex;gap:6px;padding:10px 14px 0;overflow:auto}
+.p-chips button{height:32px;padding:0 12px;border-radius:16px;border:1px solid var(--line2);background:#fff;cursor:pointer;white-space:nowrap;font-size:12.5px}
+.p-chips button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.tel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 14px;border-bottom:1px solid #eef0f3}
+.tel .ga{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tel .val{font-weight:600;text-align:right}
+.tel .src{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tel .tm{font-size:12px;color:var(--muted);text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}
+.p-send{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px}
+.p-send .fld{flex:1;height:44px}
+.p-send .btnp{height:44px}
+.p-sheetbg{position:absolute;inset:0;background:rgba(15,20,30,.34);z-index:30;border:0;cursor:pointer}
+.p-sheet{position:absolute;left:0;right:0;bottom:0;z-index:31;background:var(--panel);border-radius:18px 18px 0 0;padding:0 0 30px;display:flex;flex-direction:column;max-height:78%}
+.p-sheet .shd{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 10px;font-weight:600;font-size:16px}
+.p-sheet .sbody{overflow:auto;padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:#fff;text-align:left;width:100%}
+.opt.on{border-color:var(--accent);background:var(--accent-weak)}
+.opt .rad{width:20px;height:20px;border-radius:50%;border:2px solid var(--line2);flex:none}
+.opt.on .rad{border:6px solid var(--accent)}
+.opt b{display:block;font-weight:500}
+.opt span{font-size:12px;color:var(--muted)}
+.prog{height:8px;border-radius:4px;background:#eef0f3;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.tag{font-size:11px;padding:2px 8px;border-radius:9px;white-space:nowrap;font-weight:500}
+.tag.tab{background:var(--accent-weak);color:var(--accent)}
+.tag.ok{background:var(--ok-weak);color:var(--ok)}
+.ptoast{position:absolute;left:16px;right:16px;bottom:100px;background:#1b2230;color:#fff;padding:11px 14px;border-radius:12px;font-size:13px;z-index:40;text-align:center}
+/* phone yes/no lists */
+.yn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.ynbox{border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.ynbox h3{margin:0;font-size:17px}
+.ynbox ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px;line-height:1.5;color:var(--muted)}
+.ynbox ul b{color:var(--text);font-weight:600}
+/* parameter editor diagrams */
+.diag{display:grid;grid-template-columns:1.6fr 1fr .62fr;gap:28px;align-items:end}
+.dg{display:flex;flex-direction:column;gap:10px}
+.dg .fr0{border:2px solid #1b2230;border-radius:12px;overflow:hidden;display:flex;background:#fff}
+.box{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;padding:6px;line-height:1.3}
+.b-pages{background:#e8effc;color:#1f5fd1}
+.b-fields{background:#e5f4ea;color:#1a7334}
+.b-help{background:#fff1df;color:#9a4a00}
+.dg .cap{font-size:13px;color:var(--muted);line-height:1.5}
+.dg .cap b{color:var(--text)}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;line-height:1.55;color:var(--muted);max-width:1000px}
+ul.plain b{color:var(--text)}
+</style>
+</helmet>
+
+<div class="pg">
+
+  <!-- ===== Header ===== -->
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <div class="eyebrow">XKNX Editor · UX-Redesign · Kleine Bildschirme</div>
+    <h1>Tablet: alles, nur anders gestapelt.<br>Phone: ein Vor-Ort-Modus.</h1>
+    <p class="lead">Der Browser-Modus (<span class="code">--web</span>) läuft heute schon auf Tablets und Phones und wechselt unter 1000 Einheiten Breite in kleinere Layouts (<span class="code">form_factor</span>: wide, columns, rows, rows3). Das Konzept setzt die neuen Zonen auf genau diese Stufen. Der Parameter-Editor behält seinen Inhalt; nur Seitenbaum und Hilfe ordnen sich um, wie es <span class="code">configure.py</span> heute schon für schmale Panels tut.</p>
+  </section>
+
+  <!-- ===== Verdict ===== -->
+  <section class="cards">
+    <div class="card">
+      <div class="dim">iPad mini quer · 1133 × 744</div>
+      <b>Volles Layout</b>
+      <span class="verdict v-ok">Geht ohne Abstriche</span>
+      <span>Bleibt im Layout „wide“. Navigator schmaler und einklappbar, der Inspektor legt sich über den Arbeitsbereich statt eine feste Spalte zu belegen. Zeilen 44 px hoch für Finger.</span>
+    </div>
+    <div class="card">
+      <div class="dim">iPad mini hoch · 744 × 1133</div>
+      <b>Volles Layout mit Überlagerungen</b>
+      <span class="verdict v-mid">Geht, mit Umbau</span>
+      <span>Leiste bleibt links, der Navigator wird zum Schiebe-Panel, der Inspektor zum Blatt von unten. Der Parameter-Editor hat 680 px: Seitenliste und Felder passen noch nebeneinander.</span>
+    </div>
+    <div class="card">
+      <div class="dim">Phone hoch · 390 × 844</div>
+      <b>Vor-Ort-Modus</b>
+      <span class="verdict v-lim">Geht für Aufgaben vor Ort</span>
+      <span>Eine Ansicht nach der anderen, Tab-Leiste unten. Gerät finden, Adresse vergeben, programmieren, Parameter ändern, Werte senden und lesen, Fehler ansehen. Projektieren im großen Stil bleibt am Tablet oder Desktop.</span>
+    </div>
+  </section>
+
+  <!-- ===== Simulator ===== -->
+  <section class="sec">
+    <h2>Klickdummy</h2>
+    <div class="simbar">
+      <div class="seg" role="tablist">
+        <button class="{{devCls.ipadL}}" onClick="{{toIpadL}}">iPad mini quer</button>
+        <button class="{{devCls.ipadP}}" onClick="{{toIpadP}}">iPad mini hoch</button>
+        <button class="{{devCls.phone}}" onClick="{{toPhone}}">Phone</button>
+      </div>
+      <span class="hint">Maßstab 1 : 1 in Browser-Einheiten. Alles Antippbare ist mindestens 40 px hoch.</span>
+    </div>
+
+    <div class="simwrap {{wrapCls}}">
+
+      <!-- ================= TABLET ================= -->
+      <sc-if value="{{isTablet}}" hint-placeholder-val="{{ true }}">
+      <div class="bezel">
+      <div class="screen {{scrCls}}">
+        <header class="t-top">
+          <button class="ib {{navBtnCls}}" onClick="{{toggleNav}}" aria-label="Navigator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg>
+          </button>
+          <img src="/_blob/0f0b152bc3764184a3f557234f496a9e" alt="XKNX Editor" width="30" height="30" style="display:block;border-radius:7px;flex:none">
+          <div class="t-proj"><b>Krausgasse 12 Top 26</b><span>{{projSub}}</span></div>
+          <button class="t-search" onClick="{{say.search}}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+            <span>{{searchText}}</span>
+          </button>
+          <button class="pill pending" onClick="{{say.pending}}">{{pendingText}}</button>
+          <button class="pill" onClick="{{say.conn}}"><span class="dot green"></span>{{connText}}</button>
+          <button class="ib {{inspBtnCls}}" onClick="{{toggleInsp}}" aria-label="Eigenschaften">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path></svg>
+          </button>
+        </header>
+        <div class="t-body">
+          <nav class="t-rail">
+            <button class="rb on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</button>
+            <button class="rb" onClick="{{say.rail}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Katalog</button>
+            <button class="rb" onClick="{{say.rail}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</button>
+            <button class="rb" onClick="{{say.rail}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Prüfung</button>
+            <button class="rb" onClick="{{say.rail}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"></path></svg>Werkzeuge</button>
+          </nav>
+
+          <sc-if value="{{showScrim}}" hint-placeholder-val="{{ false }}">
+            <button class="scrim" onClick="{{closeOverlays}}" aria-label="Schließen"></button>
+          </sc-if>
+
+          <sc-if value="{{showTNav}}" hint-placeholder-val="{{ true }}">
+          <aside class="t-nav {{tNavCls}}">
+            <div class="navhd">
+              <div class="tseg"><button class="on">Gebäude</button><button onClick="{{say.scope}}">Topologie</button><button onClick="{{say.scope}}">Gruppenadr.</button></div>
+              <div class="fld"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Filtern…</div>
+            </div>
+            <div class="list">
+              <sc-for list="{{tNavRows}}" as="r" hint-placeholder-count="12">
+                <sc-if value="{{r.isGrp}}" hint-placeholder-val="{{ false }}"><div class="grp">{{r.label}}</div></sc-if>
+                <sc-if value="{{r.isDev}}" hint-placeholder-val="{{ true }}">
+                  <button class="row {{r.cls}}" onClick="{{r.click}}"><span class="pa">{{r.pa}}</span><span class="lb">{{r.label}}</span><span class="dot {{r.dot}}"></span></button>
+                </sc-if>
+              </sc-for>
+            </div>
+          </aside>
+          </sc-if>
+
+          <main class="t-main">
+            <div class="dhead">
+              <div class="dtitle">
+                <div class="nm"><b>{{dev.name}}</b><span class="mono">{{dev.pa}}</span><span> · {{dev.app}} · {{dev.mfr}}</span></div>
+                <span class="chip {{dev.stCls}}">{{dev.stText}}</span>
+                <button class="btnp" onClick="{{say.prog}}">Programmieren ▾</button>
+                <button class="btns" onClick="{{say.more}}" aria-label="Weitere Aktionen">⋯</button>
+              </div>
+              <div class="tabs">
+                <button class="{{tTabCls.param}}" onClick="{{tTabParam}}">Parameter</button>
+                <button class="{{tTabCls.ko}}" onClick="{{tTabKo}}">Kommunikationsobjekte</button>
+                <button class="{{tTabCls.info}}" onClick="{{tTabInfo}}">Info</button>
+              </div>
+            </div>
+
+            <sc-if value="{{tShowParam}}" hint-placeholder-val="{{ true }}">
+            <div class="ed edfix">
+              <div class="pages">
+                <sc-for list="{{tPages}}" as="p" hint-placeholder-count="7">
+                  <button class="{{p.cls}}" onClick="{{p.pick}}">{{p.label}}</button>
+                </sc-for>
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+                <div class="form">
+                  <h4>{{pageTitle}}</h4>
+                  <sc-for list="{{fields}}" as="f" hint-placeholder-count="6">
+                    <div class="fr"><span>{{f.label}}</span><div class="ctl"><span>{{f.value}}</span><span class="u">{{f.unit}}</span></div></div>
+                  </sc-for>
+                </div>
+                <div class="help"><b>Hilfe:</b> {{helpText}}</div>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{tShowKo}}" hint-placeholder-val="{{ false }}">
+            <div class="kot">
+              <div class="kor h {{koRowCls}}"><span>#</span><span>Name</span><sc-if value="{{koWide}}" hint-placeholder-val="{{ true }}"><span>DPT</span></sc-if><span>Gruppenadressen</span><span>Flags</span></div>
+              <sc-for list="{{kos}}" as="k" hint-placeholder-count="6">
+                <div class="kor {{koRowCls}}"><span class="mono muted">{{k.n}}</span><span>{{k.name}}</span><sc-if value="{{koWide}}" hint-placeholder-val="{{ true }}"><span class="muted">{{k.dpt}}</span></sc-if><span>
+                  <sc-for list="{{k.gas}}" as="g" hint-placeholder-count="1"><span class="gac">{{g}}</span> </sc-for>
+                  <sc-if value="{{k.noGa}}" hint-placeholder-val="{{ false }}"><span class="muted">–</span></sc-if>
+                </span><span class="flags">{{k.flags}}</span></div>
+              </sc-for>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{tShowInfo}}" hint-placeholder-val="{{ false }}">
+            <div class="ibody" style="padding:16px 20px">
+              <div class="kv"><span>Hersteller</span><span>{{dev.mfr}}</span></div>
+              <div class="kv"><span>Applikation</span><span>{{dev.app}}</span></div>
+              <div class="kv"><span>Raum</span><span>{{dev.room}}</span></div>
+              <div class="kv"><span>Status</span><span>{{dev.stText}}</span></div>
+            </div>
+            </sc-if>
+          </main>
+
+          <sc-if value="{{tInspOpen}}" hint-placeholder-val="{{ false }}">
+          <aside class="insp {{inspCls}}">
+            <sc-if value="{{isPortrait}}" hint-placeholder-val="{{ false }}"><div class="grab"></div></sc-if>
+            <div class="ihd">Eigenschaften: Gerät<button class="ib" onClick="{{toggleInsp}}" aria-label="Schließen">✕</button></div>
+            <div class="ibody">
+              <div class="kv"><span>Name</span><span>{{dev.name}}</span></div>
+              <div class="kv"><span>Adresse</span><span class="mono">{{dev.pa}}</span></div>
+              <div class="kv"><span>Raum</span><span>{{dev.room}}</span></div>
+              <div class="kv"><span>Applikation</span><span>{{dev.app}}</span></div>
+              <div class="kv"><span>Status</span><span>{{dev.stText}}</span></div>
+              <div class="hint">{{inspHint}}</div>
+            </div>
+          </aside>
+          </sc-if>
+
+          <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="ttoast">{{toast}}</div></sc-if>
+        </div>
+        <footer class="t-status">
+          <button onClick="{{say.conn}}"><span class="dot green"></span>Verbunden über 1.1.0 IP-Router</button>
+          <button onClick="{{say.pending}}">5 Geräte ausstehend</button>
+          <span style="margin-left:auto">Vorgänge: keine</span>
+        </footer>
+      </div>
+      </div>
+      </sc-if>
+
+      <!-- ================= PHONE ================= -->
+      <sc-if value="{{isPhone}}" hint-placeholder-val="{{ false }}">
+      <div class="bezel ph">
+      <div class="screen sc-ph">
+        <div class="p-stat"><span>9:41</span><span>●●● ᯤ ▮</span></div>
+        <header class="p-top">
+          <sc-if value="{{pBack}}" hint-placeholder-val="{{ false }}">
+            <button class="ib" onClick="{{pGoBack}}" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          </sc-if>
+          <sc-if value="{{pNoBack}}" hint-placeholder-val="{{ true }}">
+            <img src="/_blob/0f0b152bc3764184a3f557234f496a9e" alt="XKNX Editor" width="30" height="30" style="display:block;border-radius:7px;flex:none;margin:0 4px">
+          </sc-if>
+          <div class="ttl">{{pTitle}}<span class="sub">{{pSub}}</span></div>
+          <button class="ib" onClick="{{say.psearch}}" aria-label="Suchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+          <button class="ib" onClick="{{say.conn}}" aria-label="Verbindung"><span class="dot green" style="width:10px;height:10px"></span></button>
+        </header>
+
+        <div class="p-body">
+          <!-- Projekt: Liste -->
+          <sc-if value="{{pShowNav}}" hint-placeholder-val="{{ true }}">
+            <div class="p-seg"><button class="on">Gebäude</button><button onClick="{{say.scope}}">Topologie</button><button onClick="{{say.scope}}">GA</button></div>
+            <div class="p-pad" style="padding-bottom:4px"><div class="fld" style="height:42px">Gerät oder Raum suchen…</div></div>
+            <sc-for list="{{pNavRows}}" as="r" hint-placeholder-count="10">
+              <sc-if value="{{r.isGrp}}" hint-placeholder-val="{{ false }}"><div class="grp">{{r.label}}</div></sc-if>
+              <sc-if value="{{r.isDev}}" hint-placeholder-val="{{ true }}">
+                <button class="p-row" onClick="{{r.click}}"><span class="dot {{r.dot}}"></span><span class="lb"><b>{{r.label}}</b><span class="mono">{{r.pa}}</span><span> · {{r.app}}</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"></path></svg></button>
+              </sc-if>
+            </sc-for>
+            <div style="height:70px"></div>
+          </sc-if>
+
+          <!-- Projekt: Gerät -->
+          <sc-if value="{{pShowDev}}" hint-placeholder-val="{{ false }}">
+            <div class="p-dh">
+              <b>{{pdev.name}}</b>
+              <div class="meta"><span class="mono">{{pdev.pa}}</span><span>{{pdev.room}}</span><span class="chip {{pdev.stCls}}">{{pdev.stText}}</span></div>
+              <div class="p-btnrow"><button class="btnp" onClick="{{openProg}}">Programmieren…</button><button class="btns" onClick="{{say.more}}" aria-label="Weitere Aktionen">⋯</button></div>
+            </div>
+            <div class="p-seg"><button class="{{pTabCls.param}}" onClick="{{pTabParam}}">Parameter</button><button class="{{pTabCls.ko}}" onClick="{{pTabKo}}">Objekte</button><button class="{{pTabCls.info}}" onClick="{{pTabInfo}}">Info</button></div>
+
+            <sc-if value="{{pIsParam}}" hint-placeholder-val="{{ true }}">
+              <button class="p-pick" onClick="{{openPages}}"><b>{{pPageTitle}}</b><span>Seite {{pPageNo}} ▾</span></button>
+              <div class="edfix" style="padding-bottom:28px">
+                <sc-for list="{{pFields}}" as="f" hint-placeholder-count="6">
+                  <div class="p-f"><label>{{f.label}}</label><div class="ctl"><span>{{f.value}}</span><span class="u">{{f.unit}} ▾</span></div></div>
+                </sc-for>
+                <div class="p-pad"><button class="btns" style="justify-content:center" onClick="{{say.help}}">Hilfe zu dieser Seite</button></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{pIsKo}}" hint-placeholder-val="{{ false }}">
+              <div class="p-pad">
+                <sc-for list="{{pKos}}" as="k" hint-placeholder-count="5">
+                  <button class="p-card" onClick="{{k.open}}">
+                    <div class="top"><span class="num">{{k.n}}</span><span class="nm">{{k.name}}</span><span class="flags">{{k.flags}}</span></div>
+                    <div class="gas"><sc-for list="{{k.gas}}" as="g" hint-placeholder-count="1"><span class="gac">{{g}}</span></sc-for><sc-if value="{{k.noGa}}" hint-placeholder-val="{{ false }}"><span class="muted" style="font-size:12px">Nicht verknüpft · antippen zum Verknüpfen</span></sc-if></div>
+                  </button>
+                </sc-for>
+                <div class="hint">Antippen öffnet das Objekt als Blatt. Mehrfachauswahl und Namensvorlagen gibt es am Tablet.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{pIsInfo}}" hint-placeholder-val="{{ false }}">
+              <div class="p-pad">
+                <div class="kv"><span>Hersteller</span><span>{{pdev.mfr}}</span></div>
+                <div class="kv"><span>Applikation</span><span>{{pdev.app}}</span></div>
+                <div class="kv"><span>Raum</span><span>{{pdev.room}}</span></div>
+              </div>
+            </sc-if>
+            <div style="height:70px"></div>
+          </sc-if>
+
+          <!-- Bus -->
+          <sc-if value="{{pShowBus}}" hint-placeholder-val="{{ false }}">
+            <div class="p-chips">
+              <button class="{{busCls.all}}" onClick="{{busAll}}">Alle</button>
+              <button class="{{busCls.w}}" onClick="{{busW}}">Schreiben</button>
+              <button class="{{busCls.r}}" onClick="{{busR}}">Lesen / Antwort</button>
+              <button onClick="{{say.busmore}}">Filter…</button>
+            </div>
+            <div style="padding-top:6px">
+              <sc-for list="{{tels}}" as="t" hint-placeholder-count="8">
+                <div class="tel"><span class="ga"><span class="mono">{{t.ga}}</span> {{t.gaName}}</span><span class="val">{{t.val}}</span><span class="src">{{t.type}} · {{t.src}}</span><span class="tm">{{t.tm}}</span></div>
+              </sc-for>
+            </div>
+            <div style="height:70px"></div>
+          </sc-if>
+
+          <!-- Prüfung -->
+          <sc-if value="{{pShowCheck}}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{issues}}" as="i" hint-placeholder-count="5">
+              <button class="p-row" onClick="{{i.click}}"><span class="dot {{i.dot}}"></span><span class="lb"><b>{{i.title}}</b><span>{{i.sub}}</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"></path></svg></button>
+            </sc-for>
+          </sc-if>
+
+          <!-- Mehr -->
+          <sc-if value="{{pShowMore}}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{more}}" as="m" hint-placeholder-count="8">
+              <button class="p-row" onClick="{{say.moreItem}}"><span class="lb"><b>{{m.label}}</b><span>{{m.sub}}</span></span><sc-if value="{{m.tab}}" hint-placeholder-val="{{ false }}"><span class="tag tab">Tablet empfohlen</span></sc-if></button>
+            </sc-for>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{pShowSend}}" hint-placeholder-val="{{ false }}">
+          <div class="p-send" style="bottom:84px"><div class="fld">7/1/14 Wohnzimmertür Jalousie</div><div class="fld" style="flex:none;width:74px">Ab</div><button class="btnp" onClick="{{say.send}}">Senden</button></div>
+        </sc-if>
+
+        <sc-if value="{{pShowFab}}" hint-placeholder-val="{{ true }}">
+          <button class="p-fab" onClick="{{say.pending}}"><span>5 Geräte ausstehend</span><span>Programmieren ›</span></button>
+        </sc-if>
+
+        <nav class="p-tabs">
+          <button class="{{pBotCls.projekt}}" onClick="{{botProjekt}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</button>
+          <button class="{{pBotCls.bus}}" onClick="{{botBus}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</button>
+          <button class="{{pBotCls.check}}" onClick="{{botCheck}}"><span class="p-badge">274</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Prüfung</button>
+          <button class="{{pBotCls.more}}" onClick="{{botMore}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>Mehr</button>
+        </nav>
+
+        <!-- sheets -->
+        <sc-if value="{{pSheetOpen}}" hint-placeholder-val="{{ false }}">
+          <button class="p-sheetbg" onClick="{{closeSheet}}" aria-label="Schließen"></button>
+          <div class="p-sheet">
+            <div class="grab" style="margin-bottom:8px"></div>
+            <sc-if value="{{sheetProg}}" hint-placeholder-val="{{ true }}">
+              <div class="shd">Programmieren<span class="mono muted" style="font-size:12px;font-weight:400">{{pdev.pa}}</span></div>
+              <div class="sbody">
+                <sc-for list="{{scopes}}" as="o" hint-placeholder-count="6">
+                  <button class="opt {{o.cls}}" onClick="{{o.pick}}"><span class="rad"></span><span><b>{{o.label}}</b><span>{{o.sub}}</span></span></button>
+                </sc-for>
+                <sc-if value="{{progRunning}}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:6px;padding:6px 2px"><span style="font-size:12.5px">{{progText}}</span><div class="prog"><i style="{{progStyle}}"></i></div></div>
+                </sc-if>
+                <button class="btnp" style="justify-content:center;height:48px;margin-top:4px" onClick="{{startProg}}">{{progBtn}}</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{sheetPages}}" hint-placeholder-val="{{ false }}">
+              <div class="shd">Parameterseite</div>
+              <div class="sbody">
+                <sc-for list="{{pPages}}" as="p" hint-placeholder-count="7">
+                  <button class="opt {{p.cls}}" onClick="{{p.pick}}"><span class="rad"></span><span><b>{{p.label}}</b></span></button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{sheetKo}}" hint-placeholder-val="{{ false }}">
+              <div class="shd">{{sk.n}} · {{sk.name}}</div>
+              <div class="sbody">
+                <div class="kv"><span>Datenpunkttyp</span><span>{{sk.dpt}}</span></div>
+                <div class="kv"><span>Flags</span><span class="flags">{{sk.flags}}</span></div>
+                <div class="kv"><span>Gruppenadressen</span><span><sc-for list="{{sk.gas}}" as="g" hint-placeholder-count="1"><span class="gac">{{g}}</span> </sc-for><sc-if value="{{sk.noGa}}" hint-placeholder-val="{{ false }}">–</sc-if></span></div>
+                <div class="kv"><span>Letzter Wert</span><span>{{sk.last}}</span></div>
+                <div class="p-btnrow" style="margin-top:6px"><button class="btns" style="flex:1;justify-content:center" onClick="{{say.link}}">Verknüpfen…</button><button class="btns" style="flex:1;justify-content:center" onClick="{{say.read}}">Wert lesen</button></div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="ptoast">{{toast}}</div></sc-if>
+      </div>
+      </div>
+      </sc-if>
+
+      <!-- notes -->
+      <div class="notes">
+        <sc-for list="{{notes}}" as="n" hint-placeholder-count="5">
+          <div class="note"><span class="n">{{n.no}}</span><div><b>{{n.title}}</b><span>{{n.text}}</span></div></div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Jalousieaktor on the iPhone ===== -->
+  <section class="sec">
+    <h2>Der Jalousieaktor auf dem iPhone</h2>
+    <p>Dasselbe Gerät wie oben auf dem iPad: 1.1.16 Jalousieaktor 8 fach, Seite Kanal A. Die Felder und ihre Werte kommen unverändert aus der Gerätekonfiguration; nur die Anordnung passt sich an.</p>
+    <div style="display:flex;gap:19px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:14px;width:414px"><div class="bezel ph"><div class="screen sc-ph">
+        <div class="p-stat"><span>9:41</span><span>●●● ᯤ ▮</span></div>
+        <header class="p-top">
+          <button class="ib" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <div class="ttl">Jalousieaktor 8 fach<span class="sub">1.1.16 · Verteiler Abstellraum</span></div>
+          <button class="ib" aria-label="Suchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+          <button class="ib" aria-label="Verbindung"><span class="dot green" style="width:10px;height:10px"></span></button>
+        </header>
+        <div class="p-body"><div class="p-dh">
+            <b>Jalousieaktor 8 fach</b>
+            <div class="meta"><span class="mono">1.1.16</span><span>Jalousie, Rollade 8-fach V3.6 · MDT</span><span class="chip ok">Programmiert</span></div>
+            <div class="p-btnrow"><button class="btnp">Programmieren…</button><button class="btns" aria-label="Weitere Aktionen">⋯</button></div>
+          </div><div class="p-seg"><button class="on">Parameter</button><button class="">Objekte</button><button class="">Info</button></div><button class="p-pick"><b>Kanal A</b><span>Seite 2 von 7 ▾</span></button><div class="p-f"><label>Betriebsart</label><div class="ctl"><span>Jalousie</span><span class="u"> ▾</span></div></div><div class="p-f"><label>Fahrzeit Auf</label><div class="ctl"><span>52</span><span class="u">s ▾</span></div></div><div class="p-f"><label>Fahrzeit Ab</label><div class="ctl"><span>50</span><span class="u">s ▾</span></div></div><div class="p-f"><label>Lamellenverstellzeit</label><div class="ctl"><span>1200</span><span class="u">ms ▾</span></div></div><div class="p-f"><label>Windalarm</label><div class="ctl"><span>Aktiv</span><span class="u"> ▾</span></div></div><div class="p-f"><label>Regenalarm</label><div class="ctl"><span>Nicht aktiv</span><span class="u"> ▾</span></div></div><div class="p-pad"><button class="btns" style="justify-content:center">Hilfe zu dieser Seite</button></div></div>
+        <nav class="p-tabs"><button class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</button><button class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</button><button class=""><span class="p-badge">274</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Prüfung</button><button class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>Mehr</button></nav>
+      </div></div><div class="note"><span class="n">1</span><div><b>Parameter, Kanal A</b><span>Seitenwahl als Knopf oben (öffnet ein Blatt mit allen sieben Seiten), darunter die Felder in voller Breite, Label über dem Feld. Die Hilfe kommt auf Wunsch als Blatt.</span></div></div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;width:414px"><div class="bezel ph"><div class="screen sc-ph">
+        <div class="p-stat"><span>9:41</span><span>●●● ᯤ ▮</span></div>
+        <header class="p-top">
+          <button class="ib" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <div class="ttl">Jalousieaktor 8 fach<span class="sub">1.1.16 · Verteiler Abstellraum</span></div>
+          <button class="ib" aria-label="Suchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+          <button class="ib" aria-label="Verbindung"><span class="dot green" style="width:10px;height:10px"></span></button>
+        </header>
+        <div class="p-body"><div class="p-dh">
+            <b>Jalousieaktor 8 fach</b>
+            <div class="meta"><span class="mono">1.1.16</span><span>Jalousie, Rollade 8-fach V3.6 · MDT</span><span class="chip ok">Programmiert</span></div>
+            <div class="p-btnrow"><button class="btnp">Programmieren…</button><button class="btns" aria-label="Weitere Aktionen">⋯</button></div>
+          </div><div class="p-seg"><button class="">Parameter</button><button class="on">Objekte</button><button class="">Info</button></div><div class="p-chips"><button class="on">Kanal A</button><button>Kanal B</button><button>Kanal C</button><button>Zentral</button><button>Alle</button></div><div class="p-pad"><div class="p-card"><div class="top"><span class="num">0</span><span class="nm">Kanal A Auf/Ab</span><span class="flags">K·S··</span></div><div class="gas"><span class="gac">7/1/14</span><span class="gac">7/1/4</span></div></div><div class="p-card"><div class="top"><span class="num">1</span><span class="nm">Kanal A Lamelle/Stopp</span><span class="flags">K·S··</span></div><div class="gas"><span class="gac">7/1/10</span></div></div><div class="p-card"><div class="top"><span class="num">2</span><span class="nm">Kanal A Absolute Position</span><span class="flags">K·S··</span></div><div class="gas"><span class="muted" style="font-size:12px">Nicht verknüpft · antippen zum Verknüpfen</span></div></div><div class="p-card"><div class="top"><span class="num">3</span><span class="nm">Kanal A Status Position</span><span class="flags">KL·Ü·</span></div><div class="gas"><span class="gac">7/1/20</span></div></div><div class="p-card"><div class="top"><span class="num">4</span><span class="nm">Kanal A Windalarm</span><span class="flags">K·S··</span></div><div class="gas"><span class="gac">12/7/5</span></div></div><div class="p-card"><div class="top"><span class="num">5</span><span class="nm">Kanal A Status Fahrt</span><span class="flags">KL·Ü·</span></div><div class="gas"><span class="muted" style="font-size:12px">Nicht verknüpft · antippen zum Verknüpfen</span></div></div></div></div>
+        <nav class="p-tabs"><button class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</button><button class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</button><button class=""><span class="p-badge">274</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Prüfung</button><button class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>Mehr</button></nav>
+      </div></div><div class="note"><span class="n">2</span><div><b>Kommunikationsobjekte als Karten</b><span>Chips filtern nach Kanal, wie die Kanal-Chips am Desktop. Jede Karte zeigt Nummer, Name, Flags und Gruppenadressen; antippen öffnet Verknüpfen und Wert lesen.</span></div></div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;width:414px"><div class="bezel ph"><div class="screen sc-ph">
+        <div class="p-stat"><span>9:41</span><span>●●● ᯤ ▮</span></div>
+        <header class="p-top">
+          <button class="ib" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <div class="ttl">Jalousieaktor 8 fach<span class="sub">1.1.16 · Verteiler Abstellraum</span></div>
+          <button class="ib" aria-label="Suchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+          <button class="ib" aria-label="Verbindung"><span class="dot green" style="width:10px;height:10px"></span></button>
+        </header>
+        <div class="p-body"><div class="p-dh">
+            <b>Jalousieaktor 8 fach</b>
+            <div class="meta"><span class="mono">1.1.16</span><span>Jalousie, Rollade 8-fach V3.6 · MDT</span><span class="chip ok">Programmiert</span></div>
+            <div class="p-btnrow"><button class="btnp">Programmieren…</button><button class="btns" aria-label="Weitere Aktionen">⋯</button></div>
+          </div><div class="p-seg"><button class="on">Parameter</button><button class="">Objekte</button><button class="">Info</button></div><button class="p-pick"><b>Kanal A</b><span>Seite 2 von 7 ▾</span></button><div class="p-f"><label>Betriebsart</label><div class="ctl"><span>Jalousie</span><span class="u"> ▾</span></div></div><div class="p-f"><label>Fahrzeit Auf</label><div class="ctl"><span>52</span><span class="u">s ▾</span></div></div><div class="p-f"><label>Fahrzeit Ab</label><div class="ctl"><span>50</span><span class="u">s ▾</span></div></div><div class="p-f"><label>Lamellenverstellzeit</label><div class="ctl"><span>1200</span><span class="u">ms ▾</span></div></div><div class="p-f"><label>Windalarm</label><div class="ctl"><span>Aktiv</span><span class="u"> ▾</span></div></div><div class="p-f"><label>Regenalarm</label><div class="ctl"><span>Nicht aktiv</span><span class="u"> ▾</span></div></div></div>
+        <nav class="p-tabs"><button class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V8l7-5 7 5v13"></path><path d="M9 21v-6h6v6"></path></svg>Projekt</button><button class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Bus</button><button class=""><span class="p-badge">274</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Prüfung</button><button class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>Mehr</button></nav><div class="p-sheetbg"></div>
+        <div class="p-sheet">
+          <div class="grab" style="margin-bottom:8px"></div>
+          <div class="shd">Programmieren<span class="mono muted" style="font-size:12px;font-weight:400">1.1.16</span></div>
+          <div class="sbody"><div class="opt "><span class="rad"></span><span><b>Physikalische Adresse</b><span>Programmiertaste am Gerät drücken</span></span></div><div class="opt on"><span class="rad"></span><span><b>Partiell</b><span>Nur Änderungen (empfohlen)</span></span></div><div class="opt "><span class="rad"></span><span><b>Partiell: Parameter</b><span>Nur geänderte Parameter</span></span></div><div class="opt "><span class="rad"></span><span><b>Partiell: Gruppenkommunikation</b><span>Nur Verknüpfungen</span></span></div><div class="opt "><span class="rad"></span><span><b>Vollständig</b><span>Applikation, Parameter, Verknüpfungen</span></span></div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:6px 2px"><span style="font-size:12.5px">Lade Parameter … 64 %</span><div class="prog"><i style="width:64%"></i></div></div>
+            <button class="btnp" style="justify-content:center;height:48px;margin-top:4px">Abbrechen</button>
+          </div>
+        </div>
+      </div></div><div class="note"><span class="n">3</span><div><b>Programmieren als Blatt</b><span>Alle Umfänge zur Wahl, Partiell vorgewählt, der Fortschritt im selben Blatt. Das Blatt lässt sich wegwischen, der Vorgang läuft weiter.</span></div></div></div>
+    </div>
+  </section>
+
+  <!-- ===== Zone table ===== -->
+  <section class="sec">
+    <h2>Was aus jeder Zone wird</h2>
+    <div class="tbl">
+      <div class="tr5 thd"><span>Zone</span><span>Desktop (wide)</span><span>iPad mini quer (wide)</span><span>iPad mini hoch (rows3)</span><span>Phone hoch (rows)</span></div>
+      <div class="tr5"><b>Kopfleiste</b><span>Projekt, Suche ⌘P, ausstehend, Verbindung, Inspektor</span><span>gleich, Suche schmaler, Knopf zum Einklappen des Navigators</span><span>Suche als Feld ohne Kürzel; der Navigator-Knopf öffnet ein Schiebe-Panel</span><span>Titel der Ansicht, Zurück, Suche als Symbol, Verbindung als Punkt</span></div>
+      <div class="tr5"><b>Aktivitätsleiste</b><span>links, 64 px</span><span>links, 60 px</span><span>links, 60 px</span><span>Tab-Leiste unten: Projekt, Bus, Prüfung, Mehr</span></div>
+      <div class="tr5"><b>Navigator</b><span>feste Spalte 310 px</span><span>Spalte 270 px, einklappbar</span><span>Schiebe-Panel über dem Inhalt</span><span>eigene Ansicht (Liste), Gerät antippen öffnet es</span></div>
+      <div class="tr5"><b>Arbeitsbereich</b><span>Gerät mit Tabs</span><span>gleich</span><span>volle Breite</span><span>Gerät als eigene Ansicht, Tabs als Segmente</span></div>
+      <div class="tr5"><b>Inspektor</b><span>feste Spalte</span><span>Panel von rechts über dem Inhalt</span><span>Blatt von unten, halbe Höhe</span><span>Blatt von unten, je Objekt</span></div>
+      <div class="tr5"><b>Unterer Bereich</b><span>Schublade: Vorgänge, Telegramme, Log, Verlauf</span><span>Schublade, öffnet sich über dem Inhalt</span><span>Schublade, eigener Bereich wie heute bei rows3</span><span>Vorgänge im Programmier-Blatt, Telegramme im Tab Bus, Log und Verlauf unter Mehr</span></div>
+      <div class="tr5"><b>Statusleiste</b><span>Verbindung, ausstehend, Vorgänge</span><span>gleich</span><span>gleich</span><span>entfällt: Verbindung oben, ausstehend als Leiste über den Tabs</span></div>
+      <div class="tr5"><b>Befehlspalette</b><span>Fenster mittig</span><span>gleich</span><span>gleich, volle Breite</span><span>Vollbild mit Tastatur</span></div>
+      <div class="tr5"><b>Dialoge</b><span>mittig</span><span>mittig</span><span>mittig, max. Breite</span><span>Vollbild oder Blatt (<span class="code">begin_dialog</span> tut das heute schon)</span></div>
+    </div>
+  </section>
+
+  <!-- ===== Phone scope ===== -->
+  <section class="sec">
+    <h2>Phone: was gut geht und was nicht</h2>
+    <p>Am Phone steht man im Verteiler oder vor dem Taster. Dort braucht man ein Gerät schnell, eine Adresse, einen Wert und einen Knopf zum Programmieren. Das Projektieren mit vielen Spalten, Mehrfachauswahl und Ziehen bleibt erreichbar, ist aber nicht für 390 px gebaut.</p>
+    <div class="yn">
+      <div class="ynbox">
+        <h3>Für das Phone gebaut</h3>
+        <ul>
+          <li><b>Gerät finden</b> über Raum, Adresse oder Suche, Status auf einen Blick</li>
+          <li><b>Physikalische Adresse vergeben</b> mit Programmiertaste und <b>programmieren</b> (alle Umfänge, Fortschritt im Blatt)</li>
+          <li><b>Parameter ändern</b>: eine Seite nach der anderen, Felder untereinander, Seitenwahl als Blatt</li>
+          <li><b>Kommunikationsobjekte</b> als Karten: Gruppenadressen sehen, eine Verknüpfung setzen oder lösen, Wert lesen</li>
+          <li><b>Gruppenmonitor</b> mit Filter-Chips und <b>Senden-Leiste</b> für Funktionstests</li>
+          <li><b>Prüfung</b>: Befunde ansehen und zum Gerät springen</li>
+        </ul>
+      </div>
+      <div class="ynbox">
+        <h3>Am Tablet oder Desktop</h3>
+        <ul>
+          <li><b>Katalog</b> durchsuchen und .knxprod importieren (geht, aber Dateien und Tabellen sind am Phone mühsam)</li>
+          <li><b>Gruppenadressen in Mengen</b>: verschieben, umbenennen, Namensvorlagen, Massenanlage</li>
+          <li><b>KO-Tabelle mit Mehrfachauswahl</b>, Kopieren und Einfügen von Verknüpfungen</li>
+          <li><b>Zeitverlauf, Statistik, Busdiagramm</b>: nur lesen, mit Zwei-Finger-Zoom (<span class="code">pinch_area</span>)</li>
+          <li><b>Busmonitor-Rohdaten</b>, Export, Signieren, Keyring, Backups</li>
+          <li>Diese Punkte stehen unter <b>Mehr</b> mit dem Hinweis „Tablet empfohlen“ und öffnen das normale Panel.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Parameter editor ===== -->
+  <section class="sec">
+    <h2>Der Parameter-Editor bleibt, nur seine Teile rücken</h2>
+    <p>Was auf einer Seite steht und wie die Felder aussehen, gibt die Gerätekonfiguration vor. Ändern darf sich nur, wo Seitenbaum, Felder und Hilfe sitzen. Genau das macht <span class="code">configure.py</span> heute schon: Seiten über den Parametern, wenn das Panel schmal ist, eigene Hilfehöhe dafür (<span class="code">help_height_narrow</span>), auf dem Phone Hilfe anfangs aus.</p>
+    <div class="diag">
+      <div class="dg">
+        <div class="fr0" style="height:220px">
+          <div class="box b-pages" style="width:24%">Seitenbaum</div>
+          <div style="flex:1;display:flex;flex-direction:column"><div class="box b-fields" style="flex:1">Felder der Seite</div><div class="box b-help" style="height:56px">Hilfe</div></div>
+        </div>
+        <div class="cap"><b>Desktop und iPad quer:</b> Seitenbaum links, Felder rechts, Hilfe darunter. Zeilen auf dem iPad 44 px.</div>
+      </div>
+      <div class="dg">
+        <div class="fr0" style="height:300px">
+          <div class="box b-pages" style="width:30%">Seiten</div>
+          <div style="flex:1;display:flex;flex-direction:column"><div class="box b-fields" style="flex:1">Felder, Label über dem Feld wenn eng</div><div class="box b-help" style="height:56px">Hilfe</div></div>
+        </div>
+        <div class="cap"><b>iPad hoch:</b> wie quer, schmalere Seitenliste. Unter 560 px rückt das Label über das Feld, wie in den Einstellungen.</div>
+      </div>
+      <div class="dg">
+        <div class="fr0" style="height:360px;flex-direction:column">
+          <div class="box b-pages" style="height:52px">Seite ▾</div>
+          <div class="box b-fields" style="flex:1">Felder untereinander</div>
+          <div class="box b-help" style="height:44px">Hilfe als Blatt</div>
+        </div>
+        <div class="cap"><b>Phone:</b> Seitenwahl oben als Blatt, Felder in voller Breite, Hilfe auf Wunsch.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Implementation ===== -->
+  <section class="sec">
+    <h2>Umsetzung in der bestehenden App</h2>
+    <div class="tbl">
+      <div class="tr4 thd"><span>Baustein</span><span>Gibt es schon</span><span>Wo</span><span>Was dazukommt</span></div>
+      <div class="tr4"><b>Layout-Stufen nach Größe</b><span>ja</span><span class="code">main.form_factor</span><span>Die neuen Zonen statt der Dock-Bereiche auf die Stufen legen; Grenze 1000 bleibt, dazu eine Stufe 1280 für den überlagernden Inspektor.</span></div>
+      <div class="tr4"><b>Kompakte Layouts</b><span>ja</span><span class="code">compact_docking_splits</span><span>Navigator und Inspektor als Überlagerung statt als Split; Phone als Stapel von Ansichten mit Zurück.</span></div>
+      <div class="tr4"><b>Touch</b><span>ja</span><span class="code">touch_used</span>, <span class="code">touch_extra_padding</span></span><span>Zeilenhöhe 44 px bei Touch, Wischgesten für Schiebe-Panel und Blätter; langes Drücken bleibt das Kontextmenü.</span></div>
+      <div class="tr4"><b>Zoom einzelner Ansichten</b><span>ja</span><span class="code">web.pinch_area</span></span><span>Für Busdiagramm und Zeitverlauf auf dem Phone nutzen.</span></div>
+      <div class="tr4"><b>Dialoge und Tabellen</b><span>ja</span><span class="code">begin_dialog</span>, <span class="code">begin_data_table</span>, <span class="code">flow</span></span><span>Blatt von unten als weitere Form von <span class="code">begin_dialog</span> auf dem Phone.</span></div>
+      <div class="tr4"><b>Bildschirmtastatur</b><span>ja</span><span class="code">main.py</span> (Layout wartet beim Tippen)</span><span>Senden-Leiste und Suchfeld über der Tastatur halten.</span></div>
+      <div class="tr4"><b>Geteilter UI-Zustand</b><span>ja</span><span class="code">web</span>-Hub</span><span>Alle Browser teilen eine Oberfläche, das Layout folgt dem steuernden Gerät. Übernimmt das Phone die Steuerung, wechselt die Ansicht auf allen Geräten. Später denkbar: Layout je Browser.</span></div>
+    </div>
+    <ul class="plain">
+      <li><b>Native App?</b> Nicht nötig. Der Browser-Modus erreicht iPad und Phone schon heute; als Web-App auf dem Home-Bildschirm wirkt er wie eine App.</li>
+      <li><b>Größtes Risiko</b> sind Tabellen mit vielen Spalten (KO, GA, Telegramme). Auf dem Phone werden sie Karten oder zweizeilige Zeilen, auf dem iPad hoch fallen Nebenspalten weg (DPT, Funktion) und wandern in den Inspektor.</li>
+      <li><b>Phone quer</b> (844 × 390) fällt in „columns“: Liste links, Gerät rechts. Brauchbar zum Nachschauen, für Eingaben ist hoch besser.</li>
+    </ul>
+  </section>
+</div>
+
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dev: 'ipadL', tNav: true, tNavOver: false, tInsp: false, tSel: '1.1.16', tTab: 'param', tPage: 'a',
+      pBottom: 'projekt', pScreen: 'nav', pTab: 'param', pSheet: null, pSel: '1.1.16', pPage: 'a', pScope: 'pa',
+      pProg: null, pKo: null, bus: 'all', toast: ''
+    };
+  }
+  componentDidMount() { this.timer = setInterval(() => this.tick(), 300); }
+  componentWillUnmount() { clearInterval(this.timer); clearTimeout(this.toastT); }
+  tick() {
+    const p = this.state.pProg;
+    if (p === null || p >= 100) return;
+    const n = Math.min(100, p + 7);
+    this.setState({ pProg: n });
+    if (n >= 100) this.say('Programmiert: ' + this.state.pSel);
+  }
+  say(t) { clearTimeout(this.toastT); this.setState({ toast: t }); this.toastT = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  data() {
+    if (this._d) return this._d;
+    const D = {};
+    const dev = (pa, name, room, app, mfr, st, jal) => { D[pa] = { pa, name, room, app, mfr, st, jal: !!jal }; };
+    dev('1.1.0', 'OpenKNX: IP-Router (Dev)', 'Verteiler Abstellraum', 'IP-Router-Beta V5.2', 'OpenKNX', 'unknown');
+    dev('1.1.1', 'SCN-IP000.03 IP Interface mit Secure', 'Verteiler Abstellraum', 'IP Interface Secure V1.0', 'MDT', 'ok');
+    dev('1.1.7', 'Dimmaktor 8 fach', 'Verteiler Abstellraum', 'Dimmaktor 8-fach V2.2', 'MDT', 'ok');
+    dev('1.1.9', 'Schaltaktor 20 fach', 'Verteiler Abstellraum', 'Schaltaktor 20-fach V3.1', 'MDT', 'ok');
+    dev('1.1.16', 'Jalousieaktor 8 fach', 'Verteiler Abstellraum', 'Jalousie, Rollade 8-fach V3.6', 'MDT', 'ok', true);
+    dev('1.1.19', 'OpenKNX: Logikmodul 1', 'Verteiler Abstellraum', 'Logikmodul 4.1', 'OpenKNX', 'error');
+    dev('1.1.13', 'Bad Controller', 'Bad', 'Raumcontroller V1.3', 'MDT', 'pending');
+    dev('1.1.21', 'Unterverteiler Küche', 'Küche', 'Schaltaktor 8-fach V3.1', 'MDT', 'pending');
+    dev('1.1.36', 'Küche Controller', 'Küche', 'Raumcontroller V1.3', 'MDT', 'pending');
+    dev('1.1.48', 'OpenKNX: Klimasteuerung (HVAC)', 'Wohnzimmer', 'HVAC 0.9', 'OpenKNX', 'pending');
+    dev('1.2.2', 'OpenKNX: Touch-Display (Dev)', 'Wohnzimmer', 'Touch-Display 0.2', 'OpenKNX', 'ok');
+    dev('1.1.14', 'GPS Wetterstation', 'Dach', 'Wetterstation GPS V2.1', 'Elsner', 'ok');
+    const rooms = [['Verteiler Abstellraum', ['1.1.0', '1.1.1', '1.1.7', '1.1.9', '1.1.16', '1.1.19']], ['Bad', ['1.1.13']], ['Küche', ['1.1.21', '1.1.36']], ['Wohnzimmer', ['1.1.48', '1.2.2']], ['Dach', ['1.1.14']]];
+    const ch = (c) => [
+      { label: 'Betriebsart', value: 'Jalousie', unit: '' },
+      { label: 'Fahrzeit Auf', value: c === 'a' ? '52' : '48', unit: 's' },
+      { label: 'Fahrzeit Ab', value: c === 'a' ? '50' : '46', unit: 's' },
+      { label: 'Lamellenverstellzeit', value: '1200', unit: 'ms' },
+      { label: 'Windalarm', value: 'Aktiv', unit: '' },
+      { label: 'Regenalarm', value: 'Nicht aktiv', unit: '' }
+    ];
+    const jalPages = [['allg', 'Allgemein'], ['a', 'Kanal A'], ['b', 'Kanal B'], ['c', 'Kanal C'], ['d', 'Kanal D'], ['z', 'Zentralfunktion'], ['w', 'Wetteralarme']];
+    const genPages = [['allg', 'Allgemein'], ['a', 'Kanal 1'], ['b', 'Kanal 2']];
+    const forms = {
+      allg: [{ label: 'Verhalten bei Busspannungswiederkehr', value: 'Keine Reaktion', unit: '' }, { label: 'Sendeverzögerung nach Neustart', value: '5', unit: 's' }, { label: 'Zentralfunktion', value: 'Aktiv', unit: '' }, { label: 'Handbedienung', value: 'Freigegeben', unit: '' }],
+      z: [{ label: 'Zentral Auf/Ab', value: 'Aktiv', unit: '' }, { label: 'Zentral Lamelle', value: 'Aktiv', unit: '' }],
+      w: [{ label: 'Windalarm Überwachung', value: '30', unit: 'min' }, { label: 'Regenalarm Priorität', value: 'Hoch', unit: '' }]
+    };
+    const help = { allg: 'Legt fest, wie sich alle Kanäle nach dem Wiederkehren der Busspannung verhalten.', a: 'Fahrzeiten bestimmen, wie lange der Kanal für eine ganze Fahrt angesteuert wird. Etwas länger als gemessen einstellen.', z: 'Zentralobjekte wirken auf alle Kanäle, die hier freigegeben sind.', w: 'Alarme haben Vorrang vor Fahrbefehlen.' };
+    const KO = [
+      { n: '0', name: 'Kanal A Auf/Ab', dpt: '1.008 Auf/Ab', flags: 'K·S··', gas: ['7/1/14', '7/1/4'], last: 'Ab · 22:39' },
+      { n: '1', name: 'Kanal A Lamelle/Stopp', dpt: '1.007 Schritt', flags: 'K·S··', gas: ['7/1/10'], last: 'Stopp · 22:38' },
+      { n: '2', name: 'Kanal A Absolute Position', dpt: '5.001 Prozent', flags: 'K·S··', gas: [], last: '–' },
+      { n: '3', name: 'Kanal A Status Position', dpt: '5.001 Prozent', flags: 'KL·Ü·', gas: ['7/1/20'], last: '100 % · 22:39' },
+      { n: '4', name: 'Kanal A Windalarm', dpt: '1.005 Alarm', flags: 'K·S··', gas: ['12/7/5'], last: 'Kein Alarm' },
+      { n: '80', name: 'Zentral Auf/Ab', dpt: '1.008 Auf/Ab', flags: 'K·S··', gas: ['1/3/24'], last: 'Auf · 07:30' }
+    ];
+    const TELS = [
+      { ga: '7/1/14', gaName: 'Wohnzimmertür Jalousie', val: 'Ab', type: 'Schreiben', src: '1.1.40 Taster Wohnzimmer', tm: '22:39:12', k: 'w' },
+      { ga: '7/1/20', gaName: 'Status Position', val: '100 %', type: 'Antwort', src: '1.1.16 Jalousieaktor', tm: '22:39:12', k: 'r' },
+      { ga: '12/7/13', gaName: 'Wetterstation Helligkeit', val: '3 lx', type: 'Schreiben', src: '1.1.14 Wetterstation', tm: '22:38:58', k: 'w' },
+      { ga: '1/7/6', gaName: 'Außentemperatur', val: '4,6 °C', type: 'Schreiben', src: '1.1.14 Wetterstation', tm: '22:38:40', k: 'w' },
+      { ga: '7/1/10', gaName: 'Wohnzimmertür Lamelle', val: 'Stopp', type: 'Schreiben', src: '1.1.40 Taster Wohnzimmer', tm: '22:38:39', k: 'w' },
+      { ga: '7/1/20', gaName: 'Status Position', val: '–', type: 'Lesen', src: '1.1.255 XKNX Editor', tm: '22:38:37', k: 'r' },
+      { ga: '1/3/50', gaName: 'Diagnose Beschattung', val: 'OK', type: 'Schreiben', src: '1.1.16 Jalousieaktor', tm: '22:31:02', k: 'w' },
+      { ga: '12/7/1', gaName: 'Wetterstation Datum', val: '20.11.2026', type: 'Schreiben', src: '1.1.14 Wetterstation', tm: '22:30:00', k: 'w' }
+    ];
+    this._d = { D, rooms, ch, jalPages, genPages, forms, help, KO, TELS };
+    return this._d;
+  }
+  renderVals() {
+    const s = this.state;
+    const { D, rooms, ch, jalPages, genPages, forms, help, KO, TELS } = this.data();
+    const set = (o) => () => this.setState(o);
+    const ST = { ok: ['ok', 'Programmiert', 'green'], pending: ['warn', 'Ausstehend', 'orange'], error: ['err', 'Nicht in Betrieb', 'red'], unknown: ['neu', 'Status unbekannt', 'grey'] };
+    const isTablet = s.dev !== 'phone', isPortrait = s.dev === 'ipadP', isPhone = s.dev === 'phone';
+    const devView = (pa) => { const d = D[pa]; const st = ST[d.st]; return { ...d, stCls: st[0], stText: st[1] }; };
+    const pagesOf = (d) => d.jal ? jalPages : genPages;
+    const fieldsOf = (d, page) => forms[page] || (d.jal ? ch(page) : [{ label: 'Kanalfunktion', value: 'Aktiv', unit: '' }, { label: 'Verhalten nach Download', value: 'Unverändert', unit: '' }, { label: 'Einschaltverzögerung', value: '0', unit: 's' }]);
+    const sayFn = (t) => () => this.say(t);
+
+    // ---- tablet
+    const tdev = D[s.tSel];
+    const tPg = pagesOf(tdev);
+    const tPage = tPg.some(p => p[0] === s.tPage) ? s.tPage : 'allg';
+    const tNavRows = [];
+    rooms.forEach(([room, pas]) => {
+      tNavRows.push({ isGrp: true, isDev: false, label: room });
+      pas.forEach(pa => { const d = D[pa]; tNavRows.push({ isGrp: false, isDev: true, label: d.name, pa, dot: ST[d.st][2], cls: pa === s.tSel ? 'on' : '', click: () => this.setState({ tSel: pa, tPage: 'allg', tNavOver: false }) }); });
+    });
+    const showTNav = isPortrait ? s.tNavOver : s.tNav;
+    const kos = (tdev.jal ? KO : KO.slice(0, 2).map(k => ({ ...k, name: k.name.replace('Kanal A', 'Kanal 1') }))).map(k => ({ ...k, noGa: k.gas.length === 0 }));
+
+    // ---- phone
+    const pdev = D[s.pSel];
+    const pPg = pagesOf(pdev);
+    const pPage = pPg.some(p => p[0] === s.pPage) ? s.pPage : 'allg';
+    const pIdx = pPg.findIndex(p => p[0] === pPage);
+    const inDev = s.pBottom === 'projekt' && s.pScreen === 'dev';
+    const titles = { projekt: ['Krausgasse 12 Top 26', '57 Geräte · 5 ausstehend'], bus: ['Gruppenmonitor', 'Läuft · 1 248 Telegramme'], check: ['Prüfung', '274 Befunde'], more: ['Mehr', 'Alles Weitere'] };
+    const pNavRows = [];
+    rooms.forEach(([room, pas]) => {
+      pNavRows.push({ isGrp: true, isDev: false, label: room });
+      pas.forEach(pa => { const d = D[pa]; pNavRows.push({ isGrp: false, isDev: true, label: d.name, pa, app: d.app, dot: ST[d.st][2], click: () => this.setState({ pSel: pa, pScreen: 'dev', pTab: 'param', pPage: 'allg' }) }); });
+    });
+    const pKoList = (pdev.jal ? KO : KO.slice(0, 2)).map(k => ({ ...k, noGa: k.gas.length === 0, open: () => this.setState({ pSheet: 'ko', pKo: k.n }) }));
+    const skRaw = KO.find(k => k.n === s.pKo) || KO[0];
+    const scopesDef = [
+      ['pa', 'Physikalische Adresse', 'Programmiertaste am Gerät drücken'],
+      ['part', 'Partiell', 'Nur Änderungen (empfohlen)'],
+      ['partp', 'Partiell: Parameter', 'Nur geänderte Parameter'],
+      ['partg', 'Partiell: Gruppenkommunikation', 'Nur Verknüpfungen'],
+      ['full', 'Vollständig', 'Applikation, Parameter, Verknüpfungen'],
+      ['unload', 'Entladen', 'Applikation aus dem Gerät entfernen']
+    ];
+    const running = s.pProg !== null;
+    const busFilter = s.bus;
+    const tels = TELS.filter(t => busFilter === 'all' || t.k === busFilter);
+    const issues = [
+      { title: '5 Geräte nicht programmiert', sub: 'Bad Controller, Küche Controller, …', dot: 'orange', click: () => this.setState({ pBottom: 'projekt', pScreen: 'dev', pSel: '1.1.13' }) },
+      { title: 'Logikmodul 1 nicht in Betrieb', sub: '1.1.19 · Verteiler Abstellraum', dot: 'red', click: () => this.setState({ pBottom: 'projekt', pScreen: 'dev', pSel: '1.1.19' }) },
+      { title: '38 Objekte ohne Gruppenadresse', sub: '12 Geräte betroffen', dot: 'orange', click: sayFn('Öffnet die Liste der Objekte') },
+      { title: '17 Gruppenadressen ohne Datenpunkttyp', sub: 'Am Tablet in einem Schritt beheben', dot: 'grey', click: sayFn('Öffnet die Gruppenadressen') },
+      { title: '2 Gruppenadressen mit mehreren Sendern', sub: '1/3/24, 7/1/4', dot: 'grey', click: sayFn('Öffnet die Gruppenadressen') }
+    ];
+    const more = [
+      { label: 'Gruppenadressen', sub: 'Ansehen, umbenennen, Wert lesen und senden', tab: false },
+      { label: 'Katalog', sub: 'Gerät hinzufügen, .knxprod importieren', tab: true },
+      { label: 'Zeitverlauf und Statistik', sub: 'Nur lesen, mit Zwei-Finger-Zoom', tab: true },
+      { label: 'Busdiagramm', sub: 'Nur lesen, mit Zwei-Finger-Zoom', tab: true },
+      { label: 'Busmonitor (Rohdaten)', sub: 'Trennt die normale Verbindung', tab: true },
+      { label: 'Log und Änderungsverlauf', sub: 'Rückgängig, Wiederholen', tab: false },
+      { label: 'Export, Signieren, Keyring, Backups', sub: 'Dateien gehen über den Browser', tab: true },
+      { label: 'Einstellungen', sub: 'Sprache, Verbindung, Darstellung', tab: false }
+    ];
+
+    // ---- notes
+    const N = {
+      ipadL: [
+        ['Layout „wide“ bleibt', '1133 Einheiten sind mehr als die Grenze von 1000: alle Zonen bleiben, nur enger.'],
+        ['Navigator einklappbar', 'Über das Symbol links in der Kopfleiste, durch Wischen oder mit ⌘B. Dann hat der Parameter-Editor fast 1000 px.'],
+        ['Inspektor als Überlagerung', 'Unter 1280 px nimmt er keine feste Spalte, sondern legt sich von rechts über den Inhalt. Antippen daneben schließt ihn.'],
+        ['Finger statt Maus', 'Zeilen 44 px, Knöpfe 40 px, keine Funktion nur über Hover oder Tastenkürzel.']
+      ],
+      ipadP: [
+        ['Navigator als Schiebe-Panel', 'Symbol oben links oder vom Rand wischen. Ein Gerät antippen schließt das Panel.'],
+        ['Inspektor als Blatt', 'Kommt von unten, halbe Höhe; der Parameter-Editor bleibt darüber sichtbar.'],
+        ['Parameter-Editor nebeneinander', '684 px reichen für Seitenliste und Felder; die Hilfe bleibt darunter.'],
+        ['KO-Tabelle ohne Nebenspalten', 'DPT und Funktion wandern in den Inspektor, Name, Adressen und Flags bleiben.'],
+        ['Heute schon „rows3“', 'Der Browser-Modus hat diese Stufe bereits (ab 600 × 800 hoch). Neu ist nur, was in die Bereiche kommt.']
+      ],
+      phone: [
+        ['Eine Ansicht nach der anderen', 'Liste → Gerät → Blatt. Zurück oben links, Tabs unten mit dem Daumen erreichbar.'],
+        ['Programmieren vorne', 'Ausstehende Geräte als Leiste über den Tabs; das Blatt zeigt alle Umfänge und den Fortschritt.'],
+        ['Parameter seitenweise', 'Seitenwahl als Blatt, Felder untereinander mit Label darüber. Die Inhalte bleiben die der Gerätekonfiguration.'],
+        ['Objekte als Karten', 'Name, Flags, Adressen. Antippen öffnet ein Blatt mit Verknüpfen und Wert lesen.'],
+        ['Bus zum Testen', 'Gruppenmonitor mit Filter-Chips und einer Senden-Leiste über den Tabs.']
+      ]
+    };
+    const notes = N[s.dev].map((n, i) => ({ no: String(i + 1), title: n[0], text: n[1] }));
+
+    return {
+      devCls: { ipadL: s.dev === 'ipadL' ? 'on' : '', ipadP: s.dev === 'ipadP' ? 'on' : '', phone: isPhone ? 'on' : '' },
+      toIpadL: set({ dev: 'ipadL', tNavOver: false, tInsp: false }), toIpadP: set({ dev: 'ipadP', tNavOver: false, tInsp: false }), toPhone: set({ dev: 'phone' }),
+      wrapCls: s.dev === 'ipadL' ? 'col' : '',
+      isTablet, isPortrait, isPhone, notes,
+      toast: s.toast, hasToast: !!s.toast,
+      say: {
+        search: sayFn('Öffnet die Befehlspalette'), pending: sayFn('Öffnet die Liste der ausstehenden Geräte'), conn: sayFn('Verbindung: 1.1.0 IP-Router, Tunnel 1'),
+        rail: sayFn('Wie im Hauptentwurf'), scope: sayFn('Wechselt die Sicht des Navigators'), prog: sayFn('Menü: Partiell, Vollständig, Adresse, …'), more: sayFn('Weitere Aktionen: Auslesen, Neustart, …'),
+        psearch: sayFn('Suche im Vollbild mit Tastatur'), help: sayFn('Hilfe als Blatt von unten'), busmore: sayFn('Filter nach Gerät, Adresse, Zeitraum'),
+        moreItem: sayFn('Öffnet das normale Panel'), send: sayFn('Gesendet: 7/1/14 ← Ab'), link: sayFn('Wählt eine Gruppenadresse aus der Liste'), read: sayFn('Lesen gesendet, Antwort folgt')
+      },
+      // tablet
+      scrCls: isPortrait ? 'sc-p' : 'sc-l',
+      projSub: isPortrait ? '57 Geräte' : '57 Geräte · 771 Gruppenadressen',
+      searchText: isPortrait ? 'Suchen…' : 'Geräte, Adressen, Befehle suchen…',
+      pendingText: isPortrait ? '5 ausst.' : '5 ausstehend',
+      connText: isPortrait ? 'Verbunden' : 'Verbunden · 1.1.0',
+      navBtnCls: (isPortrait ? s.tNavOver : s.tNav) ? 'on' : '', inspBtnCls: s.tInsp ? 'on' : '',
+      toggleNav: () => isPortrait ? this.setState({ tNavOver: !s.tNavOver, tInsp: false }) : this.setState({ tNav: !s.tNav }),
+      toggleInsp: () => this.setState({ tInsp: !s.tInsp, tNavOver: false }),
+      closeOverlays: set({ tNavOver: false, tInsp: false }),
+      showScrim: isTablet && (s.tNavOver && isPortrait || s.tInsp),
+      showTNav, tNavCls: isPortrait ? 'over' : '', tNavRows,
+      dev: devView(s.tSel),
+      tTabCls: { param: s.tTab === 'param' ? 'on' : '', ko: s.tTab === 'ko' ? 'on' : '', info: s.tTab === 'info' ? 'on' : '' },
+      tTabParam: set({ tTab: 'param' }), tTabKo: set({ tTab: 'ko' }), tTabInfo: set({ tTab: 'info' }),
+      tShowParam: s.tTab === 'param', tShowKo: s.tTab === 'ko', tShowInfo: s.tTab === 'info',
+      tPages: tPg.map(p => ({ label: p[1], cls: p[0] === tPage ? 'on' : '', pick: () => this.setState({ tPage: p[0] }) })),
+      pageTitle: (tPg.find(p => p[0] === tPage) || ['', ''])[1],
+      fields: fieldsOf(tdev, tPage),
+      helpText: help[tPage] || help.a,
+      kos, koWide: !isPortrait, koRowCls: isPortrait ? '' : 'wide',
+      tInspOpen: isTablet && s.tInsp, inspCls: isPortrait ? 'sheet' : 'side',
+      inspHint: isPortrait ? 'Blatt von unten: nach unten wischen oder daneben tippen schließt es.' : 'Liegt über dem Inhalt; antippen daneben schließt es.',
+      // phone
+      pBack: inDev, pNoBack: !inDev,
+      pGoBack: set({ pScreen: 'nav' }),
+      pTitle: inDev ? pdev.name : titles[s.pBottom][0],
+      pSub: inDev ? pdev.pa + ' · ' + pdev.room : titles[s.pBottom][1],
+      pShowNav: s.pBottom === 'projekt' && s.pScreen === 'nav', pShowDev: inDev,
+      pShowBus: s.pBottom === 'bus', pShowCheck: s.pBottom === 'check', pShowMore: s.pBottom === 'more',
+      pShowSend: s.pBottom === 'bus', pShowFab: s.pBottom === 'projekt' && s.pScreen === 'nav',
+      pNavRows, pdev: devView(s.pSel),
+      pTabCls: { param: s.pTab === 'param' ? 'on' : '', ko: s.pTab === 'ko' ? 'on' : '', info: s.pTab === 'info' ? 'on' : '' },
+      pTabParam: set({ pTab: 'param' }), pTabKo: set({ pTab: 'ko' }), pTabInfo: set({ pTab: 'info' }),
+      pIsParam: s.pTab === 'param', pIsKo: s.pTab === 'ko', pIsInfo: s.pTab === 'info',
+      pPageTitle: pPg[pIdx][1], pPageNo: (pIdx + 1) + ' von ' + pPg.length,
+      pFields: fieldsOf(pdev, pPage),
+      openPages: set({ pSheet: 'pages' }),
+      pPages: pPg.map(p => ({ label: p[1], cls: p[0] === pPage ? 'on' : '', pick: () => this.setState({ pPage: p[0], pSheet: null }) })),
+      pKos: pKoList.map(k => ({ ...k })),
+      sk: { ...skRaw, noGa: skRaw.gas.length === 0 },
+      openProg: set({ pSheet: 'prog', pProg: null }),
+      pSheetOpen: isPhone && !!s.pSheet, sheetProg: s.pSheet === 'prog', sheetPages: s.pSheet === 'pages', sheetKo: s.pSheet === 'ko',
+      closeSheet: set({ pSheet: null }),
+      scopes: scopesDef.map(o => ({ label: o[1], sub: o[2], cls: s.pScope === o[0] ? 'on' : '', pick: () => this.setState({ pScope: o[0] }) })),
+      progRunning: running,
+      progText: !running ? '' : s.pProg >= 100 ? 'Fertig' : (s.pScope === 'pa' ? 'Warte auf Programmiertaste … ' : 'Lade ') + s.pProg + ' %',
+      progStyle: 'width: ' + (s.pProg || 0) + '%',
+      progBtn: running && s.pProg < 100 ? 'Abbrechen' : running ? 'Schließen' : 'Starten',
+      startProg: () => { if (running && s.pProg < 100) this.setState({ pProg: null }); else if (running) this.setState({ pSheet: null, pProg: null }); else this.setState({ pProg: 0 }); },
+      busCls: { all: busFilter === 'all' ? 'on' : '', w: busFilter === 'w' ? 'on' : '', r: busFilter === 'r' ? 'on' : '' },
+      busAll: set({ bus: 'all' }), busW: set({ bus: 'w' }), busR: set({ bus: 'r' }),
+      tels, issues, more,
+      pBotCls: { projekt: s.pBottom === 'projekt' ? 'on' : '', bus: s.pBottom === 'bus' ? 'on' : '', check: s.pBottom === 'check' ? 'on' : '', more: s.pBottom === 'more' ? 'on' : '' },
+      botProjekt: () => this.setState({ pBottom: 'projekt', pScreen: s.pBottom === 'projekt' ? 'nav' : s.pScreen }),
+      botBus: set({ pBottom: 'bus' }), botCheck: set({ pBottom: 'check' }), botMore: set({ pBottom: 'more' })
+    };
+  }
+}
+</script>
+</body>
+</html>

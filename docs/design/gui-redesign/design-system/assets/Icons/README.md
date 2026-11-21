@@ -1,0 +1,1 @@
+Icons der App aus Font Awesome 4 (fontawesome-webfont.ttf, SIL OFL 1.1), als SVG exportiert. Einfarbig in `text` (#1b2230) für helle Flächen; in der App sind sie Zeichen der Icon-Schrift und nehmen die Textfarbe an (`muted`, aktiv `accent`). Die Bedeutung je Icon steht in der README unter Icons.

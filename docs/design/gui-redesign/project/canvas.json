@@ -1,19 +1,100 @@
 {
   "v": 3,
-  "createdOnFiles": {"v": 1, "at": "2026-11-20T10:30:00Z"},
-  "title": "GUI Redesign",
-  "launch": {"view": "canvas"},
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-20T10:30:00Z"
+  },
+  "title": "XKNX Editor Redesign",
+  "launch": {
+    "view": "canvas"
+  },
   "pages": [],
   "boards": {
-    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 900, "title": "Klickdummy – Neues Layout", "expand": "fill", "is_interactive": true},
-    "Analyse.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 2700, "title": "Analyse & Konzept"},
-    "Kommunikationsobjekte.dc.html": {"x": 0, "y": 1020, "w": 1440, "h": 900, "title": "Vertiefung – Kommunikationsobjekte", "expand": "fill", "is_interactive": true},
-    "Gruppenadressen.dc.html": {"x": 0, "y": 2040, "w": 1440, "h": 900, "title": "Vertiefung – Gruppenadressen", "expand": "fill", "is_interactive": true},
-    "Bus.dc.html": {"x": 0, "y": 3060, "w": 1440, "h": 900, "title": "Vertiefung – Bus und Monitor", "expand": "fill", "is_interactive": true}
+    "Main.dc.html": {
+      "x": 1520,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Klickdummy – Neues Layout",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Analyse.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 4520,
+      "title": "Analyse & Konzept"
+    },
+    "Kommunikationsobjekte.dc.html": {
+      "x": 1520,
+      "y": 1020,
+      "w": 1440,
+      "h": 900,
+      "title": "Vertiefung – Kommunikationsobjekte",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Gruppenadressen.dc.html": {
+      "x": 1520,
+      "y": 2040,
+      "w": 1440,
+      "h": 900,
+      "title": "Vertiefung – Gruppenadressen",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Bus.dc.html": {
+      "x": 1520,
+      "y": 3060,
+      "w": 1440,
+      "h": 900,
+      "title": "Vertiefung – Bus und Monitor",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "KleineBildschirme.dc.html": {
+      "x": 3040,
+      "y": 0,
+      "w": 1440,
+      "h": 6060,
+      "title": "Kleine Bildschirme – iPad und Phone",
+      "is_interactive": true
+    },
+    "Tastatur.dc.html": {
+      "x": 4560,
+      "y": 0,
+      "w": 1440,
+      "h": 4840,
+      "title": "Tastaturbedienung",
+      "is_interactive": true
+    }
   },
-  "order": ["Main.dc.html", "Analyse.dc.html", "Kommunikationsobjekte.dc.html", "Gruppenadressen.dc.html", "Bus.dc.html"],
+  "order": [
+    "Analyse.dc.html",
+    "Main.dc.html",
+    "Kommunikationsobjekte.dc.html",
+    "Gruppenadressen.dc.html",
+    "Bus.dc.html",
+    "KleineBildschirme.dc.html",
+    "Tastatur.dc.html"
+  ],
   "notes": {
-    "t1": {"x": 0, "y": -300, "text": "Redesign-Vorschlag", "kind": "title1", "maxW": 2960}
+    "t1": {
+      "x": 0,
+      "y": -300,
+      "text": "XKNX Editor – Redesign-Vorschlag",
+      "kind": "title1",
+      "maxW": 6000
+    }
   },
-  "designSystems": []
+  "designSystems": [
+    {
+      "title": "XKNX Editor Design System",
+      "namespace": "xknxeditor",
+      "artifact": "https://claude.ai/artifact/Q7u8pN9A79uJHtzX1D7DkT",
+      "version": null,
+      "copiedAt": "2026-11-21T17:53:13Z"
+    }
+  ]
 }

@@ -150,7 +150,7 @@ button{font:inherit;color:inherit}
 <div class="b">
 
 <header class="top">
-  <div class="brand"></div>
+  <div class="brand"><img src="/_blob/0f0b152bc3764184a3f557234f496a9e" alt="XKNX Editor" width="32" height="32" style="display:block;border-radius:7px"></div>
   <div style="line-height: 1.25"><b style="font-size: 14px">Krausgasse 12 Top 26</b><div class="muted" style="font-size: 12px">57 Geräte · 771 Gruppenadressen</div></div>
   <span style="flex: 1"></span>
   <button class="pill" onClick="{{toggleConn}}"><span class="dot" style="{{connDot}}"></span>{{connLabel}}</button>
@@ -598,7 +598,7 @@ class Component extends DCLogic {
     const isTelegramView = s.view === 'group' || s.view === 'activity';
     const cantSend = !s.conn || s.raw;
     const sendDpt = gaDpt[s.sendGa];
-    const pushTel = (type, val) => { const t = { id: this.nid++, t: s.now, src: '1.1.255', srcName: 'Editor', dst: s.sendGa, dstName: gaName[s.sendGa] || 'Unbekannte Adresse', dpt: sendDpt || '', type, val, num: null, fresh: true }; this.setState({ tels: [t].concat(s.tels), sendVal: '' }); };
+    const pushTel = (type, val) => { const t = { id: this.nid++, t: s.now, src: '1.1.255', srcName: 'XKNX Editor', dst: s.sendGa, dstName: gaName[s.sendGa] || 'Unbekannte Adresse', dpt: sendDpt || '', type, val, num: null, fresh: true }; this.setState({ tels: [t].concat(s.tels), sendVal: '' }); };
     const pinned = [];
     if (s.srcF) pinned.push({ label: 'Quelle ' + s.srcF, remove: set({ srcF: null }) });
     if (s.dstF) pinned.push({ label: 'Ziel ' + s.dstF, remove: set({ dstF: null }) });
@@ -646,7 +646,7 @@ class Component extends DCLogic {
       hasT: !!T0, noT: !T0, T,
       filterSrc: () => T0 && this.setState({ srcF: T0.src }), filterDst: () => T0 && this.setState({ dstF: T0.dst }),
       pinDst: () => { if (!T0) return; this.setState({ pins: { ...s.pins, [T0.dst]: true } }); this.say(T0.dst + ' im Zeitverlauf angeheftet'); },
-      resend: () => { if (!T0) return; this.setState({ tels: [{ ...T0, id: this.nid++, t: s.now, src: '1.1.255', srcName: 'Editor', type: 'Schreiben', fresh: true }].concat(s.tels) }); this.say(T0.dst + ' ← ' + T0.val + ' erneut gesendet'); },
+      resend: () => { if (!T0) return; this.setState({ tels: [{ ...T0, id: this.nid++, t: s.now, src: '1.1.255', srcName: 'XKNX Editor', type: 'Schreiben', fresh: true }].concat(s.tels) }); this.say(T0.dst + ' ← ' + T0.val + ' erneut gesendet'); },
       notImpl: () => { this.setState(closeAll); this.say('Im Klickdummy nicht umgesetzt'); },
       hasToast: !!s.toast, toast: s.toast
     };

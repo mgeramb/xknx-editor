@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Tastaturbedienung</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.pg{--bg:#f4f5f7;--panel:#ffffff;--sub:#f8f9fb;--line:#e2e5ea;--line2:#d3d8df;--text:#1b2230;--muted:#586273;--accent:#1f5fd1;--accent-weak:#e8effc;--warn:#9a4a00;--warn-weak:#fff1df;--ok:#1a7334;--ok-weak:#e5f4ea;--danger:#b42318;--sel:#e8effc;--hover:#f0f2f5;
+  width:1440px;box-sizing:border-box;padding:72px 80px 96px;background:#fff;font-family:Inter,system-ui,sans-serif;color:var(--text);font-size:14px;display:flex;flex-direction:column;gap:64px}
+.pg *{box-sizing:border-box}
+.pg button{font:inherit;color:inherit}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.muted{color:var(--muted)}
+.eyebrow{font-size:13px;font-weight:600;color:#1f5fd1;letter-spacing:.06em;text-transform:uppercase}
+h1{margin:0;font-size:40px;line-height:1.15;font-weight:700}
+h2{margin:0;font-size:26px;line-height:1.2;font-weight:700}
+h3{margin:0;font-size:17px}
+.lead{margin:0;font-size:17px;line-height:1.55;color:var(--muted);max-width:940px}
+.sec{display:flex;flex-direction:column;gap:20px}
+.sec>p{margin:0;color:var(--muted);line-height:1.6;max-width:960px}
+.code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;background:#f1f2f4;padding:1px 5px;border-radius:4px}
+/* key caps */
+.k{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 6px;border-radius:6px;border:1px solid #c9cfd8;border-bottom-width:2px;background:#fff;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;font-weight:600;color:#1b2230;white-space:nowrap;line-height:1}
+.k.dark{background:#2a303a;border-color:#3a414d;color:#fff}
+.k.big{height:30px;min-width:30px;font-size:13px}
+.then{color:var(--muted);font-size:12px;margin:0 4px}
+u{text-decoration:none;border-bottom:2px solid currentColor;padding-bottom:0}
+/* principles */
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.card{border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.card b{font-size:16px}
+.card span.t{color:var(--muted);line-height:1.55}
+.card .ex{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+/* demo */
+.demohd{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--sub);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.seg button{height:32px;border:0;border-radius:7px;background:transparent;cursor:pointer;color:var(--muted);font-size:13px;padding:0 12px;white-space:nowrap}
+.seg button.on{background:#fff;color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.focus{font-size:12.5px;padding:5px 10px;border-radius:14px;font-weight:600}
+.focus.on{background:var(--ok-weak);color:var(--ok)}
+.focus.off{background:var(--warn-weak);color:var(--warn)}
+.app{position:relative;width:1280px;height:660px;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #d3d8df,0 14px 40px rgba(20,30,50,.16);background:var(--bg);display:flex;flex-direction:column;font-size:13px;outline:none}
+.app:focus-visible{box-shadow:0 0 0 3px #1f5fd1,0 14px 40px rgba(20,30,50,.16)}
+.top{height:50px;flex:none;display:flex;align-items:center;gap:12px;padding:0 12px 0 0;background:#fff;border-bottom:1px solid var(--line)}
+.brand{width:64px;height:50px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);flex:none}
+.proj{display:flex;flex-direction:column;line-height:1.25}
+.proj b{font-size:14px}.proj span{font-size:12px;color:var(--muted)}
+.search{flex:1;max-width:480px;margin:0 auto;height:34px;border-radius:8px;border:1px solid var(--line2);background:var(--sub);display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted);position:relative}
+.search .kk{margin-left:auto}
+.pill{height:30px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-radius:15px;border:1px solid var(--line2);background:#fff;white-space:nowrap}
+.pill.rec{border-color:#b42318;color:#b42318;background:#fdecea;font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.dot.green{background:var(--ok)}.dot.red{background:#b42318}.dot.orange{background:var(--warn)}
+.body{flex:1;display:flex;min-height:0;position:relative}
+.rail{width:64px;flex:none;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px}
+.rb{position:relative;width:56px;height:52px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:var(--muted)}
+.rb.on{background:var(--accent-weak);color:var(--accent);font-weight:600}
+.rb svg{width:20px;height:20px}
+.nav{width:260px;flex:none;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;position:relative}
+.navhd{padding:10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.navhd b{font-size:14px}
+.tseg{display:flex;background:var(--sub);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+.tseg span{flex:1;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--muted)}
+.tseg span.on{background:#fff;color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.row{display:flex;align-items:center;gap:8px;height:28px;padding:0 10px;white-space:nowrap}
+.row.on{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
+.row .pa{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;color:var(--muted);min-width:42px}
+.grp{padding:10px 10px 2px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff;position:relative}
+.dh{padding:12px 16px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.dt{display:flex;align-items:center;gap:10px}
+.dt .nm{flex:1}
+.dt .nm b{font-size:15px;display:block}
+.dt .nm span{font-size:12px;color:var(--muted)}
+.btnp{height:32px;padding:0 14px;border-radius:7px;background:var(--accent);color:#fff;font-weight:600;display:inline-flex;align-items:center;gap:6px;position:relative;border:0}
+.tabs{display:flex;gap:4px}
+.tabs span{height:34px;padding:0 12px;display:flex;align-items:center;color:var(--muted);border-bottom:2px solid transparent}
+.tabs span.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.ed{flex:1;display:flex;min-height:0}
+.pages{width:170px;flex:none;background:#f7f8fa;border-right:1px solid var(--line);padding:6px 0}
+.pages div{height:30px;display:flex;align-items:center;padding:0 12px}
+.pages div.on{background:var(--sel);color:var(--accent);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.form{flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
+.fr{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:center;min-height:36px;border-bottom:1px solid #eef0f3}
+.ctl{height:28px;border:1px solid var(--line2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;padding:0 8px}
+.insp{width:290px;flex:none;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;position:relative}
+.ihd{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:600}
+.ib{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.kv{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;font-size:12.5px}
+.kv span:first-child{color:var(--muted)}
+.drawer{height:170px;flex:none;background:#fff;border-top:1px solid var(--line);display:flex;flex-direction:column;position:relative}
+.drawer .dtabs{display:flex;gap:4px;padding:0 10px;border-bottom:1px solid var(--line)}
+.drawer .dtabs span{height:32px;display:flex;align-items:center;padding:0 10px;color:var(--muted);border-bottom:2px solid transparent;font-size:12.5px}
+.drawer .dtabs span.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.oprow{display:grid;grid-template-columns:70px minmax(0,1fr) 220px;gap:12px;align-items:center;height:30px;padding:0 14px;border-bottom:1px solid #eef0f3;font-size:12.5px}
+.bar{height:6px;border-radius:3px;background:#eef0f3;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.status{height:28px;flex:none;display:flex;align-items:center;gap:16px;padding:0 12px;background:#fff;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.chord{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:10px;background:#1b2230;color:#fff;font-weight:600}
+.hint{position:absolute;z-index:6;background:#1b2230;color:#fff;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;font-weight:600;padding:2px 6px;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,.25);white-space:nowrap;pointer-events:none}
+.collapsed-edge{width:6px;flex:none;background:repeating-linear-gradient(180deg,#e2e5ea 0 6px,#f4f5f7 6px 12px)}
+/* which-key */
+.wk{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);width:600px;background:#1b2230;color:#fff;border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.35);z-index:20;padding:14px 16px 12px;display:flex;flex-direction:column;gap:10px}
+.wk .wkh{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px}
+.wk .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 18px}
+.wk .it{display:flex;align-items:center;gap:10px;height:30px;padding:0 6px;border-radius:7px;cursor:pointer;border:0;background:transparent;color:#fff;text-align:left}
+.wk .it:hover{background:rgba(255,255,255,.08)}
+.wk .it .k{background:#2f3642;border-color:#4a5260;color:#fff}
+.wk .ft{font-size:11.5px;color:#a2abb8;display:flex;gap:14px;border-top:1px solid rgba(255,255,255,.1);padding-top:8px}
+/* cheat sheet */
+.cheat{position:absolute;inset:0;z-index:30;background:rgba(15,20,30,.45);display:flex;align-items:center;justify-content:center}
+.cheat .box{width:1060px;max-height:600px;overflow:auto;background:#fff;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.cheat .ch{display:flex;align-items:center;gap:12px}
+.cheat .ch b{font-size:16px;flex:1}
+.cols{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.col h4{margin:0 0 6px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.li{display:flex;align-items:center;gap:8px;min-height:24px;font-size:12px}
+.li .k{min-width:22px;height:20px;font-size:11px}
+.toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#1b2230;color:#fff;padding:8px 14px;border-radius:9px;font-size:12.5px;z-index:25;white-space:nowrap;display:flex;gap:10px;align-items:center}
+/* keycap bar */
+.capbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cap{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:9px;border:1px solid var(--line2);background:#fff;cursor:pointer;font-size:12.5px}
+.cap:hover{background:var(--hover)}
+.cap.on{border-color:var(--accent);background:var(--accent-weak)}
+.capsep{width:1px;height:28px;background:var(--line)}
+/* map */
+.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.grpbox{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.grpbox .gh{display:flex;align-items:center;gap:10px;padding:14px 18px;background:#f7f8fa;border-bottom:1px solid var(--line)}
+.grpbox .gh b{font-size:16px;flex:1}
+.grpbox .gh span{font-size:12px;color:var(--muted)}
+.mr{display:grid;grid-template-columns:34px minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:center;min-height:34px;padding:0 18px;border-top:1px solid #eef0f3;font-size:13px}
+.mr.h{min-height:28px;font-size:11.5px;font-weight:600;color:var(--muted);border-top:0}
+.mr .en{color:var(--muted)}
+.single{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sr{display:grid;grid-template-columns:130px minmax(0,1fr) 260px;gap:14px;align-items:center;min-height:38px;padding:0 18px;border-top:1px solid #eef0f3}
+.sr.h{background:#f7f8fa;font-size:12px;font-weight:600;color:var(--muted);border-top:0;min-height:34px}
+.tag{font-size:11px;padding:2px 8px;border-radius:9px;white-space:nowrap;font-weight:500}
+.tag.new{background:var(--accent-weak);color:var(--accent)}
+.tag.old{background:#f1f2f4;color:var(--muted)}
+/* visual examples */
+.vis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.vbox{border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.vbox .cap2{color:var(--muted);line-height:1.5;font-size:13px}
+.vbox .cap2 b{color:var(--text)}
+.mock{border:1px solid var(--line);border-radius:10px;background:#f7f8fa;padding:12px;min-height:150px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.menu{background:#fff;border:1px solid var(--line2);border-radius:9px;box-shadow:0 8px 24px rgba(20,30,50,.14);padding:5px;width:100%}
+.mi{display:flex;align-items:center;gap:10px;height:28px;padding:0 8px;border-radius:6px;font-size:12.5px}
+.mi.on{background:var(--accent-weak)}
+.mi .sc{margin-left:auto;display:flex;gap:3px;align-items:center;color:var(--muted)}
+.mi .sc .k{height:18px;min-width:18px;font-size:10.5px;padding:0 4px}
+.tip{align-self:center;background:#1b2230;color:#fff;border-radius:7px;padding:6px 10px;font-size:12px;display:flex;gap:8px;align-items:center}
+.tip .k{height:18px;min-width:18px;font-size:10.5px;background:#2f3642;border-color:#4a5260;color:#fff}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;line-height:1.55;color:var(--muted);max-width:1100px}
+ul.plain b{color:var(--text)}
+.rules{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rr{display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;padding:12px 18px;border-top:1px solid #eef0f3;line-height:1.5}
+.rr:first-child{border-top:0}
+.rr b{font-weight:600}
+.rr span{color:var(--muted)}
+</style>
+</helmet>
+
+<div class="pg">
+
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <div class="eyebrow">XKNX Editor · UX-Redesign · Tastatur</div>
+    <h1>Eine Taste für den Rahmen,<br>zwei Stufen für alles andere.</h1>
+    <p class="lead">Panels ein- und ausblenden geht mit einer Kombination. Befehle laufen über zwei Stufen: <b>⌘ + Bereich</b>, dann <b>ein Buchstabe aus dem Wort</b>. Nach dem ersten Schritt zeigt ein Fenster, was als Nächstes geht. Niemand muss die Tasten auswendig kennen, wer sie kennt, wartet nicht. Unter Windows und Linux steht <span class="code">Strg</span> statt <span class="code">⌘</span>.</p>
+  </section>
+
+  <section class="cards">
+    <div class="card">
+      <b>Rahmen mit einer Taste</b>
+      <div class="ex"><span class="k">{{mod}}B</span><span class="k">{{mod}}I</span><span class="k">{{mod}}J</span><span class="k">{{mod}}.</span></div>
+      <span class="t">Navigator links (B wie Baum), Inspektor rechts, unterer Bereich, alles auf einmal für den Fokus. ⌘J kennt man aus VS Code.</span>
+    </div>
+    <div class="card">
+      <b>Zwei Stufen für Befehle</b>
+      <div class="ex"><span class="k">{{mod}}D</span><span class="then">dann</span><span class="k">P</span></div>
+      <span class="t">Erst der Bereich: <b>G</b>ehe zu, <b>D</b>evice/Gerät, <b>L</b>ink, <b>K</b>NX-Bus. Dann die Aktion. Die zweite Taste braucht keinen Modifier, auch nicht in Textfeldern.</span>
+    </div>
+    <div class="card">
+      <b>Buchstabe aus dem Wort</b>
+      <div class="ex"><span>Gerät → <u>V</u>ollständig</span></div>
+      <span class="t">Die zweite Taste ist ein Buchstabe des Befehls in der eingestellten Sprache, unterstrichen wie früher in Menüs. Die vier Bereichstasten bleiben in allen Sprachen gleich.</span>
+    </div>
+    <div class="card">
+      <b>Immer sichtbar</b>
+      <div class="ex"><span class="k">F1</span><span class="muted" style="font-size:12px">oder</span><span class="k">{{mod}}</span><span class="muted" style="font-size:12px">halten</span></div>
+      <span class="t">Nach der ersten Stufe ein Auswahlfenster, Kürzel in Menüs, Tooltips und Befehlspalette, ⌘ halten zeigt Marken am Bildschirm, F1 die ganze Übersicht.</span>
+    </div>
+  </section>
+
+  <!-- ===== Live demo ===== -->
+  <section class="sec">
+    <h2>Ausprobieren</h2>
+    <div class="demohd">
+      <div class="seg"><button class="{{osCls.mac}}" onClick="{{osMac}}">macOS</button><button class="{{osCls.win}}" onClick="{{osWin}}">Windows · Linux</button></div>
+      <span class="focus {{focusCls}}">{{focusText}}</span>
+      <span class="muted" style="font-size:12.5px">Echte Tasten funktionieren, sobald der Klickdummy angeklickt ist. Ohne Tastatur: die Tasten unten antippen.</span>
+    </div>
+
+    <div class="app" tabindex="0" onClick="{{focusApp}}">
+      <header class="top">
+        <div class="brand"><img src="/_blob/0f0b152bc3764184a3f557234f496a9e" alt="XKNX Editor" width="30" height="30" style="display:block;border-radius:7px"></div>
+        <div class="proj"><b>Krausgasse 12 Top 26</b><span>57 Geräte · 771 Gruppenadressen</span></div>
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+          Geräte, Gruppenadressen, Befehle suchen…<span class="k kk">{{mod}}P</span>
+        </div>
+        <sc-if value="{{recording}}" hint-placeholder-val="{{ false }}"><span class="pill rec"><span class="dot red"></span>Aufnahme läuft</span></sc-if>
+        <span class="pill"><span class="dot green"></span>Verbunden · 1.1.0</span>
+      </header>
+      <div class="body">
+        <nav class="rail">
+          <sc-for list="{{rail}}" as="r" hint-placeholder-count="5">
+            <div class="rb {{r.cls}}"><span style="font-size:18px;line-height:1">{{r.icon}}</span>{{r.label}}
+              <sc-if value="{{hintsOn}}" hint-placeholder-val="{{ false }}"><span class="hint" style="left:30px;top:-4px">{{r.hint}}</span></sc-if>
+            </div>
+          </sc-for>
+        </nav>
+
+        <sc-if value="{{navOn}}" hint-placeholder-val="{{ true }}">
+        <aside class="nav">
+          <div class="navhd"><b>{{navTitle}}</b><div class="tseg"><span class="{{scope.b}}">Gebäude</span><span class="{{scope.t}}">Topologie</span><span class="{{scope.a}}">Gruppenadressen</span></div></div>
+          <div style="flex:1;overflow:hidden;padding:4px 0">
+            <sc-for list="{{navRows}}" as="n" hint-placeholder-count="10">
+              <sc-if value="{{n.grp}}" hint-placeholder-val="{{ false }}"><div class="grp">{{n.label}}</div></sc-if>
+              <sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><div class="row {{n.cls}}"><span class="pa">{{n.pa}}</span>{{n.label}}</div></sc-if>
+            </sc-for>
+          </div>
+          <sc-if value="{{hintsOn}}" hint-placeholder-val="{{ false }}"><span class="hint" style="right:8px;top:8px">{{mod}}B ausblenden</span></sc-if>
+        </aside>
+        </sc-if>
+        <sc-if value="{{navOff}}" hint-placeholder-val="{{ false }}"><div class="collapsed-edge" title="Navigator ausgeblendet"></div></sc-if>
+
+        <main class="main">
+          <div class="dh">
+            <div class="dt">
+              <div class="nm"><b>Jalousieaktor 8 fach</b><span class="mono">1.1.16</span><span> · Jalousie, Rollade 8-fach V3.6 · MDT</span></div>
+              <span class="btnp">Programmieren ▾<sc-if value="{{hintsOn}}" hint-placeholder-val="{{ false }}"><span class="hint" style="right:-6px;top:-14px">{{mod}}D P</span></sc-if></span>
+            </div>
+            <div class="tabs"><span class="{{tab.p}}">Parameter</span><span class="{{tab.o}}">Kommunikationsobjekte</span><span>Info</span></div>
+          </div>
+          <div class="ed">
+            <div class="pages"><div>Allgemein</div><div class="on">Kanal A</div><div>Kanal B</div><div>Kanal C</div><div>Kanal D</div><div>Zentralfunktion</div></div>
+            <div class="form">
+              <div style="font-weight:600;margin-bottom:6px">{{formTitle}}</div>
+              <sc-for list="{{fields}}" as="f" hint-placeholder-count="5">
+                <div class="fr"><span>{{f.l}}</span><div class="ctl"><span>{{f.v}}</span><span class="muted">{{f.u}}</span></div></div>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="toast"><span class="k dark">{{toastKeys}}</span>{{toast}}</div></sc-if>
+        </main>
+
+        <sc-if value="{{inspOn}}" hint-placeholder-val="{{ true }}">
+        <aside class="insp">
+          <div class="ihd">Eigenschaften · Gerät</div>
+          <div class="ib">
+            <div class="kv"><span>Name</span><span>Jalousieaktor 8 fach</span></div>
+            <div class="kv"><span>Adresse</span><span class="mono">1.1.16</span></div>
+            <div class="kv"><span>Raum</span><span>Verteiler Abstellraum</span></div>
+            <div class="kv"><span>Status</span><span>{{devStatus}}</span></div>
+          </div>
+          <sc-if value="{{hintsOn}}" hint-placeholder-val="{{ false }}"><span class="hint" style="left:8px;top:8px">{{mod}}I ausblenden</span></sc-if>
+        </aside>
+        </sc-if>
+
+        <sc-if value="{{wkOn}}" hint-placeholder-val="{{ false }}">
+        <div class="wk">
+          <div class="wkh"><span class="k dark big">{{mod}}{{wk.key}}</span>{{wk.title}}<span style="margin-left:auto;font-weight:400;font-size:12px;color:#a2abb8">Taste drücken oder antippen</span></div>
+          <div class="grid">
+            <sc-for list="{{wk.items}}" as="i" hint-placeholder-count="8">
+              <button class="it" onClick="{{i.run}}"><span class="k">{{i.key}}</span><span>{{i.pre}}<u>{{i.hit}}</u>{{i.post}}</span></button>
+            </sc-for>
+          </div>
+          <div class="ft"><span><span class="k dark" style="height:18px;font-size:10.5px">Esc</span> abbrechen</span><span><span class="k dark" style="height:18px;font-size:10.5px">F1</span> alle Tasten</span><span>Erscheint nach 0,4 s – wer die Taste kennt, sieht es nie.</span></div>
+        </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{drawerOn}}" hint-placeholder-val="{{ false }}">
+      <section class="drawer">
+        <div class="dtabs"><span class="{{dtab.ops}}">Vorgänge</span><span class="{{dtab.tel}}">Telegramme</span><span>Log</span><span>Änderungsverlauf</span></div>
+        <sc-if value="{{dtabOps}}" hint-placeholder-val="{{ true }}">
+          <sc-for list="{{ops}}" as="o" hint-placeholder-count="2">
+            <div class="oprow"><span class="mono muted">{{o.pa}}</span><span>{{o.text}}</span><div class="bar"><i style="{{o.w}}"></i></div></div>
+          </sc-for>
+          <sc-if value="{{noOps}}" hint-placeholder-val="{{ false }}"><div class="oprow"><span></span><span class="muted">Keine Vorgänge. {{mod}}D P startet einen.</span><span></span></div></sc-if>
+        </sc-if>
+        <sc-if value="{{dtabTel}}" hint-placeholder-val="{{ false }}">
+          <div class="oprow"><span class="mono muted">22:39:12</span><span>7/1/14 Wohnzimmertür Jalousie ← Ab</span><span class="muted">1.1.40 Taster</span></div>
+          <div class="oprow"><span class="mono muted">22:39:12</span><span>7/1/20 Status Position → 100 %</span><span class="muted">1.1.16 Jalousieaktor</span></div>
+          <div class="oprow"><span class="mono muted">22:38:58</span><span>12/7/13 Helligkeit → 3 lx</span><span class="muted">1.1.14 Wetterstation</span></div>
+        </sc-if>
+        <sc-if value="{{hintsOn}}" hint-placeholder-val="{{ false }}"><span class="hint" style="right:10px;top:6px">{{mod}}J ausblenden</span></sc-if>
+      </section>
+      </sc-if>
+
+      <footer class="status">
+        <span><span class="dot green"></span> Verbunden über 1.1.0 IP-Router</span>
+        <span>5 Geräte ausstehend</span>
+        <sc-if value="{{chordOn}}" hint-placeholder-val="{{ false }}"><span class="chord">{{mod}}{{wk.key}} … {{wk.title}}</span></sc-if>
+        <span style="margin-left:auto">{{layoutText}}</span>
+        <sc-if value="{{drawerOff}}" hint-placeholder-val="{{ true }}"><span>{{mod}}J unterer Bereich</span></sc-if>
+      </footer>
+
+      <sc-if value="{{cheatOn}}" hint-placeholder-val="{{ false }}">
+      <div class="cheat">
+        <div class="box">
+          <div class="ch"><b>Tastenkürzel</b><span class="muted" style="font-size:12px">Suchen wie in der Befehlspalette · druckbar</span><span class="k">Esc</span></div>
+          <div class="cols">
+            <div class="col">
+              <h4>Einzeln</h4>
+              <sc-for list="{{singles}}" as="s" hint-placeholder-count="10"><div class="li"><span class="k">{{s.keys}}</span>{{s.label}}</div></sc-for>
+            </div>
+            <sc-for list="{{groupsDe}}" as="g" hint-placeholder-count="4">
+              <div class="col">
+                <h4><span class="k">{{mod}}{{g.key}}</span>{{g.title}}</h4>
+                <sc-for list="{{g.items}}" as="i" hint-placeholder-count="8"><div class="li"><span class="k">{{i.key}}</span><span>{{i.pre}}<u>{{i.hit}}</u>{{i.post}}</span></div></sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+
+    <div class="capbar">
+      <sc-for list="{{caps}}" as="c" hint-placeholder-count="10">
+        <button class="cap {{c.cls}}" onClick="{{c.run}}"><span class="k">{{c.keys}}</span>{{c.label}}</button>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== Map ===== -->
+  <section class="sec">
+    <h2>Die ganze Belegung</h2>
+    <p>Links die deutsche Oberfläche, rechts die englische. Die Bereichstaste ist überall gleich, der zweite Buchstabe kommt aus dem Wort der jeweiligen Sprache. Pfeil ← heißt in jeder Sprache „zurück“.</p>
+    <div class="single">
+      <div class="sr h"><span>Taste</span><span>Wirkung</span><span>Hinweis</span></div>
+      <sc-for list="{{singleRows}}" as="s" hint-placeholder-count="12">
+        <div class="sr"><span><span class="k">{{s.keys}}</span></span><span>{{s.label}}</span><span><span class="tag {{s.tagCls}}">{{s.tag}}</span></span></div>
+      </sc-for>
+    </div>
+    <div class="map">
+      <sc-for list="{{groupsBoth}}" as="g" hint-placeholder-count="4">
+        <div class="grpbox">
+          <div class="gh"><span class="k big">{{mod}}{{g.key}}</span><b>{{g.title}}</b><span>{{g.en}}</span></div>
+          <div class="mr h"><span>DE</span><span></span><span>EN</span><span></span></div>
+          <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="9">
+            <div class="mr"><span class="k">{{r.dk}}</span><span>{{r.dpre}}<u>{{r.dhit}}</u>{{r.dpost}}</span><span class="k">{{r.ek}}</span><span class="en">{{r.epre}}<u>{{r.ehit}}</u>{{r.epost}}</span></div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== Visualisation ===== -->
+  <section class="sec">
+    <h2>Wo man die Tasten sieht</h2>
+    <div class="vis">
+      <div class="vbox">
+        <div class="mock" style="background:#1b2230;border-color:#1b2230">
+          <div style="display:flex;align-items:center;gap:8px;color:#fff;font-weight:600"><span class="k dark">{{mod}}D</span>Gerät</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;color:#fff;font-size:12.5px">
+            <span><span class="k" style="background:#2f3642;border-color:#4a5260;color:#fff;height:20px">P</span> <u>P</u>rogrammieren</span>
+            <span><span class="k" style="background:#2f3642;border-color:#4a5260;color:#fff;height:20px">V</span> <u>V</u>ollständig</span>
+            <span><span class="k" style="background:#2f3642;border-color:#4a5260;color:#fff;height:20px">A</span> <u>A</u>dresse</span>
+            <span><span class="k" style="background:#2f3642;border-color:#4a5260;color:#fff;height:20px">E</span> <u>E</u>ntladen</span>
+          </div>
+        </div>
+        <div class="cap2"><b>1 · Auswahlfenster nach der ersten Stufe.</b> Unten mittig über der Statusleiste, nach 0,4 s. Einträge sind antippbar, Esc bricht ab. Was gerade nicht geht (kein Gerät gewählt), steht grau mit Grund.</div>
+      </div>
+      <div class="vbox">
+        <div class="mock">
+          <div class="menu">
+            <div class="mi on">Partiell programmieren<span class="sc"><span class="k">{{mod}}D</span><span class="k">P</span></span></div>
+            <div class="mi">Vollständig programmieren<span class="sc"><span class="k">{{mod}}D</span><span class="k">V</span></span></div>
+            <div class="mi">Physikalische Adresse<span class="sc"><span class="k">{{mod}}D</span><span class="k">A</span></span></div>
+            <div class="mi">Entladen<span class="sc"><span class="k">{{mod}}D</span><span class="k">E</span></span></div>
+          </div>
+        </div>
+        <div class="cap2"><b>2 · Menüs und Kontextmenüs</b> zeigen die Folge rechtsbündig, wie ImGui es mit <span class="code">menu_item(shortcut=…)</span> schon kann. So lernt man die Tasten beim Klicken.</div>
+      </div>
+      <div class="vbox">
+        <div class="mock">
+          <div class="menu">
+            <div class="mi" style="color:var(--muted)">› voll</div>
+            <div class="mi on">Gerät vollständig programmieren<span class="sc"><span class="k">{{mod}}D</span><span class="k">V</span></span></div>
+            <div class="mi">Fokus: alle Bereiche ausblenden<span class="sc"><span class="k">{{mod}}.</span></span></div>
+          </div>
+        </div>
+        <div class="cap2"><b>3 · Befehlspalette</b> nennt bei jedem Befehl seine Taste und findet Befehle auch über die Taste („⌘D“ listet alle Gerätebefehle).</div>
+      </div>
+      <div class="vbox">
+        <div class="mock" style="align-items:center">
+          <div class="tip">Navigator ausblenden <span class="k">{{mod}}B</span></div>
+          <div class="tip">Inspektor <span class="k">{{mod}}I</span></div>
+        </div>
+        <div class="cap2"><b>4 · Tooltips</b> der Knöpfe für Navigator, Inspektor und unteren Bereich nennen ihre Taste.</div>
+      </div>
+      <div class="vbox">
+        <div class="mock" style="position:relative;align-items:flex-start">
+          <div style="display:flex;gap:10px;align-items:center"><span class="hint" style="position:static">{{mod}}1</span>Projekt <span class="hint" style="position:static">{{mod}}B</span>Navigator <span class="hint" style="position:static">{{mod}}D P</span>Programmieren</div>
+          <div class="muted" style="font-size:12px">… solange {{mod}} gehalten wird</div>
+        </div>
+        <div class="cap2"><b>5 · {{mod}} halten</b> (0,6 s) legt Marken an Leiste, Panels und Hauptknöpfe. Am iPad zeigt iPadOS beim Halten von ⌘ eine eigene Liste; dort übernimmt F1 diese Aufgabe.</div>
+      </div>
+      <div class="vbox">
+        <div class="mock" style="align-items:center"><span class="k big">F1</span><span class="muted" style="font-size:12px">Hilfe › Tastenkürzel…</span></div>
+        <div class="cap2"><b>6 · Übersicht mit F1</b> (und im Hilfe-Menü): alle Tasten in Spalten, durchsuchbar, druckbar als PDF über den vorhandenen PDF-Writer. Im Klickdummy oben mit F1 ausprobieren.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Rules ===== -->
+  <section class="sec">
+    <h2>Regeln und Konflikte</h2>
+    <div class="rules">
+      <div class="rr"><b>⌘ oder Strg</b><span>macOS nutzt ⌘, Windows und Linux Strg. Der Browser-Modus macht das heute schon so (<span class="code">client.js</span>: ⌘ auf dem Mac wird zu Strg). Angezeigt wird immer die Taste der eigenen Plattform.</span></div>
+      <div class="rr"><b>Vom Browser reserviert</b><span>⌘N, ⌘T, ⌘W, ⌘Q und Strg+Tab erreichen eine Web-Seite nicht. Deshalb liegt nichts Neues darauf. Das bestehende ⌘N (Neues Projekt) bleibt am Desktop, im Browser über die Befehlspalette. ⌘0, ⌘+ und ⌘− gehören dem Zoom des Browser-Modus. ⌘D (Lesezeichen), ⌘L (Adresszeile), ⌘J (Downloads) und ⌘1–5 (Tabs) darf eine Seite übernehmen; <span class="code">client.js</span> tut das schon für alle ⌘-Kombinationen, solange die App den Fokus hat.</span></div>
+      <div class="rr"><b>Vom Betriebssystem belegt</b><span>⌘H (Ausblenden) und ⌘M (Minimieren) auf dem Mac, ⌘Leertaste. Darum K für den Bus statt M für Monitor.</span></div>
+      <div class="rr"><b>Bestehende Kürzel bleiben</b><span>⌘P Palette, ⌘S, ⌘O, ⌘E Export, ⌘Z/⌘Y, ⌘, Einstellungen, F2 Umbenennen. Nichts davon wird umbelegt.</span></div>
+      <div class="rr"><b>Text mit Formatierung</b><span>Im Rich-Text-Feld (Beschreibung) bedeuten ⌘B, ⌘I und ⌘U fett, kursiv, unterstrichen. Solange es den Fokus hat, gewinnt die Formatierung; Esc verlässt das Feld.</span></div>
+      <div class="rr"><b>In Textfeldern</b><span>Die erste Stufe hat immer ⌘ und funktioniert deshalb auch beim Tippen. Die zweite Taste wird abgefangen und nie ins Feld geschrieben.</span></div>
+      <div class="rr"><b>Tastaturlayouts</b><span>Nur Buchstaben und der Punkt, keine Zeichen, für die man AltGr braucht (\, [, ], / auf deutschen Tastaturen). Die Buchstaben gelten nach Zeichen, nicht nach Tastenposition, damit Z und Y auf QWERTZ und QWERTY stimmen.</span></div>
+      <div class="rr"><b>Sprachen</b><span>Der zweite Buchstabe steht bei jedem Text in den Übersetzungen (z. B. „&amp;Vollständig“). Ein Test prüft je Sprache und Bereich, dass kein Buchstabe doppelt vorkommt, wie es <span class="code">test_text_properties.py</span> heute für Labels tut.</span></div>
+      <div class="rr"><b>Was nicht geht</b><span>Eine Aktion, die gerade nicht möglich ist (kein Gerät gewählt, keine Verbindung), steht im Auswahlfenster grau mit dem Grund, statt still nichts zu tun.</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Umsetzung</h2>
+    <ul class="plain">
+      <li><b>Ein Befehlsregister</b> für Menüs, Kontextmenüs, Befehlspalette und Tasten: jeder Befehl hat Text, Bereich, Buchstabe und „ist möglich“. Heute verteilt <span class="code">_handle_shortcuts</span> in <span class="code">main.py</span> die Tasten einzeln.</li>
+      <li><b>Kleiner Zustandsautomat</b> für die zweite Stufe: Bereich gemerkt, nächste Taste ausgewertet, Esc oder 3 s Pause beenden. ImGui kennt Kombinationen (<span class="code">imgui.shortcut</span>), aber keine Folgen.</li>
+      <li><b>Belegung änderbar</b> als Seite „Tastatur“ in den Einstellungen; jede Änderung ist ein <span class="code">Setting</span> und damit auch über MCP (<span class="code">settings_get</span>/<span class="code">settings_set</span>) erreichbar.</li>
+      <li><b>Browser-Modus:</b> <span class="code">client.js</span> reicht ⌘-Kombinationen schon an die App weiter und verhindert die Browser-Aktion. Für ⌘. und die vier Bereichstasten genügt das.</li>
+      <li><b>Touch:</b> Nichts ist nur per Taste erreichbar. Jede Aktion steht auch in einem Menü oder in der Befehlspalette.</li>
+    </ul>
+  </section>
+</div>
+
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4840}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const mac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+    this.state = { mac, nav: true, insp: true, drawer: false, focusSave: null, prefix: null, wk: false, hints: false, cheat: false,
+      toast: '', toastKeys: '', rail: 'p', scope: 'b', tab: 'p', ops: [], rec: false, dtab: 'ops', focused: false, status: 'Programmiert' };
+  }
+  componentDidMount() {
+    this.onDown = (e) => this.keyDown(e);
+    this.onUp = (e) => this.keyUp(e);
+    this.onFocus = () => this.setState({ focused: true });
+    this.onBlur = () => this.setState({ focused: false, hints: false });
+    window.addEventListener('keydown', this.onDown, true);
+    window.addEventListener('keyup', this.onUp, true);
+    window.addEventListener('focus', this.onFocus);
+    window.addEventListener('blur', this.onBlur);
+    this.timer = setInterval(() => this.tick(), 250);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onDown, true);
+    window.removeEventListener('keyup', this.onUp, true);
+    window.removeEventListener('focus', this.onFocus);
+    window.removeEventListener('blur', this.onBlur);
+    clearInterval(this.timer); clearTimeout(this.wkT); clearTimeout(this.hT); clearTimeout(this.toastT); clearTimeout(this.pT);
+  }
+  tick() {
+    const ops = this.state.ops;
+    if (!ops.some(o => o.p < 100)) return;
+    this.setState({ ops: ops.map(o => o.p >= 100 ? o : { ...o, p: Math.min(100, o.p + 6) }) });
+  }
+  groups() {
+    if (this._g) return this._g;
+    const it = (dk, dl, ek, el, act) => ({ dk, dl, ek, el, act });
+    this._g = {
+      g: { title: 'Gehe zu', en: 'Go to', items: [
+        it('P', 'Projekt', 'P', 'Project', { rail: 'p', nav: true, msg: 'Bereich Projekt' }),
+        it('K', 'Katalog', 'C', 'Catalog', { rail: 'k', msg: 'Bereich Katalog' }),
+        it('B', 'Bus', 'B', 'Bus', { rail: 'b', msg: 'Bereich Bus' }),
+        it('R', 'Prüfung', 'H', 'Health', { rail: 'r', msg: 'Bereich Prüfung' }),
+        it('W', 'Werkzeuge', 'T', 'Tools', { rail: 'w', msg: 'Bereich Werkzeuge' }),
+        it('G', 'Gebäude', 'U', 'Buildings', { rail: 'p', scope: 'b', nav: true, msg: 'Navigator: Gebäude' }),
+        it('T', 'Topologie', 'O', 'Topology', { rail: 'p', scope: 't', nav: true, msg: 'Navigator: Topologie' }),
+        it('A', 'Gruppenadressen', 'A', 'Group Addresses', { rail: 'p', scope: 'a', nav: true, msg: 'Navigator: Gruppenadressen' }),
+        it('←', 'Zurück', '←', 'Back', { msg: 'Zurück zum vorigen Gerät' })
+      ] },
+      d: { title: 'Gerät', en: 'Device', items: [
+        it('P', 'Programmieren (partiell)', 'P', 'Program (Partial)', { op: 'Partiell programmieren' }),
+        it('V', 'Vollständig programmieren', 'F', 'Full Download', { op: 'Vollständig programmieren' }),
+        it('A', 'Physikalische Adresse', 'A', 'Individual Address', { op: 'Adresse programmieren: Programmiertaste drücken' }),
+        it('E', 'Entladen', 'U', 'Unload', { op: 'Entladen' }),
+        it('I', 'Geräteinfo lesen', 'I', 'Read Device Info', { op: 'Geräteinfo lesen' }),
+        it('S', 'Speichervorschau', 'M', 'Memory Preview', { msg: 'Speichervorschau geöffnet' }),
+        it('R', 'Parameter', 'R', 'Parameters', { tab: 'p', msg: 'Tab Parameter' }),
+        it('O', 'Objekte', 'O', 'Group Objects', { tab: 'o', msg: 'Tab Kommunikationsobjekte' }),
+        it('D', 'Im Busdiagramm zeigen', 'D', 'Show in Diagram', { msg: 'Busdiagramm geöffnet' }),
+        it('U', 'Umbenennen', 'N', 'Rename', { msg: 'Name wird bearbeitet (wie F2)' })
+      ] },
+      l: { title: 'Verknüpfen', en: 'Link', items: [
+        it('N', 'Neue Gruppenadresse', 'N', 'New Group Address', { tab: 'o', msg: 'Neue Gruppenadresse für das Objekt' }),
+        it('V', 'Vorhandene verknüpfen…', 'L', 'Link Existing…', { tab: 'o', msg: 'Auswahl einer Gruppenadresse' }),
+        it('T', 'Trennen', 'U', 'Unlink', { tab: 'o', msg: 'Verknüpfung getrennt' }),
+        it('K', 'Kopieren', 'C', 'Copy Links', { tab: 'o', msg: 'Verknüpfungen kopiert' }),
+        it('E', 'Einfügen: Ersetzen', 'R', 'Paste: Replace', { tab: 'o', msg: 'Eingefügt (ersetzt)' }),
+        it('Z', 'Einfügen: Zusammenführen', 'M', 'Paste: Merge', { tab: 'o', msg: 'Eingefügt (zusammengeführt)' }),
+        it('S', 'Als sendend festlegen', 'S', 'Set as Sending', { tab: 'o', msg: 'Sendende Adresse gesetzt' }),
+        it('M', 'Mehrere mit Namensvorlage…', 'T', 'From Template…', { tab: 'o', msg: 'Namensvorlage geöffnet' })
+      ] },
+      k: { title: 'KNX-Bus', en: 'KNX Bus', items: [
+        it('A', 'Aufnahme starten / stoppen', 'C', 'Record / Stop', { rec: true }),
+        it('L', 'Wert lesen', 'R', 'Read Value', { msg: 'Lesen gesendet: 7/1/20' }),
+        it('S', 'Schreiben…', 'W', 'Write…', { msg: 'Senden-Leiste fokussiert' }),
+        it('W', 'Wiederholen', 'T', 'Repeat', { msg: 'Telegramm erneut gesendet' }),
+        it('F', 'Folgen ein / aus', 'F', 'Follow On / Off', { msg: 'Folgen umgeschaltet' }),
+        it('T', 'Telegramme zeigen', 'G', 'Show Telegrams', { drawer: 'tel' }),
+        it('M', 'Busmonitor-Modus', 'M', 'Bus Monitor Mode', { msg: 'Busmonitor: normale Verbindung wird getrennt' }),
+        it('E', 'Exportieren…', 'E', 'Export…', { msg: 'Export-Dialog' }),
+        it('V', 'Verbinden / Trennen', 'O', 'Connect / Disconnect', { msg: 'Verbindung umgeschaltet' })
+      ] }
+    };
+    return this._g;
+  }
+  split(label, key) {
+    const i = key.length === 1 ? label.toLowerCase().indexOf(key.toLowerCase()) : -1;
+    if (i < 0) return { pre: label, hit: '', post: '' };
+    return { pre: label.slice(0, i), hit: label.slice(i, i + 1), post: label.slice(i + 1) };
+  }
+  modSym() { return this.state.mac ? '⌘' : 'Strg+'; }
+  flash(keys, msg) { clearTimeout(this.toastT); this.setState({ toast: msg, toastKeys: keys }); this.toastT = setTimeout(() => this.setState({ toast: '' }), 2000); }
+  single(k) {
+    const s = this.state, m = this.modSym();
+    if (k === 'b') { this.setState({ nav: !s.nav }); this.flash(m + 'B', s.nav ? 'Navigator ausgeblendet' : 'Navigator eingeblendet'); return true; }
+    if (k === 'i') { this.setState({ insp: !s.insp }); this.flash(m + 'I', s.insp ? 'Inspektor ausgeblendet' : 'Inspektor eingeblendet'); return true; }
+    if (k === 'j') { this.setState({ drawer: !s.drawer }); this.flash(m + 'J', s.drawer ? 'Unterer Bereich ausgeblendet' : 'Unterer Bereich eingeblendet'); return true; }
+    if (k === '.') {
+      if (s.focusSave) { this.setState({ ...s.focusSave, focusSave: null }); this.flash(m + '.', 'Bereiche wiederhergestellt'); }
+      else { this.setState({ focusSave: { nav: s.nav, insp: s.insp, drawer: s.drawer }, nav: false, insp: false, drawer: false }); this.flash(m + '.', 'Fokus: nur der Arbeitsbereich'); }
+      return true;
+    }
+    if (k === 'p') { this.flash(m + 'P', 'Befehlspalette (bestehend)'); return true; }
+    if ('12345'.includes(k) && k.length === 1) { const r = ['p', 'k', 'b', 'r', 'w'][Number(k) - 1]; this.setState({ rail: r }); this.flash(m + k, 'Bereich ' + ['Projekt', 'Katalog', 'Bus', 'Prüfung', 'Werkzeuge'][Number(k) - 1]); return true; }
+    return false;
+  }
+  startPrefix(g) {
+    clearTimeout(this.wkT); clearTimeout(this.pT);
+    this.setState({ prefix: g, wk: false, cheat: false, hints: false });
+    this.wkT = setTimeout(() => { if (this.state.prefix === g) this.setState({ wk: true }); }, 400);
+    this.pT = setTimeout(() => { if (this.state.prefix === g && !this.state.wk) this.setState({ prefix: null }); }, 3000);
+  }
+  cancelPrefix() { clearTimeout(this.wkT); clearTimeout(this.pT); this.setState({ prefix: null, wk: false }); }
+  run(gk, item) {
+    const a = item.act, s = this.state, m = this.modSym();
+    const keys = m + gk.toUpperCase() + ' ' + item.dk;
+    const upd = { prefix: null, wk: false };
+    if (a.rail) upd.rail = a.rail;
+    if (a.scope) upd.scope = a.scope;
+    if (a.nav) upd.nav = true;
+    if (a.tab) upd.tab = a.tab;
+    if (a.drawer) { upd.drawer = true; upd.dtab = a.drawer; }
+    let msg = a.msg || item.dl;
+    if (a.op) { upd.ops = [{ pa: '1.1.16', text: a.op, p: 0, id: Date.now() }].concat(s.ops).slice(0, 3); upd.drawer = true; upd.dtab = 'ops'; msg = a.op + ' gestartet'; }
+    if (a.rec) { upd.rec = !s.rec; msg = s.rec ? 'Aufnahme gestoppt' : 'Aufnahme gestartet'; }
+    clearTimeout(this.wkT); clearTimeout(this.pT);
+    this.setState(upd);
+    this.flash(keys, msg);
+  }
+  keyDown(e) {
+    const s = this.state;
+    const mod = e.metaKey || e.ctrlKey;
+    const key = (e.key || '').toLowerCase();
+    if (key === 'meta' || key === 'control') {
+      clearTimeout(this.hT);
+      this.hT = setTimeout(() => this.setState({ hints: true }), 600);
+      return;
+    }
+    clearTimeout(this.hT);
+    if (s.hints) this.setState({ hints: false });
+    if (key === 'f1') { e.preventDefault(); this.cancelPrefix(); this.setState({ cheat: !s.cheat }); return; }
+    if (key === 'escape') { if (s.prefix || s.cheat) { e.preventDefault(); this.cancelPrefix(); this.setState({ cheat: false }); } return; }
+    if (s.prefix) {
+      if (['shift', 'alt'].includes(key)) return;
+      e.preventDefault();
+      const g = this.groups()[s.prefix];
+      const want = key === 'arrowleft' ? '←' : key.toUpperCase();
+      const item = g.items.find(i => i.dk === want);
+      if (item) this.run(s.prefix, item);
+      else { this.cancelPrefix(); this.flash(this.modSym() + s.prefix.toUpperCase() + ' ' + want, 'Keine Belegung – abgebrochen'); }
+      return;
+    }
+    if (!mod || e.altKey) return;
+    if (['g', 'd', 'l', 'k'].includes(key)) { e.preventDefault(); this.startPrefix(key); return; }
+    if (this.single(key)) e.preventDefault();
+  }
+  keyUp(e) {
+    const key = (e.key || '').toLowerCase();
+    if (key === 'meta' || key === 'control') { clearTimeout(this.hT); if (this.state.hints) this.setState({ hints: false }); }
+  }
+  renderVals() {
+    const s = this.state, G = this.groups(), m = this.modSym();
+    const set = (o) => () => this.setState(o);
+    const mkItems = (gk) => G[gk].items.map(i => ({ key: i.dk, ...this.split(i.dl, i.dk), run: () => this.run(gk, i) }));
+    const wkg = s.prefix ? G[s.prefix] : null;
+    const railDef = [['p', 'Projekt', '⌂'], ['k', 'Katalog', '▦'], ['b', 'Bus', '∿'], ['r', 'Prüfung', '✓'], ['w', 'Werkzeuge', '⚒']];
+    const scopeRows = {
+      b: [['g', 'Verteiler Abstellraum'], ['d', '1.1.0', 'OpenKNX: IP-Router'], ['d', '1.1.7', 'Dimmaktor 8 fach'], ['d', '1.1.9', 'Schaltaktor 20 fach'], ['d', '1.1.16', 'Jalousieaktor 8 fach', true], ['g', 'Bad'], ['d', '1.1.13', 'Bad Controller'], ['g', 'Küche'], ['d', '1.1.36', 'Küche Controller'], ['g', 'Wohnzimmer'], ['d', '1.1.48', 'OpenKNX: HVAC']],
+      t: [['g', '1.1 Linie Hauptlinie'], ['d', '1.1.0', 'OpenKNX: IP-Router'], ['d', '1.1.1', 'IP Interface Secure'], ['d', '1.1.7', 'Dimmaktor 8 fach'], ['d', '1.1.9', 'Schaltaktor 20 fach'], ['d', '1.1.13', 'Bad Controller'], ['d', '1.1.16', 'Jalousieaktor 8 fach', true], ['g', '1.2 Linie IP'], ['d', '1.2.2', 'Touch-Display']],
+      a: [['g', '1/3 Beschattung'], ['d', '1/3/4', 'Terrassentüren Zentral'], ['d', '1/3/24', 'Alle Jalousien Auf/Ab'], ['g', '7/1 Wohnzimmer Jalousie'], ['d', '7/1/4', 'Wohnzimmer Zentral'], ['d', '7/1/10', 'Wohnzimmertür Lamelle'], ['d', '7/1/14', 'Wohnzimmertür Auf/Ab', true], ['g', '12/7 Messwerte'], ['d', '12/7/13', 'Helligkeit']]
+    };
+    const fieldsP = [{ l: 'Betriebsart', v: 'Jalousie', u: '' }, { l: 'Fahrzeit Auf', v: '52', u: 's' }, { l: 'Fahrzeit Ab', v: '50', u: 's' }, { l: 'Lamellenverstellzeit', v: '1200', u: 'ms' }, { l: 'Windalarm', v: 'Aktiv', u: '' }];
+    const fieldsO = [{ l: '0 Kanal A Auf/Ab', v: '7/1/14, 7/1/4', u: 'K S' }, { l: '1 Kanal A Lamelle/Stopp', v: '7/1/10', u: 'K S' }, { l: '2 Kanal A Absolute Position', v: '–', u: 'K S' }, { l: '3 Kanal A Status Position', v: '7/1/20', u: 'K L Ü' }, { l: '80 Zentral Auf/Ab', v: '1/3/24', u: 'K S' }];
+    const singlesDef = [
+      [m + 'B', 'Navigator (links) ein/aus', 'neu', 'new'], [m + 'I', 'Inspektor (rechts) ein/aus', 'neu', 'new'], [m + 'J', 'Unterer Bereich ein/aus', 'neu · wie VS Code', 'new'],
+      [m + '.', 'Fokus: alles aus / zurück', 'neu', 'new'], [m + '1…5', 'Bereich der Leiste direkt', 'neu', 'new'], [m + 'F', 'Im aktiven Bereich filtern', 'neu', 'new'],
+      ['F1', 'Tastenübersicht', 'neu', 'new'], ['Esc', 'Abbrechen, Überlagerung schließen', 'neu', 'new'],
+      [m + 'P', 'Befehlspalette', 'bleibt', 'old'], [m + 'S / O / E', 'Speichern, Öffnen, Export', 'bleibt', 'old'], [m + 'Z / Y', 'Rückgängig, Wiederholen', 'bleibt', 'old'], [m + ',', 'Einstellungen', 'bleibt', 'old'], ['F2', 'Umbenennen', 'bleibt', 'old']
+    ];
+    const caps = [
+      { keys: m + 'B', label: 'Navigator', run: () => this.single('b'), cls: s.nav ? 'on' : '' },
+      { keys: m + 'I', label: 'Inspektor', run: () => this.single('i'), cls: s.insp ? 'on' : '' },
+      { keys: m + 'J', label: 'Unten', run: () => this.single('j'), cls: s.drawer ? 'on' : '' },
+      { keys: m + '.', label: 'Fokus', run: () => this.single('.'), cls: s.focusSave ? 'on' : '' },
+      { keys: m + 'G', label: 'Gehe zu …', run: () => this.startPrefix('g'), cls: s.prefix === 'g' ? 'on' : '' },
+      { keys: m + 'D', label: 'Gerät …', run: () => this.startPrefix('d'), cls: s.prefix === 'd' ? 'on' : '' },
+      { keys: m + 'L', label: 'Verknüpfen …', run: () => this.startPrefix('l'), cls: s.prefix === 'l' ? 'on' : '' },
+      { keys: m + 'K', label: 'KNX-Bus …', run: () => this.startPrefix('k'), cls: s.prefix === 'k' ? 'on' : '' },
+      { keys: m + ' halten', label: 'Marken', run: () => { clearTimeout(this.hT); this.setState({ hints: !s.hints }); }, cls: s.hints ? 'on' : '' },
+      { keys: 'F1', label: 'Übersicht', run: () => this.setState({ cheat: !s.cheat, prefix: null, wk: false }), cls: s.cheat ? 'on' : '' }
+    ];
+    const visible = [s.nav ? 'Navigator' : null, s.insp ? 'Inspektor' : null, s.drawer ? 'unterer Bereich' : null].filter(Boolean);
+    return {
+      mod: m,
+      osCls: { mac: s.mac ? 'on' : '', win: s.mac ? '' : 'on' }, osMac: set({ mac: true }), osWin: set({ mac: false }),
+      focusCls: s.focused ? 'on' : 'off', focusText: s.focused ? 'Tastatur aktiv' : 'Zum Tippen hineinklicken',
+      focusApp: () => { try { window.focus(); } catch (e) {} this.setState({ focused: true }); },
+      navOn: s.nav, navOff: !s.nav, inspOn: s.insp, drawerOn: s.drawer, drawerOff: !s.drawer,
+      hintsOn: s.hints, cheatOn: s.cheat, recording: s.rec,
+      wkOn: !!s.prefix && s.wk, chordOn: !!s.prefix,
+      wk: wkg ? { key: s.prefix.toUpperCase(), title: wkg.title, items: mkItems(s.prefix) } : { key: '', title: '', items: [] },
+      rail: railDef.map((r, i) => ({ label: r[1], icon: r[2], cls: s.rail === r[0] ? 'on' : '', hint: m + (i + 1) })),
+      navTitle: { b: 'Projekt · Gebäude', t: 'Projekt · Topologie', a: 'Projekt · Gruppenadressen' }[s.scope],
+      scope: { b: s.scope === 'b' ? 'on' : '', t: s.scope === 't' ? 'on' : '', a: s.scope === 'a' ? 'on' : '' },
+      navRows: scopeRows[s.scope].map(r => ({ grp: r[0] === 'g', item: r[0] === 'd', pa: r[0] === 'd' ? r[1] : '', label: r[0] === 'g' ? r[1] : r[2], cls: r[3] ? 'on' : '' })),
+      tab: { p: s.tab === 'p' ? 'on' : '', o: s.tab === 'o' ? 'on' : '' },
+      formTitle: s.tab === 'p' ? 'Kanal A' : 'Kommunikationsobjekte',
+      fields: s.tab === 'p' ? fieldsP : fieldsO,
+      devStatus: s.ops.some(o => o.p < 100) ? 'Wird programmiert …' : 'Programmiert',
+      hasToast: !!s.toast, toast: s.toast, toastKeys: s.toastKeys,
+      dtab: { ops: s.dtab === 'ops' ? 'on' : '', tel: s.dtab === 'tel' ? 'on' : '' }, dtabOps: s.dtab === 'ops', dtabTel: s.dtab === 'tel',
+      ops: s.ops.map(o => ({ pa: o.pa, text: o.text + (o.p >= 100 ? ' · fertig' : ' · ' + o.p + ' %'), w: 'width: ' + o.p + '%' })), noOps: s.ops.length === 0,
+      layoutText: visible.length ? 'Sichtbar: ' + visible.join(', ') : 'Fokus: nur Arbeitsbereich',
+      caps,
+      singles: singlesDef.slice(0, 10).map(x => ({ keys: x[0], label: x[1] })),
+      singleRows: singlesDef.map(x => ({ keys: x[0], label: x[1], tag: x[2], tagCls: x[3] })),
+      groupsDe: ['g', 'd', 'l', 'k'].map(k => ({ key: k.toUpperCase(), title: G[k].title, items: mkItems(k) })),
+      groupsBoth: ['g', 'd', 'l', 'k'].map(k => ({ key: k.toUpperCase(), title: G[k].title, en: G[k].en, rows: G[k].items.map(i => {
+        const d = this.split(i.dl, i.dk), e = this.split(i.el, i.ek);
+        return { dk: i.dk, dpre: d.pre, dhit: d.hit, dpost: d.post, ek: i.ek, epre: e.pre, ehit: e.hit, epost: e.post };
+      }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>
