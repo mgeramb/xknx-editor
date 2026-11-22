@@ -43,3 +43,7 @@ Left as they are: the content of the parameters (the device defines it) and the 
 - [ ] The workbench is translated to German only: 23 languages are missing, which fails 46 translation tests.
 - [ ] The indicator of the devices to program opens Operations, which says "No operations" as long as nothing is running; it has to show those devices.
 - [ ] Quick clicks on tabs in the browser UI can get lost, also after the fix for quick taps. Seen with automated clicks; to be checked with a real mouse.
+
+## Designed Separately
+
+- **Device links** (part of stage 4, implementation postponed): an overview of all devices with their links as the successor of the Bus Diagram's Links view; concept, prototype and plan in [`../device-links`](../device-links/README.md).

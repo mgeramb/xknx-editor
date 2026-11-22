@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The prototype is offline: nothing of the project may leave the machine. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src data:">
+<title>Geräteverknüpfungen</title>
+<style>
+/*FONTS*/
+:root{--bg:#f4f5f7;--panel:#fff;--sub:#f8f9fb;--hover:#f0f2f5;--sel:#e8effc;--line:#e2e5ea;--line2:#d3d8df;--border:#8590a0;--text:#1b2230;--muted:#586273;--accent:#1f5fd1;--ink:#fff;--out:#c2570c;--in:#1f5fd1;--both:#586273;--center:#eef1f5;--warn:#9a4a00;--warn-weak:#fff1df}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#14171c;--panel:#1b1f26;--sub:#171a20;--hover:#222730;--sel:#1f2c44;--line:#2a3039;--line2:#363d48;--border:#6b7586;--text:#e6e9ee;--muted:#a2abb8;--accent:#6aa3ff;--ink:#0d1420;--out:#f2a54a;--in:#6aa3ff;--both:#b7c0cc;--center:#232933;--warn:#f2a54a;--warn-weak:#33261a}}
+:root[data-theme=dark]{--bg:#14171c;--panel:#1b1f26;--sub:#171a20;--hover:#222730;--sel:#1f2c44;--line:#2a3039;--line2:#363d48;--border:#6b7586;--text:#e6e9ee;--muted:#a2abb8;--accent:#6aa3ff;--ink:#0d1420;--out:#f2a54a;--in:#6aa3ff;--both:#b7c0cc;--center:#232933;--warn:#f2a54a;--warn-weak:#33261a}
+*{box-sizing:border-box}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:13px/18px "XKNX Sans",system-ui,sans-serif}
+button,input,select{font:inherit;color:inherit}
+button{height:30px;padding:0 10px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;white-space:nowrap}
+button:hover{background:var(--hover)}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input,select{height:30px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--sub)}
+header{display:flex;align-items:center;gap:12px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font-size:16px;margin:0}
+.muted{color:var(--muted)}
+[hidden]{display:none!important}
+.mono{font-family:Inconsolata,monospace}
+.grow{flex:1}
+.tabs{display:flex;gap:2px;background:var(--bg);padding:2px;border-radius:8px}
+.tabs button{border:0;background:none}
+.tabs button.on{background:var(--panel);color:var(--accent);font-weight:700}
+.find{position:relative;width:290px;max-width:100%}
+.find input{width:100%}
+#hits{position:absolute;z-index:5;top:34px;left:0;right:0;max-height:380px;overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:8px}
+#hits:empty{display:none}
+#filters{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--sub);border-bottom:1px solid var(--line);flex-wrap:wrap;flex-shrink:0}
+#filters button,#filters select{height:26px;flex-shrink:0}
+#filters .chip{border-radius:99px}
+#filters .chip.on{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+main{flex:1;min-height:0;display:flex}
+#stage{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+#canvas{flex:1;min-height:0;overflow:auto;position:relative}
+#canvas svg{display:block}
+svg text{font:12px "XKNX Sans",system-ui,sans-serif;fill:var(--text);pointer-events:none}
+svg text.mono{font:12px Inconsolata,monospace;fill:var(--muted)}
+svg text.head{font-weight:700;font-size:11px;letter-spacing:.04em;fill:var(--muted)}
+svg [data-act]{cursor:pointer}
+.legend{display:flex;align-items:center;gap:14px;padding:6px 14px;border-top:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden}
+.key::before{content:"";display:inline-block;width:20px;height:3px;margin-right:6px;vertical-align:middle;background:var(--both)}
+.key.out::before{background:var(--out)}
+.key.in::before{background:var(--in)}
+aside{width:350px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);overflow:auto}
+aside section{padding:12px 16px;border-bottom:1px solid var(--line)}
+aside h2{font-size:16px;line-height:22px;margin:2px 0 4px;overflow-wrap:anywhere}
+aside h3{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+aside p{margin:4px 0}
+.row{display:flex;align-items:center;gap:8px;width:100%;min-height:28px;height:auto;padding:4px 6px;border:0;border-radius:6px;background:none;text-align:left;white-space:normal}
+.row.on{background:var(--sel);box-shadow:inset 3px 0 var(--accent)}
+.row .name{flex:1;min-width:0;overflow-wrap:anywhere}
+.row small{color:var(--muted);white-space:nowrap}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.o{color:var(--out);font-weight:700}.i{color:var(--in);font-weight:700}
+.note{padding:8px 10px;border-radius:8px;background:var(--warn-weak);color:var(--warn)}
+.empty{padding:40px;color:var(--muted);max-width:460px}
+@media (max-width:1100px){aside{width:300px}}
+@media (max-width:760px){main{flex-direction:column}aside{width:auto;height:40%;border:0;border-top:1px solid var(--line2)}header .sum,header .grow,.legend,#theme{display:none}.find{width:100%}#filters{flex-wrap:nowrap;overflow-x:auto}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Geräteverknüpfungen</h1><span class="muted sum" id="sum"></span><span class="grow"></span>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="find"><input id="q" type="search" autocomplete="off" placeholder="Gerät, Raum oder Gruppenadresse suchen" aria-label="Suchen"><div id="hits"></div></div>
+  <button id="theme" data-act="theme" title="Helles oder dunkles Design">Hell/Dunkel</button>
+</header>
+<div id="filters"></div>
+<main><div id="stage"><div id="canvas"></div><div class="legend" id="legend"></div></div><aside id="side"></aside></main>
+<script>
+"use strict";
+const DATA = /*DATA*/null;
+
+(() => {
+if (!DATA) {
+  document.querySelector("main").innerHTML = '<p class="empty">Diese Datei ist die Vorlage ohne Projektdaten. Mit build_prototype.py daraus den Entwurf erzeugen.</p>';
+  return;
+}
+
+// --- helpers -------------------------------------------------------------------------------------
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const addresses = (n) => plural(n, "Adresse", "Adressen");
+const natural = (a, b) => a.localeCompare(b, "de", {numeric: true});
+const bump = (map, key, make) => { if (!map.has(key)) map.set(key, make()); return map.get(key); };
+const measure = document.createElement("canvas").getContext("2d");
+const fitCache = new Map();
+function fit(text, width, bold = false) {
+  const key = `${width}|${bold}|${text}`;
+  if (fitCache.has(key)) return fitCache.get(key);
+  measure.font = `${bold ? "700 11px" : "12px"} "XKNX Sans", sans-serif`;
+  let out = text;
+  if (measure.measureText(text).width > width) {
+    let lo = 0, hi = text.length;
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      if (measure.measureText(text.slice(0, mid) + "…").width <= width) lo = mid; else hi = mid - 1;
+    }
+    out = text.slice(0, lo) + "…";
+  }
+  fitCache.set(key, out);
+  return out;
+}
+
+// --- model ---------------------------------------------------------------------------------------
+const device = new Map(DATA.devices.map((d) => [d.id, d]));
+const space = new Map(DATA.spaces.map((s) => [s.id, s]));
+const chain = (id) => { const out = []; for (let s = space.get(id); s; s = space.get(s.parent)) out.unshift(s); return out; };
+
+/** The name without the room in front of it: the card already says where the device is. */
+function shortName(d) {
+  const places = chain(d.space).flatMap((s) => s.name.toLowerCase().split(/\s+/));
+  const local = (part) => part.toLowerCase().split(/\s+/).every((w) => places.some((p) => p.startsWith(w)));
+  const parts = d.name.split(" / ");
+  if (parts.length > 1 && local(parts[0])) return parts.slice(1).join(" / ");
+  const words = d.name.split(" ");
+  if (words.length > 1 && local(words[0])) return words.slice(1).join(" ");
+  return d.name;
+}
+
+/** A function of a device (button, channel, scene), taken from its group object's name. */
+function functionOf(co) {
+  const name = DATA.objects[co][1].split("  ·  ")[0];
+  const head = name.split(": ")[0];
+  return (head !== name && head.length > 2 ? head : name.split(" - ")[0]).trim() || "Allgemein";
+}
+
+const trade = (middle) => {
+  const first = (DATA.groups[middle] || "Ohne Namen").split("/")[0].trim();
+  return first === "Sonstige" ? "Sonstiges" : first;
+};
+const BROADCAST = 8;
+const GAS = DATA.gas.map(([id, address, name, members]) => {
+  const parts = address.split("/");
+  const middle = `${parts[0]}/${parts[1]}`;
+  return {id, address, name, main: parts[0], middle, trade: trade(middle), broad: members.length >= BROADCAST,
+    members: members.map(([d, cos]) => ({d, cos, s: cos.some((c) => c[1]), r: cos.some((c) => c[2])}))};
+});
+const ga = new Map(GAS.map((g) => [g.id, g]));
+
+// Rooms left and right, distribution boards in the middle: that is where most links end.
+const allBoxes = [];
+{
+  const by = new Map();
+  for (const d of DATA.devices) bump(by, space.has(d.space) ? d.space : 0, () => []).push(d.id);
+  const roots = DATA.spaces.filter((s) => !s.parent);
+  const ordered = [];
+  const walk = (s) => { ordered.push(s); DATA.spaces.filter((c) => c.parent === s.id).forEach(walk); };
+  roots.forEach(walk);
+  for (const s of ordered) {
+    if (!by.has(s.id)) continue;
+    const root = chain(s.id)[0];
+    const label = root !== roots[0] && root.name !== s.name ? `${root.name} · ${s.name}` : s.name;
+    allBoxes.push({id: s.id, label, center: s.type === "DistributionBoard", devices: by.get(s.id)});
+  }
+  if (by.has(0)) allBoxes.push({id: 0, label: "Ohne Raum", center: false, devices: by.get(0)});
+}
+const boxOf = new Map(allBoxes.flatMap((b) => b.devices.map((d) => [d, b])));
+const label = new Map(DATA.devices.map((d) => [d.id, shortName(d)]));
+
+// A place keeps its column whatever is folded, hidden or filtered: the map can be learned.
+const columnOf = new Map();
+{
+  const outer = allBoxes.filter((b) => !b.center);
+  const size = (list) => list.reduce((n, b) => n + b.devices.length + 1.4, 0);
+  let split = 0, best = Infinity;
+  for (let i = 0; i <= outer.length; i++) {
+    const worst = Math.max(size(outer.slice(0, i)), size(outer.slice(i)));
+    if (worst < best) { best = worst; split = i; }
+  }
+  allBoxes.forEach((b) => columnOf.set(b.id, b.center ? 1 : outer.indexOf(b) < split ? 0 : 2));
+}
+
+// --- state ---------------------------------------------------------------------------------------
+const initial = () => ({view: "map", sel: null, trade: "", main: "", broad: false, hidden: new Set(), closed: new Set(), middle: ""});
+let state = initial();
+let history = [];
+let hovered = null;
+function change(patch, remember = true) {
+  if (remember) history.push(state);
+  state = {...state, ...patch};
+  hovered = null;
+  render();
+}
+const select = (sel, patch = {}) => change({sel, middle: "", ...patch});
+const shown = (d) => !state.hidden.has(d);
+function activeGas(withBroad = state.broad) {
+  return GAS.filter((g) => (!state.trade || g.trade === state.trade) && (!state.main || g.main === state.main) && (withBroad || !g.broad));
+}
+
+/** The devices a selection stands for. */
+function ownDevices(sel) {
+  if (!sel) return new Set();
+  if (sel.kind === "device" || sel.kind === "pair") return new Set([sel.id]);
+  if (sel.kind === "box") return new Set(allBoxes.find((b) => b.id === sel.id).devices.filter(shown));
+  return new Set();
+}
+
+/** Sender → receiver relations that touch the selection, with their group addresses. */
+function relations(sel, gas = activeGas()) {
+  const own = ownDevices(sel);
+  if (sel?.kind === "ga") gas = [ga.get(sel.id)];
+  const role = (m, index) => {
+    if (sel?.fn && m.d === sel.id) return m.cos.some((c) => c[index] && functionOf(c[0]) === sel.fn);
+    return index === 1 ? m.s : m.r;
+  };
+  const out = [];
+  for (const g of gas) {
+    for (const a of g.members) {
+      if (!shown(a.d) || !role(a, 1)) continue;
+      for (const b of g.members) {
+        if (a.d === b.d || !shown(b.d) || !role(b, 2)) continue;
+        if (own.size) {
+          if (own.has(a.d) === own.has(b.d)) continue;
+          if (sel.kind === "pair" && a.d !== sel.other && b.d !== sel.other) continue;
+        }
+        out.push({a: a.d, b: b.d, g});
+      }
+    }
+  }
+  return out;
+}
+
+/** Partner device -> the addresses it receives from the selection and the ones it sends to it. */
+function partnersOf(sel, gas) {
+  const own = ownDevices(sel), out = new Map();
+  for (const {a, b, g} of relations(sel, gas)) {
+    const sending = own.has(a);
+    const p = bump(out, sending ? b : a, () => ({out: new Set(), in: new Set(), all: new Set()}));
+    (sending ? p.out : p.in).add(g.id);
+    p.all.add(g.id);
+  }
+  return out;
+}
+
+// --- map -----------------------------------------------------------------------------------------
+function mapLayout(width, height) {
+  const boxes = allBoxes.map((b) => ({...b, devices: b.devices.filter(shown)})).filter((b) => b.devices.length);
+  const weight = (b) => 1 + (state.closed.has(b.id) ? 0 : b.devices.length) + .4;
+  const total = (list) => list.reduce((n, b) => n + weight(b), 0);
+  const phone = width < 600;
+  let columns;
+  if (phone) columns = [boxes];
+  else {
+    columns = [0, 1, 2].map((col) => boxes.filter((b) => columnOf.get(b.id) === col));
+  }
+  const top = phone ? 10 : 26;
+  const tallest = Math.max(...columns.map(total));
+  const row = phone ? 38 : Math.max(17, Math.min(30, (height - top - 4) / tallest));
+  const colW = phone ? width - 20 : Math.max(150, Math.min(340, width * .245));
+  const full = phone ? width : Math.max(width, colW * 3 + 160);
+  const xs = phone ? [10] : [14, (full - colW) / 2, full - colW - 14];
+  const at = new Map(), rects = [];
+  let bottom = 0;
+  columns.forEach((list, col) => {
+    let y = top + Math.max(0, (tallest - total(list)) * row / 2);
+    if (phone) y = top;
+    for (const b of list) {
+      const closed = state.closed.has(b.id), h = row * (weight(b) - .4);
+      rects.push({b, x: xs[col], y, h, closed});
+      at.set(`b${b.id}`, {col, x: xs[col], y: y + row / 2});
+      b.devices.forEach((d, i) => at.set(`d${d}`, {col, x: xs[col], y: y + row * (closed ? .5 : i + 1.5)}));
+      y += row * weight(b);
+    }
+    bottom = Math.max(bottom, y);
+  });
+  return {rects, at, row, colW, width: full, height: Math.max(height, bottom), xs, phone};
+}
+
+function curve(a, b, L) {
+  const right = a.x + L.colW, other = b.x + L.colW;
+  if (a.col === b.col) {
+    const toLeft = a.col === 2;
+    const x0 = toLeft ? a.x : right, x1 = toLeft ? b.x : other;
+    const bend = (toLeft ? -1 : 1) * Math.min(85, 22 + Math.abs(a.y - b.y) * .22);
+    return `M${x0},${a.y}C${x0 + bend},${a.y} ${x1 + bend},${b.y} ${x1},${b.y}`;
+  }
+  const forward = a.col < b.col;
+  const x0 = forward ? right : a.x, x1 = forward ? b.x : other;
+  if (Math.abs(a.col - b.col) === 1) {
+    const mid = (x0 + x1) / 2;
+    return `M${x0},${a.y}C${mid},${a.y} ${mid},${b.y} ${x1},${b.y}`;
+  }
+  // Room to room across the middle: over the distribution boards, never behind one of their devices.
+  const gap = L.xs[1] - L.xs[0] - L.colW, dir = forward ? 1 : -1, lane = 10;
+  const u = x0 + dir * gap, v = x1 - dir * gap;
+  return `M${x0},${a.y}C${x0 + dir * gap / 2},${a.y} ${u - dir * gap / 3},${lane} ${u},${lane}L${v},${lane}C${v + dir * gap / 3},${lane} ${x1 - dir * gap / 2},${b.y} ${x1},${b.y}`;
+}
+
+const arrows = `<defs>${["out", "in", "both"].map((k) => `<marker id="a-${k}" viewBox="0 0 8 8" refX="7.5" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="var(--${k})"/></marker>`).join("")}</defs>`;
+
+function drawMap(width, height) {
+  const L = mapLayout(width, height);
+  const sel = hovered ?? state.sel;
+  const own = ownDevices(sel);
+  const point = (d) => (state.closed.has(boxOf.get(d).id) ? `b${boxOf.get(d).id}` : `d${d}`);
+  const edges = new Map(), lit = new Map(), badge = new Map();
+
+  if (!sel) {
+    // At rest only bundles: one line per room and device in the middle.
+    for (const {a, b, g} of relations(null)) {
+      const A = boxOf.get(a), B = boxOf.get(b);
+      if (A.center === B.center) continue;
+      const room = A.center ? B : A, inner = A.center ? a : b;
+      const e = bump(edges, `${room.id}|${point(inner)}`, () => ({a: `b${room.id}`, b: point(inner), gas: new Set()}));
+      e.gas.add(g.id);
+    }
+  } else {
+    for (const {a, b, g} of relations(sel)) {
+      const sending = sel.kind === "ga" || own.has(a);
+      const from = point(a), to = point(b);
+      if (from === to) continue;
+      const [u, v] = sending ? [from, to] : [to, from];
+      const e = bump(edges, `${u}|${v}`, () => ({a: u, b: v, out: false, in: false, gas: new Set(), partner: sending ? b : a}));
+      e[sending ? "out" : "in"] = true;
+      e.gas.add(g.id);
+      bump(badge, v, () => new Set()).add(g.id);
+      lit.set(from, true); lit.set(to, true);
+    }
+    own.forEach((d) => lit.set(point(d), true));
+    if (sel.kind === "ga") ga.get(sel.id).members.forEach((m) => lit.set(point(m.d), true));
+  }
+
+  let lines = "";
+  if (!L.phone) {
+    for (const e of [...edges.values()].sort((p, q) => p.gas.size - q.gas.size)) {
+      const A = L.at.get(e.a), B = L.at.get(e.b);
+      if (!A || !B) continue;
+      const n = e.gas.size, d = curve(A, B, L);
+      const w = Math.min(7, .9 + Math.sqrt(n) * (sel ? .8 : .65));
+      if (!sel) {
+        lines += `<path d="${d}" fill="none" stroke="var(--both)" stroke-width="${w}" opacity="${Math.min(.34, .06 + n * .022)}"/>`;
+        continue;
+      }
+      const kind = e.out && e.in ? "both" : e.out ? "out" : "in";
+      lines += `<path d="${d}" fill="none" stroke="var(--${kind})" stroke-width="${w}" opacity=".78" ${e.out ? `marker-end="url(#a-${kind})"` : ""} ${e.in ? `marker-start="url(#a-${kind})"` : ""}/>`;
+      if (!hovered && sel.kind === "device" && !sel.fn) lines += `<path d="${d}" fill="none" stroke="transparent" stroke-width="10" data-act="pair" data-id="${sel.id}" data-other="${e.partner}"><title>${esc(label.get(e.partner))}: ${addresses(n)}</title></path>`;
+    }
+  }
+
+  let cards = "";
+  const ry = L.row / 2 + 4;
+  for (const {b, x, y, h, closed} of L.rects) {
+    cards += `<rect x="${x}" y="${y}" width="${L.colW}" height="${h}" rx="7" fill="var(--${b.center ? "center" : "panel"})" stroke="var(--line2)"/>`;
+    const boxLit = !sel || lit.has(`b${b.id}`) || b.devices.some((d) => lit.has(point(d)));
+    cards += `<g opacity="${boxLit ? 1 : .4}"><rect x="${x + 20}" y="${y}" width="${L.colW - 20}" height="${L.row}" fill="transparent" data-act="box" data-id="${b.id}" tabindex="0" role="button" aria-label="${esc(b.label)}"/>`;
+    cards += `<text x="${x + 8}" y="${y + ry}">${closed ? "▸" : "▾"}</text><rect x="${x}" y="${y}" width="22" height="${L.row}" fill="transparent" data-act="fold" data-id="${b.id}" role="button" aria-label="${esc(b.label)} auf- oder zuklappen"/>`;
+    cards += `<text class="head" x="${x + 23}" y="${y + ry}">${esc(fit(b.label.toUpperCase(), L.colW - 76, true))}</text>`;
+    const count = badge.get(`b${b.id}`)?.size;
+    cards += `<text class="mono" text-anchor="end" x="${x + L.colW - 9}" y="${y + ry}">${closed && count ? count : b.devices.length}</text></g>`;
+    if (closed) continue;
+    b.devices.forEach((id, i) => {
+      const d = device.get(id), key = `d${id}`, ty = y + L.row * (i + 1);
+      const mine = sel && own.has(id), on = !sel || lit.has(key);
+      const n = badge.get(key)?.size;
+      const fill = mine ? "var(--sel)" : sel && on ? "var(--hover)" : "transparent";
+      cards += `<g data-act="device" data-id="${id}" tabindex="0" role="button" aria-label="${esc(`${d.ia} ${d.name}`)}" opacity="${on ? 1 : .34}"><title>${esc(`${d.ia}  ${d.name}\n${d.product}`)}</title><rect x="${x + 1}" y="${ty}" width="${L.colW - 2}" height="${L.row}" fill="${fill}"/>`;
+      if (mine) cards += `<rect x="${x + 1}" y="${ty}" width="3" height="${L.row}" fill="var(--accent)"/>`;
+      cards += `<text class="mono" x="${x + 9}" y="${ty + ry}">${esc(d.ia)}</text><text x="${x + 62}" y="${ty + ry}">${esc(fit(label.get(id), L.colW - 72 - (n ? 26 : 0)))}</text>`;
+      if (n) cards += `<text class="mono" text-anchor="end" x="${x + L.colW - 7}" y="${ty + ry}" style="fill:var(--text);font-weight:700">${n}</text>`;
+      cards += "</g>";
+    });
+  }
+  return `<svg width="${L.width}" height="${L.height}" data-bg>${arrows}${lines}${cards}</svg>`;
+}
+
+// --- signal path ---------------------------------------------------------------------------------
+function drawPath(width, height) {
+  const sel = state.sel;
+  if (!sel) return '<p class="empty">Zuerst in der Übersicht oder über die Suche ein Gerät, einen Raum, eine Verbindung oder eine Gruppenadresse wählen. Der Signalweg zeigt dann nur die Adressen dieser Auswahl.</p>';
+  const own = ownDevices(sel);
+  let rel = relations(sel);
+  if (state.middle) rel = rel.filter((r) => r.g.middle === state.middle);
+  const distinct = new Set(rel.map((r) => r.g.id)).size;
+  const grouped = !state.middle && distinct > 18 && new Set(rel.map((r) => r.g.middle)).size > 1;
+  const mid = new Map(), left = new Map(), right = new Map(), edges = new Map();
+  for (const {a, b, g} of rel) {
+    const key = grouped ? g.middle : g.id;
+    bump(mid, key, () => ({key, g, n: new Set()})).n.add(g.id);
+    if (!own.has(a)) {
+      bump(left, a, () => []).push(key);
+      edges.set(`l${a}|${key}`, {side: 0, d: a, key});
+    }
+    if (!own.has(b)) {
+      bump(right, b, () => []).push(key);
+      edges.set(`r${b}|${key}`, {side: 1, d: b, key});
+    }
+  }
+  if (!mid.size) return '<p class="empty">Keine Verknüpfung mit dieser Auswahl und diesem Filter.</p>';
+  const middle = [...mid.values()].sort((p, q) => natural(p.g.address, q.g.address));
+  const index = new Map(middle.map((m, i) => [m.key, i]));
+  // Each side ordered by the mean position of its addresses, which keeps crossings few.
+  const mean = (keys) => keys.reduce((n, k) => n + index.get(k), 0) / keys.length;
+  const order = (map) => [...map].sort((p, q) => mean(p[1]) - mean(q[1])).map((p) => p[0]);
+  const sides = [order(left), order(right)];
+  const row = 30, rows = Math.max(middle.length, sides[0].length, sides[1].length);
+  const H = Math.max(height, rows * row + 80), W = Math.max(width, 720);
+  const sideW = W * .25, midW = W * .3, midX = (W - midW) / 2;
+  const y = (i, n) => 46 + (H - 56 - n * row) / 2 + i * row + row / 2;
+  const who = sel.kind === "ga" ? "" : sel.kind === "box" ? allBoxes.find((b) => b.id === sel.id).label : device.get(sel.id).name;
+  const caption = (x, w, text) => `<text class="head" text-anchor="middle" x="${x + w / 2}" y="26">${esc(fit(text.toUpperCase(), w, true))}</text>`;
+  let s = caption(10, sideW, who ? "Senden an die Auswahl" : "Sender") + caption(midX, midW, who || "Gruppenadresse") + caption(W - sideW - 10, sideW, who ? "Empfangen von der Auswahl" : "Empfänger");
+
+  for (const e of edges.values()) {
+    const list = sides[e.side];
+    const sy = y(list.indexOf(e.d), list.length), my = y(index.get(e.key), middle.length);
+    const [x0, y0, x1, y1] = e.side ? [midX + midW, my, W - sideW - 10, sy] : [10 + sideW, sy, midX, my];
+    const c = (x0 + x1) / 2, kind = e.side ? "out" : "in";
+    s += `<path d="M${x0},${y0}C${c},${y0} ${c},${y1} ${x1},${y1}" fill="none" stroke="var(--${kind})" stroke-width="1.4" opacity=".55" marker-end="url(#a-${kind})"/>`;
+  }
+  sides.forEach((list, side) => list.forEach((id, i) => {
+    const x = side ? W - sideW - 10 : 10, cy = y(i, list.length), d = device.get(id);
+    s += `<g data-act="${sel.kind === "device" ? "pair" : "device"}" data-id="${sel.kind === "device" ? sel.id : id}" data-other="${id}"><title>${esc(`${d.ia}  ${d.name}`)}</title><rect x="${x}" y="${cy - 12}" width="${sideW}" height="24" rx="5" fill="var(--panel)" stroke="var(--line2)"/><text class="mono" x="${x + 7}" y="${cy + 4}">${esc(d.ia)}</text><text x="${x + 60}" y="${cy + 4}">${esc(fit(d.name, sideW - 68))}</text></g>`;
+  }));
+  middle.forEach((m, i) => {
+    const cy = y(i, middle.length), g = m.g;
+    const first = grouped ? `${m.key}/*` : g.address;
+    const text = grouped ? `${DATA.groups[g.main] || ""} · ${DATA.groups[m.key] || ""}` : g.name;
+    s += `<g data-act="${grouped ? "middle" : "ga"}" data-id="${esc(m.key)}"><title>${esc(`${first}  ${text}`)}</title><rect x="${midX}" y="${cy - 12}" width="${midW}" height="24" rx="5" fill="var(--sel)"/><text class="mono" x="${midX + 7}" y="${cy + 4}" style="fill:var(--accent)">${esc(first)}</text><text x="${midX + 62}" y="${cy + 4}">${esc(fit(text, midW - (grouped ? 96 : 70)))}</text>`;
+    if (grouped) s += `<text class="mono" text-anchor="end" x="${midX + midW - 7}" y="${cy + 4}">${m.n.size} ›</text>`;
+    s += "</g>";
+  });
+  return `<svg width="${W}" height="${H}">${arrows}${s}</svg>`;
+}
+
+// --- matrix --------------------------------------------------------------------------------------
+function drawMatrix(width, height) {
+  const cells = new Map(), used = new Set();
+  for (const {a, b, g} of relations(null)) {
+    bump(cells, `${a}|${b}`, () => new Set()).add(g.id);
+    used.add(a); used.add(b);
+  }
+  const list = allBoxes.flatMap((b) => b.devices).filter((d) => used.has(d));
+  if (!list.length) return '<p class="empty">Keine Verknüpfung mit diesem Filter.</p>';
+  const left = 280, top = 78;
+  const c = Math.max(12, Math.min(26, (height - top - 10) / list.length, (width - left - 10) / list.length));
+  const size = c * list.length, hot = ownDevices(state.sel);
+  let s = '<text class="head" x="10" y="20">ZEILE SENDET · SPALTE EMPFÄNGT</text>';
+  list.forEach((id, i) => {
+    const p = i * c, d = device.get(id), small = c < 14 ? "font-size:10px" : "";
+    if (hot.has(id)) s += `<rect x="0" y="${top + p}" width="${left + size}" height="${c}" fill="var(--sel)"/><rect x="${left + p}" y="${top}" width="${c}" height="${size}" fill="var(--sel)"/>`;
+    if (!i || boxOf.get(id) !== boxOf.get(list[i - 1])) {
+      s += `<path d="M0,${top + p}H${left + size}M${left + p},${top}V${top + size}" stroke="var(--line2)"/><text class="head" x="10" y="${top + p + c * .78}" style="font-size:9.5px">${esc(fit(boxOf.get(id).label, 78, true))}</text>`;
+    }
+    s += `<g data-act="device" data-id="${id}"><title>${esc(`${d.ia} ${d.name}`)}</title><rect x="94" y="${top + p}" width="${left - 96}" height="${c}" fill="transparent"/><text x="96" y="${top + p + c * .78}" style="${small}">${esc(fit(label.get(id), 132))}</text><text class="mono" text-anchor="end" x="${left - 5}" y="${top + p + c * .78}" style="${small}">${esc(d.ia)}</text></g>`;
+    s += `<text class="mono" style="${small}" transform="translate(${left + p + c * .78},${top - 5})rotate(-90)">${esc(d.ia)}</text>`;
+  });
+  list.forEach((a, i) => list.forEach((b, j) => {
+    const n = cells.get(`${a}|${b}`)?.size;
+    if (!n) return;
+    s += `<rect data-act="pair" data-id="${a}" data-other="${b}" x="${left + j * c + .5}" y="${top + i * c + .5}" width="${c - 1}" height="${c - 1}" fill="var(--accent)" opacity="${Math.min(1, .18 + Math.log2(n) * .17)}"><title>${esc(`${label.get(a)} → ${label.get(b)}: ${addresses(n)}`)}</title></rect>`;
+  }));
+  return `<svg width="${Math.max(width, left + size + 10)}" height="${top + size + 10}">${s}</svg>`;
+}
+
+// --- today -----------------------------------------------------------------------------------------
+function drawToday(width, height) {
+  const t = DATA.today, natW = 1202, natH = t.height + 60;
+  const small = (height - 70) / natH, stripW = Math.max(80, natW * small + 40);
+  const z = Math.min(1, Math.max(.7, (width - stripW - 20) / natW));
+  const from = Math.max(0, natH / 2 - height / z / 2);
+  const x = (col) => 16 + col * 440;
+  let s = "";
+  for (const [a, y0, b, y1] of t.edges) {
+    const u = x(a) + 290, v = x(b), c = (u + v) / 2;
+    s += `<path d="M${u},${y0 + 51}C${c},${y0 + 51} ${c},${y1 + 51} ${v},${y1 + 51}" fill="none" stroke="var(--accent)" opacity=".3"/>`;
+  }
+  for (const [col, y, text] of t.nodes) {
+    s += `<rect x="${x(col)}" y="${y + 40}" width="290" height="22" fill="var(--panel)" stroke="var(--line2)"/>`;
+    if (y + 40 > from - 30 && y + 40 < from + height / z + 30) s += `<text x="${x(col) + 6}" y="${y + 55}">${esc(fit(text, 278))}</text>`;
+  }
+  const strip = `translate(20,50)scale(${small})`;
+  return `<svg width="${width}" height="${height}"><defs><g id="today">${s}</g></defs>`
+    + `<use href="#today" transform="${strip}"/><rect x="16" y="${50 + from * small}" width="${natW * small + 8}" height="${height / z * small}" fill="none" stroke="var(--out)" stroke-width="2"/>`
+    + `<svg x="${stripW}" y="0" width="${width - stripW}" height="${height}"><g transform="translate(0,${-from * z})scale(${z})"><use href="#today"/></g></svg>`
+    + `<text class="head" x="12" y="24">GANZ</text></svg>`;
+}
+
+// --- inspector -----------------------------------------------------------------------------------
+const row = (act, data, main, right = "", on = false) =>
+  `<button class="row ${on ? "on" : ""}" data-act="${act}" ${Object.entries(data).map(([k, v]) => `data-${k}="${esc(v)}"`).join(" ")}>${main}<small>${right}</small></button>`;
+const deviceText = (id) => `<span class="mono muted">${esc(device.get(id).ia)}</span><span class="name">${esc(device.get(id).name)}</span>`;
+const gaText = (g) => `<span class="mono">${esc(g.address)}</span><span class="name">${esc(g.name)}</span>`;
+const section = (title, body) => (body ? `<section>${title ? `<h3>${title}</h3>` : ""}${body}</section>` : "");
+const pathButton = () => (state.view === "path" ? '<button data-act="view" data-id="map">In der Übersicht zeigen</button>' : '<button class="primary" data-act="view" data-id="path">Signalweg zeigen</button>');
+
+function partnerRows(partners, act, id) {
+  return [...partners].sort((a, b) => b[1].all.size - a[1].all.size).map(([other, p]) =>
+    row(act, act === "pair" ? {id, other} : {id: other}, deviceText(other),
+      `${p.out.size ? `<span class="o">→ ${p.out.size}</span> ` : ""}${p.in.size ? `<span class="i">← ${p.in.size}</span>` : ""}`)).join("");
+}
+
+function inspector() {
+  const sel = state.sel;
+  if (state.view === "today") {
+    const t = DATA.today;
+    return section("", `<h2>Heutige Links-Ansicht</h2><p>Ganzes Projekt: <b>${Math.round(t.height + 60).toLocaleString("de")} px</b> hoch, <b>${t.edges.length.toLocaleString("de")} Linien</b>.</p><p class="muted">Links das ganze Diagramm, rechts der orange markierte Ausschnitt so, wie er auf einen Bildschirm passt. Jedes Gerät steht doppelt (Sender und Empfänger), fast jede Linie endet außerhalb des Bildes.</p><div class="actions"><button class="primary" data-act="view" data-id="map">Zum Entwurf</button></div>`);
+  }
+  if (!sel) {
+    const linked = GAS.filter((g) => g.members.length > 1);
+    const checks = [
+      ["nosender", "Verknüpft, aber ohne Sender", linked.filter((g) => !g.members.some((m) => m.s))],
+      ["noreceiver", "Verknüpft, aber ohne Empfänger", linked.filter((g) => !g.members.some((m) => m.s && g.members.some((o) => o !== m && o.r)) && g.members.some((m) => m.s))],
+      ["single", "Nur an einem Gerät", GAS.filter((g) => g.members.length === 1)],
+      ["none", "Ohne aktive Verknüpfung", GAS.filter((g) => !g.members.length)],
+    ];
+    const broad = GAS.filter((g) => g.broad).sort((a, b) => b.members.length - a.members.length);
+    return section("", '<h2>Das ganze Projekt</h2><p class="muted">Außen die Räume, in der Mitte die Verteiler. Eine Linie bündelt alle Adressen zwischen einem Raum und einem Gerät im Verteiler. Verbindungen von Raum zu Raum und innerhalb der Verteiler erscheinen bei der Auswahl.</p><p class="muted">Darüberfahren zeigt die Verknüpfungen eines Geräts, Anklicken hält sie fest.</p>')
+      + section(`Sammelsignale · ab ${BROADCAST} Geräten`, broad.map((g) => row("ga", {id: g.id}, gaText(g), g.members.length)).join(""))
+      + section("Auffälligkeiten", checks.map(([id, title, list]) => row("check", {id}, `<span class="name">${title}</span>`, list.length, state.check === id)
+          + (state.check === id ? list.slice(0, 60).map((g) => row("ga", {id: g.id}, gaText(g))).join("") + (list.length > 60 ? `<p class="muted">… und ${list.length - 60} weitere</p>` : "") : "")).join(""));
+  }
+
+  if (sel.kind === "ga") {
+    const g = ga.get(sel.id);
+    const members = (title, index, key) => section(title, g.members.filter((m) => m[key]).map((m) =>
+      row("device", {id: m.d}, deviceText(m.d)) + m.cos.filter((c) => c[index]).map((c) => `<p class="muted" style="padding-left:18px">${DATA.objects[c[0]][0]} · ${esc(DATA.objects[c[0]][1])}</p>`).join("")).join(""));
+    const silent = g.members.length && !g.members.some((m) => m.s);
+    return section("", `<span class="muted">Gruppenadresse · ${esc(DATA.groups[g.main] || "")} · ${esc(DATA.groups[g.middle] || "")}</span><h2>${esc(g.name)}</h2><span class="mono">${esc(g.address)}</span>${silent ? '<p class="note">Niemand sendet auf diese Adresse.</p>' : ""}<div class="actions">${pathButton()}</div>`)
+      + members("Sender", 1, "s") + members("Empfänger", 2, "r");
+  }
+
+  if (sel.kind === "pair") {
+    const both = partnersOf(sel).get(sel.other) || {out: new Set(), in: new Set()};
+    const list = (title, ids) => section(title, [...ids].map((id) => ga.get(id)).sort((a, b) => natural(a.address, b.address)).map((g) => row("ga", {id: g.id}, gaText(g))).join(""));
+    return section("", `<span class="muted">Verbindung</span>${row("device", {id: sel.id}, deviceText(sel.id))}${row("device", {id: sel.other}, deviceText(sel.other))}<div class="actions">${pathButton()}</div>`)
+      + list(`<span class="o">→</span> ${esc(device.get(sel.id).name)} sendet`, both.out)
+      + list(`<span class="i">←</span> ${esc(device.get(sel.other).name)} sendet`, both.in);
+  }
+
+  const partners = partnersOf(sel);
+  if (sel.kind === "box") {
+    const b = allBoxes.find((x) => x.id === sel.id);
+    return section("", `<span class="muted">Ort · ${plural(b.devices.length, "Gerät", "Geräte")}</span><h2>${esc(b.label)}</h2><div class="actions">${pathButton()}</div>`)
+      + section("Geräte", b.devices.map((d) => row("device", {id: d}, deviceText(d))).join(""))
+      + section("Verknüpft nach außen", partnerRows(partners, "device"));
+  }
+
+  const d = device.get(sel.id);
+  const functions = new Map();
+  let broad = [];
+  for (const g of activeGas(true)) {
+    const me = g.members.find((m) => m.d === sel.id);
+    if (!me || g.members.length < 2) continue;
+    if (g.broad) broad.push(g);
+    if (g.broad && !state.broad) continue;
+    for (const [co] of me.cos) bump(functions, functionOf(co), () => new Set()).add(g.id);
+  }
+  broad = state.broad ? [] : broad;
+  let funcs = [...functions];
+  const limit = 10, all = funcs.length;
+  if (all > limit + 2 && !state.allFn) {
+    funcs = funcs.sort((a, b) => b[1].size - a[1].size).filter(([name], i) => i < limit || name === sel.fn);
+  }
+  funcs.sort((a, b) => natural(a[0], b[0]));
+  const more = all > limit + 2 ? `<button class="row muted" data-act="allfn">${state.allFn ? "Weniger zeigen" : `Alle ${all} zeigen`}</button>` : "";
+  const count = new Set([...partners.values()].flatMap((p) => [...p.all])).size;
+  return section("", `<span class="muted"><span class="mono">${esc(d.ia)}</span> · ${esc(boxOf.get(d.id).label)}</span><h2>${esc(d.name)}</h2><p class="muted">${esc(d.product)}</p><p>${plural(partners.size, "verknüpftes Gerät", "verknüpfte Geräte")} über ${addresses(count)}</p><div class="actions">${pathButton()}<button data-act="hide" data-id="${d.id}">Ausblenden</button></div>`)
+    + section("Kanäle und Funktionen", functions.size > 1 ? funcs.map(([name, ids]) => row("fn", {id: name}, `<span class="name">${esc(name)}</span>`, ids.size, sel.fn === name)).join("") + more : "")
+    + section(sel.fn ? `Partner von ${esc(sel.fn)}` : "Partner", partnerRows(partners, "pair", sel.id))
+    + section("Sammelsignale, nicht gezeichnet", broad.map((g) => row("ga", {id: g.id}, gaText(g), g.members.length)).join(""));
+}
+
+// --- frame ---------------------------------------------------------------------------------------
+const VIEWS = [["map", "Übersicht"], ["path", "Signalweg"], ["matrix", "Matrix"], ["today", "Heute"]];
+const DRAW = {map: drawMap, path: drawPath, matrix: drawMatrix, today: drawToday};
+const trades = new Map();
+for (const g of GAS) if (g.members.length > 1) trades.set(g.trade, (trades.get(g.trade) || 0) + 1);
+const tradeNames = [...trades].sort((a, b) => b[1] - a[1]).map((t) => t[0]);
+
+function drawFilters() {
+  const bar = $("#filters"), scroll = bar.scrollLeft;
+  bar.hidden = state.view === "today";
+  const mains = Object.keys(DATA.groups).filter((k) => !k.includes("/")).sort(natural);
+  let s = `<button data-act="back" ${history.length ? "" : "disabled"} title="Zurück (Rücktaste)">← Zurück</button><button data-act="reset" title="Auswahl aufheben (Esc)" ${state.sel ? "" : "disabled"}>Alles zeigen</button>`;
+  s += `<select id="main" aria-label="Hauptgruppe"><option value="">Alle Hauptgruppen</option>${mains.map((k) => `<option value="${k}" ${k === state.main ? "selected" : ""}>${k} ${esc(DATA.groups[k])}</option>`).join("")}</select>`;
+  s += `<button class="chip ${state.broad ? "on" : ""}" data-act="broad" title="Adressen mit mindestens ${BROADCAST} Geräten">+ Sammelsignale</button>`;
+  const folded = allBoxes.every((b) => state.closed.has(b.id));
+  if (state.view === "map") s += `<button data-act="foldall">${folded ? "Alle ausklappen" : "Nur Räume"}</button>`;
+  if (state.hidden.size) s += `<button class="chip on" data-act="unhide">${state.hidden.size} ausgeblendet ×</button>`;
+  if (state.middle) s += `<button class="chip on" data-act="middle" data-id="">${esc(state.middle)}/* ×</button>`;
+  s += '<span class="muted" style="padding-left:8px">Gewerk</span>';
+  s += `<button class="chip ${state.trade ? "" : "on"}" data-act="trade" data-id="">Alle</button>`;
+  s += tradeNames.map((t) => `<button class="chip ${t === state.trade ? "on" : ""}" data-act="trade" data-id="${esc(t)}">${esc(t)}</button>`).join("");
+  bar.innerHTML = s;
+  bar.scrollLeft = scroll;
+}
+
+function drawCanvas() {
+  const el = $("#canvas"), top = el.scrollTop, left = el.scrollLeft;
+  el.innerHTML = DRAW[state.view](el.clientWidth, Math.max(300, el.clientHeight - 1));
+  el.scrollTop = top; el.scrollLeft = left;
+}
+
+function render() {
+  $("#tabs").innerHTML = VIEWS.map(([id, text]) => `<button class="${id === state.view ? "on" : ""}" data-act="view" data-id="${id}">${text}</button>`).join("");
+  drawFilters();
+  $("#legend").innerHTML = state.sel || hovered
+    ? '<span class="key out">Auswahl sendet</span><span class="key in">Auswahl empfängt</span><span class="key">beide Richtungen</span><span>Zahl = gemeinsame Adressen</span>'
+    : '<span class="key">Bündel: je dicker, desto mehr Adressen</span><span class="key out">sendet</span><span class="key in">empfängt</span><span>Esc hebt die Auswahl auf</span>';
+  $("#side").innerHTML = inspector();
+  drawCanvas();
+}
+
+const ACTIONS = {
+  view: (e) => change({view: e.id}),
+  device: (e) => select({kind: "device", id: +e.id}, {view: state.view === "today" ? "map" : state.view}),
+  box: (e) => select({kind: "box", id: +e.id}),
+  pair: (e) => select({kind: "pair", id: +e.id, other: +e.other}),
+  ga: (e) => select({kind: "ga", id: +e.id}),
+  fn: (e) => select({...state.sel, fn: state.sel.fn === e.id ? "" : e.id}),
+  middle: (e) => change({middle: e.id}),
+  trade: (e) => change({trade: e.id}),
+  broad: () => change({broad: !state.broad}),
+  check: (e) => change({check: state.check === e.id ? "" : e.id}, false),
+  hide: (e) => change({hidden: new Set([...state.hidden, +e.id]), sel: null}),
+  unhide: () => change({hidden: new Set()}),
+  reset: () => { if (state.sel) select(null, {view: state.view === "path" ? "map" : state.view}); },
+  fold: (e) => { const closed = new Set(state.closed); if (!closed.delete(+e.id)) closed.add(+e.id); change({closed}); },
+  allfn: () => change({allFn: !state.allFn}, false),
+  foldall: () => change({closed: allBoxes.every((b) => state.closed.has(b.id)) ? new Set() : new Set(allBoxes.map((b) => b.id))}),
+  back: () => { if (history.length) { state = history.pop(); hovered = null; render(); } },
+  theme: () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+  },
+};
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (el) {
+    ACTIONS[el.dataset.act]?.(el.dataset);
+    if (el.closest("#hits")) { $("#q").value = ""; $("#hits").innerHTML = ""; }
+  } else if (e.target.closest("svg[data-bg]") && state.sel) {
+    ACTIONS.reset();
+  }
+  if (!e.target.closest(".find")) $("#hits").innerHTML = "";
+});
+document.addEventListener("change", (e) => { if (e.target.id === "main") change({main: e.target.value}); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { $("#hits").innerHTML = ""; ACTIONS.reset(); }
+  if (e.target.matches("input,select")) return;
+  if (e.key === "Backspace") ACTIONS.back();
+  if (e.key === "Enter" && e.target.matches("svg [data-act]")) ACTIONS[e.target.dataset.act]?.(e.target.dataset);
+});
+
+// Hovering previews only while nothing is chosen, so a selection stays calm.
+$("#canvas").addEventListener("pointermove", (e) => {
+  if (state.view !== "map" || state.sel || e.pointerType !== "mouse") return;
+  const el = e.target.closest?.('[data-act="device"],[data-act="box"]');
+  const next = el ? {kind: el.dataset.act, id: +el.dataset.id} : null;
+  if (next?.kind === hovered?.kind && next?.id === hovered?.id) return;
+  hovered = next;
+  drawCanvas();
+});
+$("#canvas").addEventListener("pointerleave", () => { if (hovered) { hovered = null; drawCanvas(); } });
+
+$("#q").addEventListener("input", (e) => {
+  const words = e.target.value.toLowerCase().split(/\s+/).filter(Boolean);
+  const match = (text) => words.every((w) => text.toLowerCase().includes(w));
+  $("#hits").innerHTML = !words.length ? "" : (
+    allBoxes.filter((b) => match(b.label)).slice(0, 4).map((b) => row("box", {id: b.id}, `<span class="name"><b>${esc(b.label)}</b></span>`, "Ort")).join("")
+    + DATA.devices.filter((d) => match(`${d.ia} ${d.name} ${d.product}`)).slice(0, 10).map((d) => row("device", {id: d.id}, deviceText(d.id), "Gerät")).join("")
+    + GAS.filter((g) => match(`${g.address} ${g.name}`)).slice(0, 14).map((g) => row("ga", {id: g.id}, gaText(g), "GA")).join("")
+  ) || '<p class="muted" style="padding:0 10px">Nichts gefunden</p>';
+});
+
+$("#sum").textContent = `${DATA.title} · ${DATA.devices.length} Geräte · ${GAS.length} Gruppenadressen`;
+render();
+document.fonts.ready.then(() => { fitCache.clear(); drawCanvas(); });
+new ResizeObserver(() => drawCanvas()).observe($("#canvas"));
+})();
+</script>
+</body>
+</html>
