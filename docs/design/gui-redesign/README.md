@@ -1,6 +1,6 @@
 # GUI Redesign Proposal
 
-A UX redesign proposal for the editor GUI, with clickable prototypes and a design system. The texts in the prototypes and the design system are German. A first implementation runs behind `XKNX_REDESIGN=1`.
+A UX redesign proposal for the editor GUI, with clickable prototypes and a design system. The texts in the prototypes and the design system are German. A first implementation runs behind `XKNX_REDESIGN=1`. What a review of it found and the order of the next steps are in [ROADMAP.md](ROADMAP.md).
 
 ## Boards
 
