@@ -2,7 +2,7 @@
 
 A UX proposal for seeing all devices of a project and their links at once, as the successor of the Bus Diagram's Links view.
 
-**Status (2026-11-22):** concept and clickable prototype are done. The implementation is postponed; nothing in the editor has changed. The choices below are the proposal as prototyped.
+**Status (2026-11-22):** concept and clickable prototype are done. The design is **not approved yet** and the implementation is postponed; nothing in the editor has changed. The choices below are the proposal as prototyped.
 
 ## Files
 
@@ -119,6 +119,7 @@ Tested in headless Chrome. Not tested: real touch input, screen readers, project
 
 Read `apps/editor-gui/AGENTS.md` and `apps/editor-gui/docs/architecture.md` first. The paths are below `apps/editor-gui/src/editor_gui/`.
 
+- [ ] **0. Approval:** show the artboards (the prototype's Overview, selection, Signal Path, Matrix and phone layout) and wait for the maintainer's explicit approval. No code before it; a later change of the design needs a new one.
 - [ ] **1. Model:** a pure `build_map` in `plugins/bus_diagram/flow.py` beside `build_flow`, from `project_hubs` and the space tree: places, columns, bundles, partners. Test it without imgui: stable columns, directions, collective signals, devices without a space, projects without boards.
 - [ ] **2. Overview:** a new `plugins/bus_diagram/map_view.py` on the helpers of `canvas.py` (palette, zoom, drag), as the default of the Links mode. Physical and Building stay.
 - [ ] **3. Signal Path:** narrow the existing `LinkView` and `build_flow` to the selection, with folding into middle groups. "Show in Bus Diagram" keeps working.

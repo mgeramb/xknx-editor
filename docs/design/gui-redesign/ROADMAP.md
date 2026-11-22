@@ -46,4 +46,4 @@ Left as they are: the content of the parameters (the device defines it) and the 
 
 ## Designed Separately
 
-- **Device links** (part of stage 4, implementation postponed): an overview of all devices with their links as the successor of the Bus Diagram's Links view; concept, prototype and plan in [`../device-links`](../device-links/README.md).
+- **Device links** (part of stage 4, not approved yet, implementation postponed): an overview of all devices with their links as the successor of the Bus Diagram's Links view; concept, prototype and plan in [`../device-links`](../device-links/README.md).
